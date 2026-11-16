@@ -61,10 +61,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build Electron installer
-        shell: pwsh
-        run: |
-          npm run build:pc *>&1 | Tee-Object -FilePath windows-build.log
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+        run: npm run build:pc
 
       - name: Upload installer to release
         shell: pwsh
@@ -76,17 +73,6 @@ jobs:
           Get-ChildItem release -File |
             Where-Object { $_.Extension -in '.exe', '.blockmap' -or $_.Name -eq 'latest.yml' } |
             ForEach-Object { gh release upload $tag $_.FullName --clobber }
-
-      - name: Publish Windows build log
-        if: failure()
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B "ci-log-${{ github.run_id }}-windows"
-          git add -f windows-build.log || true
-          git commit -m "ci: windows build log" || true
-          git push origin "HEAD:ci-log-${{ github.run_id }}-windows" || true
 
   android:
     name: Android APK
@@ -139,10 +125,7 @@ jobs:
         run: gradle -v
 
       - name: Build debug APK
-        shell: bash
-        run: |
-          set -o pipefail
-          gradle -p android-webview assembleDebug --no-daemon 2>&1 | tee android-build.log
+        run: gradle -p android-webview assembleDebug --no-daemon
 
       - name: Upload APK to release
         env:
@@ -154,14 +137,3 @@ jobs:
           apk="yejian-v${version}-android-debug.apk"
           cp android-webview/app/build/outputs/apk/debug/app-debug.apk "$apk"
           gh release upload "$tag" "$apk" --clobber
-
-      - name: Publish Android build log
-        if: failure()
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B "ci-log-${{ github.run_id }}-android"
-          git add -f android-build.log || true
-          git commit -m "ci: android build log" || true
-          git push origin "HEAD:ci-log-${{ github.run_id }}-android" || true

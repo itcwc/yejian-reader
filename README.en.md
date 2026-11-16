@@ -66,7 +66,7 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 
 Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
 
-- **Windows**: `页间阅读 Setup 0.1.0.exe` (NSIS installer)
+- **Windows**: `Setup.0.1.0.exe` (NSIS installer; the installed app is named 页间阅读)
 - **Android**: `yejian-v0.1.0-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
 
 The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
