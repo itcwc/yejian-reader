@@ -61,7 +61,10 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build Electron installer
-        run: npm run build:pc
+        shell: pwsh
+        run: |
+          npm run build:pc *>&1 | Tee-Object -FilePath windows-build.log
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Upload installer to release
         shell: pwsh
@@ -73,6 +76,17 @@ jobs:
           Get-ChildItem release -File |
             Where-Object { $_.Extension -in '.exe', '.blockmap' -or $_.Name -eq 'latest.yml' } |
             ForEach-Object { gh release upload $tag $_.FullName --clobber }
+
+      - name: Publish Windows build log
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "ci-log-${{ github.run_id }}-windows"
+          git add -f windows-build.log || true
+          git commit -m "ci: windows build log" || true
+          git push origin "HEAD:ci-log-${{ github.run_id }}-windows" || true
 
   android:
     name: Android APK
@@ -94,14 +108,14 @@ jobs:
       - name: Build web assets
         run: npm run build:android
 
-      - name: Ensure Android SDK
-        run: |
-          set -euo pipefail
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          if [ -x "$SDKMANAGER" ]; then
-            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
-            "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" >/dev/null
-          fi
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Point Gradle at SDK
+        run: echo "sdk.dir=$ANDROID_HOME" > android-webview/local.properties
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -109,7 +123,10 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK
-        run: gradle -p android-webview assembleDebug --no-daemon
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle -p android-webview assembleDebug --no-daemon 2>&1 | tee android-build.log
 
       - name: Upload APK to release
         env:
@@ -121,3 +138,14 @@ jobs:
           apk="yejian-v${version}-android-debug.apk"
           cp android-webview/app/build/outputs/apk/debug/app-debug.apk "$apk"
           gh release upload "$tag" "$apk" --clobber
+
+      - name: Publish Android build log
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "ci-log-${{ github.run_id }}-android"
+          git add -f android-build.log || true
+          git commit -m "ci: android build log" || true
+          git push origin "HEAD:ci-log-${{ github.run_id }}-android" || true
