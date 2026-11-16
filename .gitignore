@@ -3,6 +3,11 @@ dist
 release
 android-uniapp/hybrid/html
 android-uniapp/unpackage
+android-webview/app/src/main/assets/hybrid
+android-webview/.gradle
+android-webview/build
+android-webview/app/build
+android-webview/local.properties
 *.log
 .DS_Store
 .env

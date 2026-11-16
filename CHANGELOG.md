@@ -20,6 +20,7 @@
 - 开发/预览服务器内置 `/__dav` 同源代理，绕过浏览器 CORS 限制。
 - 书架搜索、筛选、排序、拖拽导入、导入报告与格式矩阵说明。
 - README 中英文版本与桌面、移动端界面截图。
+- GitHub Actions 自动创建 Release，并构建上传 Windows 安装包与 Android APK。
 
 ### Fixed
 

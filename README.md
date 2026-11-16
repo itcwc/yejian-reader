@@ -62,6 +62,15 @@
 
 > 转换工具推荐：Calibre（MOBI/AZW3/CHM）、7-Zip（CBR/CB7/CHM）、DjVuLibre、CAJViewer、WPS / Office。页间不内置转换器，也不上传你的文件。
 
+## 下载安装
+
+在 [Releases](https://github.com/itcwc/yejian-reader/releases) 获取：
+
+- **Windows**：`页间阅读 Setup 0.1.0.exe`（NSIS 安装包）
+- **Android**：`yejian-v0.1.0-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
+
+APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；需要自定义包名、签名或上架应用商店时，用 HBuilderX 导入 `android-uniapp` 自行打包。
+
 ## 快速开始
 
 要求 Node.js 18+。
@@ -85,13 +94,15 @@ npm run build:pc     # 打包安装程序到 release/
 
 若 Electron 二进制未下载成功，先执行 `npm rebuild electron`。
 
-### Android（uni-app）
+### Android
 
 ```bash
-npm run build:android   # 构建并把 Web 产物复制到 android-uniapp/hybrid/html
+npm run build:android   # 构建并复制 Web 产物到 android-uniapp 与 android-webview
 ```
 
-用 HBuilderX 导入 `android-uniapp` 目录，配置自己的应用名称、包名与签名后打包。应用内通过 `web-view` 加载本地 `hybrid/html/index.html`，阅读与离线书库均在本地运行。
+- **直接安装**：从 Releases 下载 CI 构建的 debug APK。
+- **自行打包**：用 HBuilderX 导入 `android-uniapp`，配置应用名称、包名与签名后打包；应用内通过 `web-view` 加载本地 `hybrid/html/index.html`。
+- **CI 构建 APK**：`android-webview` 是原生 WebView 壳，由 `.github/workflows/release.yml` 使用 Android SDK 构建并上传 Release。
 
 ## 配置 WebDAV 同步
 
@@ -138,8 +149,9 @@ src/
   stores/        # Pinia：书架、偏好、同步、提示
   styles/        # 三主题设计变量与基础样式
 electron/        # 桌面主进程与 preload
-android-uniapp/  # uni-app 壳（web-view 加载 hybrid 产物）
-scripts/         # 构建产物同步到 Android hybrid
+android-uniapp/  # uni-app 壳（HBuilderX 打包，web-view 加载 hybrid 产物）
+android-webview/ # 原生 WebView 壳，CI 用于直接产出 APK
+scripts/         # 构建产物同步到 Android hybrid 目录
 ```
 
 数据层使用 IndexedDB（`yejian`）：`books`、`files`、`covers`、`progress` 四个 store。书籍指纹取文件前 1MB 的 SHA-256 与文件大小，跨设备稳定，用于避免重复导入与对齐云端文件。

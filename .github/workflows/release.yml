@@ -11,10 +11,16 @@ permissions:
 
 jobs:
   release:
+    name: Create release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Create GitHub release if missing
         env:
@@ -23,13 +29,95 @@ jobs:
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
           tag="v${version}"
+          notes=".github/release-notes/${tag}.md"
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release ${tag} already exists, nothing to do."
+            echo "Release ${tag} already exists."
+            if [ -f "$notes" ]; then
+              gh release edit "$tag" --notes-file "$notes"
+            fi
             exit 0
           fi
-          notes=".github/release-notes/${tag}.md"
           if [ -f "$notes" ]; then
-            gh release create "$tag" --title "页间 ${tag}" --notes-file "$notes" --latest --verify-tag
+            gh release create "$tag" --title "页间 ${tag}" --notes-file "$notes" --latest
           else
-            gh release create "$tag" --title "页间 ${tag}" --generate-notes --latest --verify-tag
+            gh release create "$tag" --title "页间 ${tag}" --generate-notes --latest
           fi
+
+  windows:
+    name: Windows installer
+    needs: release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build Electron installer
+        run: npm run build:pc
+
+      - name: Upload installer to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = node -p "require('./package.json').version"
+          $tag = "v$version"
+          Get-ChildItem release -File |
+            Where-Object { $_.Extension -in '.exe', '.blockmap' -or $_.Name -eq 'latest.yml' } |
+            ForEach-Object { gh release upload $tag $_.FullName --clobber }
+
+  android:
+    name: Android APK
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build web assets
+        run: npm run build:android
+
+      - name: Ensure Android SDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ -x "$SDKMANAGER" ]; then
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" >/dev/null
+          fi
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build debug APK
+        run: gradle -p android-webview assembleDebug --no-daemon
+
+      - name: Upload APK to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          tag="v${version}"
+          apk="yejian-v${version}-android-debug.apk"
+          cp android-webview/app/build/outputs/apk/debug/app-debug.apk "$apk"
+          gh release upload "$tag" "$apk" --clobber

@@ -62,6 +62,15 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 
 > Suggested converters: Calibre (MOBI/AZW3/CHM), 7-Zip (CBR/CB7/CHM), DjVuLibre, CAJViewer, WPS/Office. Yejian does not bundle converters and never uploads your files.
 
+## Download
+
+Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
+
+- **Windows**: `页间阅读 Setup 0.1.0.exe` (NSIS installer)
+- **Android**: `yejian-v0.1.0-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
+
+The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
+
 ## Getting started
 
 Requires Node.js 18+.
@@ -85,13 +94,15 @@ npm run build:pc     # package the installer into release/
 
 If the Electron binary was skipped during install, run `npm rebuild electron`.
 
-### Android (uni-app)
+### Android
 
 ```bash
-npm run build:android   # build and copy assets into android-uniapp/hybrid/html
+npm run build:android   # build and copy assets into both Android shells
 ```
 
-Import `android-uniapp` in HBuilderX, set your app name, package id and signing, then build. The app loads `hybrid/html/index.html` in a local `web-view`; reading and the offline library run entirely on-device.
+- **Install directly**: download the CI-built debug APK from Releases.
+- **Build your own**: import `android-uniapp` in HBuilderX, set your app name, package id and signing, then build.
+- **CI APK**: `android-webview` is a native WebView shell that `.github/workflows/release.yml` builds with the Android SDK and uploads to the release.
 
 ## WebDAV setup
 
@@ -138,8 +149,9 @@ src/
   stores/        # Pinia: library, preferences, sync, toasts
   styles/        # theme tokens and base styles
 electron/        # desktop main process and preload
-android-uniapp/  # uni-app shell loading the hybrid build
-scripts/         # copy build output into the Android hybrid folder
+android-uniapp/  # uni-app shell for HBuilderX builds
+android-webview/ # native WebView shell used by CI to produce the APK
+scripts/         # copy build output into the Android hybrid folders
 ```
 
 Data lives in IndexedDB (`yejian`) with `books`, `files`, `covers` and `progress` stores. A book fingerprint is the SHA-256 of its first 1 MB plus file size, stable across devices, used to deduplicate imports and match remote files.
