@@ -11,7 +11,32 @@
 
 > 本地优先的跨设备阅读器。书架、书籍与阅读进度都留在你自己的设备与 WebDAV 空间里，没有账号体系，没有中间服务器。
 
-页间是一个覆盖 **Web / Windows / Android** 的阅读应用：浏览器里即开即读，桌面端用 Electron 打包，移动端用 uni-app 承载同一套阅读内核。所有解析都在本地完成，联网只发生在你主动配置的 WebDAV 同步。
+页间覆盖 **Web / Windows / Android**：浏览器里即开即读，桌面端用 Electron 打包，移动端用 uni-app 承载同一套阅读内核。所有解析都在本地完成，联网只发生在你主动配置的 WebDAV 同步。
+
+## 界面预览
+
+### 桌面
+
+<p align="center">
+  <img src="docs/screenshots/library.png" width="49%" alt="书架">
+  <img src="docs/screenshots/reader-paper.png" width="49%" alt="白纸主题阅读器">
+</p>
+<p align="center">
+  <img src="docs/screenshots/reader-night.png" width="49%" alt="夜读主题与排版设置">
+  <img src="docs/screenshots/sync.png" width="49%" alt="WebDAV 同步">
+</p>
+<p align="center">
+  <img src="docs/screenshots/settings.png" width="72%" alt="设置与主题">
+</p>
+
+### 移动端
+
+<p align="center">
+  <img src="docs/screenshots/mobile-library.png" width="26%" alt="移动端书架">
+  <img src="docs/screenshots/mobile-guide.png" width="26%" alt="点击区域引导">
+</p>
+
+> 截图使用演示书籍与占位账号，未包含真实书籍或凭据。
 
 ## 特性
 

@@ -280,9 +280,9 @@ onBeforeUnmount(() => {
         </p>
         <div class="hero-progress">
           <div class="progress-track">
-            <span :style="{ width: `${heroProgress}%` }"></span>
+            <span :style="{ width: `${heroPercent}%` }"></span>
           </div>
-          <span class="hero-pct">{{ heroProgress }}%</span>
+          <span class="hero-pct">{{ heroPercent }}%</span>
         </div>
       </div>
       <button class="hero-cta" type="button" aria-label="继续阅读">

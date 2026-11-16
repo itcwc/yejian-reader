@@ -11,7 +11,32 @@
 
 > A local-first, cross-device reader. Your library, books and reading progress stay on your devices and your own WebDAV space — no accounts, no middle server.
 
-Yejian runs as a web app, a Windows desktop app (Electron) and an Android app (uni-app) on the same reading engine. All parsing happens locally; the only network access is the WebDAV sync you configure yourself.
+Yejian runs on **Web / Windows / Android**: open it in a browser, package it with Electron, or ship the same reading core through a uni-app Android shell. All parsing is local; network access only happens through the WebDAV sync you configure.
+
+## Screenshots
+
+### Desktop
+
+<p align="center">
+  <img src="docs/screenshots/library.png" width="49%" alt="Library">
+  <img src="docs/screenshots/reader-paper.png" width="49%" alt="Paper theme reader">
+</p>
+<p align="center">
+  <img src="docs/screenshots/reader-night.png" width="49%" alt="Night theme and typography settings">
+  <img src="docs/screenshots/sync.png" width="49%" alt="WebDAV sync">
+</p>
+<p align="center">
+  <img src="docs/screenshots/settings.png" width="72%" alt="Settings and themes">
+</p>
+
+### Mobile
+
+<p align="center">
+  <img src="docs/screenshots/mobile-library.png" width="26%" alt="Mobile library">
+  <img src="docs/screenshots/mobile-guide.png" width="26%" alt="Tap-zone guide">
+</p>
+
+> Screenshots use demo books and placeholder credentials; no real books or secrets are included.
 
 ## Features
 
