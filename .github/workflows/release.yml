@@ -108,19 +108,29 @@ jobs:
       - name: Build web assets
         run: npm run build:android
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
-        run: sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-
-      - name: Point Gradle at SDK
-        run: echo "sdk.dir=$ANDROID_HOME" > android-webview/local.properties
+      - name: Ensure Android SDK
+        run: |
+          set -euo pipefail
+          java -version
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager || true)"
+          fi
+          echo "sdkmanager: ${SDKMANAGER:-missing}"
+          echo "ANDROID_HOME: ${ANDROID_HOME:-missing}"
+          if [ -n "${SDKMANAGER:-}" ] && [ -x "$SDKMANAGER" ]; then
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          fi
+          echo "sdk.dir=$ANDROID_HOME" > android-webview/local.properties
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.7'
+
+      - name: Show Gradle version
+        run: gradle -v
 
       - name: Build debug APK
         shell: bash
