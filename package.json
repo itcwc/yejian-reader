@@ -59,5 +59,13 @@
     "uniapp"
   ],
   "author": "itcwc",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itcwc/yejian-reader.git"
+  },
+  "homepage": "https://github.com/itcwc/yejian-reader#readme",
+  "bugs": {
+    "url": "https://github.com/itcwc/yejian-reader/issues"
+  }
 }
