@@ -1,0 +1,141 @@
+/* ============================================================
+   页间 · 设计令牌
+   三种主题：白纸 / 夜读 / 护眼
+   ============================================================ */
+
+:root {
+  --font-ui: "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Source Han Sans SC",
+    "Microsoft YaHei", sans-serif;
+  --font-serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "STSong",
+    "SimSun", serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Palatino", "Songti SC",
+    "Noto Serif CJK SC", serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
+  --radius-pill: 999px;
+
+  --rail-width: 82px;
+  --page-pad: clamp(20px, 4vw, 56px);
+  --content-max: 1220px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --z-rail: 40;
+  --z-overlay: 80;
+  --z-modal: 100;
+  --z-toast: 120;
+}
+
+/* ---------------- 白纸 ---------------- */
+html[data-theme="paper"] {
+  color-scheme: light;
+  --bg: #f2efe6;
+  --bg-deep: #e9e4d7;
+  --surface: #fbf9f2;
+  --surface-raised: #fffdf7;
+  --surface-soft: #f0ece1;
+  --surface-hover: #f6f2e8;
+  --ink: #20241f;
+  --ink-soft: #495046;
+  --ink-muted: #7d8378;
+  --ink-faint: #a3a89d;
+  --line: #e0daca;
+  --line-strong: #cec6b2;
+  --accent: #3a6252;
+  --accent-strong: #2c5041;
+  --accent-ink: #f8f6ec;
+  --accent-soft: #e3ece2;
+  --accent-line: #bdd0bf;
+  --danger: #a54433;
+  --danger-soft: #f5e5df;
+  --shadow-sm: 0 1px 2px rgba(48, 45, 35, 0.05), 0 4px 14px rgba(48, 45, 35, 0.05);
+  --shadow-md: 0 2px 4px rgba(48, 45, 35, 0.04), 0 14px 34px rgba(48, 45, 35, 0.09);
+  --shadow-lg: 0 24px 70px rgba(38, 36, 28, 0.18);
+  --scrim: rgba(30, 33, 27, 0.42);
+  --grain-opacity: 0.5;
+  --reader-bg: #f7f4ea;
+  --reader-ink: #24281f;
+  --reader-muted: #82887b;
+  --reader-line: #ded7c5;
+  --reader-accent: #3a6252;
+  --reader-surface: rgba(247, 244, 234, 0.92);
+  --cover-ink: #f7f3e7;
+}
+
+/* ---------------- 夜读 ---------------- */
+html[data-theme="night"] {
+  color-scheme: dark;
+  --bg: #101311;
+  --bg-deep: #0a0c0a;
+  --surface: #171b18;
+  --surface-raised: #1d211d;
+  --surface-soft: #141815;
+  --surface-hover: #1c211d;
+  --ink: #e9e6db;
+  --ink-soft: #c2c6b9;
+  --ink-muted: #8a9186;
+  --ink-faint: #666d62;
+  --line: #282e29;
+  --line-strong: #394139;
+  --accent: #9bc8ad;
+  --accent-strong: #b6dcc5;
+  --accent-ink: #12241b;
+  --accent-soft: #1e2c24;
+  --accent-line: #35493c;
+  --danger: #e08970;
+  --danger-soft: #2e1e19;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.32), 0 18px 44px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 28px 80px rgba(0, 0, 0, 0.62);
+  --scrim: rgba(0, 0, 0, 0.62);
+  --grain-opacity: 0.22;
+  --reader-bg: #121612;
+  --reader-ink: #dcd9cd;
+  --reader-muted: #7f877c;
+  --reader-line: #2a302b;
+  --reader-accent: #9bc8ad;
+  --reader-surface: rgba(18, 22, 18, 0.92);
+  --cover-ink: #eee9dc;
+}
+
+/* ---------------- 护眼绿 ---------------- */
+html[data-theme="green"] {
+  color-scheme: light;
+  --bg: #dbe8d4;
+  --bg-deep: #cfdfc7;
+  --surface: #e8f1e1;
+  --surface-raised: #eef6e8;
+  --surface-soft: #dcead4;
+  --surface-hover: #e3efdb;
+  --ink: #1d2a1c;
+  --ink-soft: #44523d;
+  --ink-muted: #6d7c64;
+  --ink-faint: #93a188;
+  --line: #c4d7bc;
+  --line-strong: #adc5a4;
+  --accent: #3f6a4b;
+  --accent-strong: #31573c;
+  --accent-ink: #f3f8ee;
+  --accent-soft: #cedeC6;
+  --accent-line: #aecaa4;
+  --danger: #974631;
+  --danger-soft: #f0e2d8;
+  --shadow-sm: 0 1px 2px rgba(35, 54, 30, 0.06), 0 4px 14px rgba(35, 54, 30, 0.06);
+  --shadow-md: 0 2px 4px rgba(35, 54, 30, 0.05), 0 14px 34px rgba(35, 54, 30, 0.1);
+  --shadow-lg: 0 24px 70px rgba(28, 45, 24, 0.2);
+  --scrim: rgba(28, 42, 24, 0.4);
+  --grain-opacity: 0.4;
+  --reader-bg: #e3eedb;
+  --reader-ink: #23301f;
+  --reader-muted: #6f7d66;
+  --reader-line: #c8d9bf;
+  --reader-accent: #3f6a4b;
+  --reader-surface: rgba(227, 238, 219, 0.92);
+  --cover-ink: #f3f8ee;
+}

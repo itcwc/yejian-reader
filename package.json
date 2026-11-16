@@ -1,0 +1,63 @@
+{
+  "name": "yejian-reader",
+  "version": "0.1.0",
+  "private": true,
+  "description": "页间 · 跨设备阅读器（Web / PC / Android）",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "pc": "vite build && electron .",
+    "build:pc": "vite build && electron-builder --win --x64",
+    "build:android": "vite build && node scripts/sync-hybrid.mjs"
+  },
+  "dependencies": {
+    "epubjs": "^0.3.93",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.9.1",
+    "marked": "^15.0.7",
+    "pdfjs-dist": "^4.10.38",
+    "pinia": "^3.0.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "electron": "^34.3.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  },
+  "build": {
+    "appId": "com.yejian.reader",
+    "productName": "页间阅读",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "keywords": [
+    "reader",
+    "ebook",
+    "epub",
+    "pdf",
+    "webdav",
+    "vue",
+    "electron",
+    "uniapp"
+  ],
+  "author": "itcwc",
+  "license": "MIT"
+}

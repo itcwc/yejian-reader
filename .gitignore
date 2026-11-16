@@ -1,0 +1,12 @@
+node_modules
+dist
+release
+android-uniapp/hybrid/html
+android-uniapp/unpackage
+*.log
+.DS_Store
+.env
+.env.*
+*.local
+.screenshots
+.trae-html-share-packages
