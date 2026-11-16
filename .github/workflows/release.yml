@@ -108,6 +108,12 @@ jobs:
       - name: Build web assets
         run: npm run build:android
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Ensure Android SDK
         run: |
           set -euo pipefail
