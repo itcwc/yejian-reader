@@ -62,6 +62,34 @@ const pageLabel = computed(() => {
   return `${Math.round(current.value.percent)}%`
 })
 
+const clockText = ref('')
+const batteryPercent = ref<number | null>(null)
+const showBattery = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+let clockTimer = 0
+
+function updateClock() {
+  const now = new Date()
+  clockText.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
+function bindBattery() {
+  const nav = navigator as Navigator & {
+    getBattery?: () => Promise<{ level: number; addEventListener: (type: string, cb: () => void) => void }>
+  }
+  nav
+    .getBattery?.()
+    .then((battery) => {
+      const sync = () => {
+        batteryPercent.value = Math.round(battery.level * 100)
+      }
+      sync()
+      battery.addEventListener('levelchange', sync)
+    })
+    .catch(() => {
+      /* 不支持电量 API 时只显示时间 */
+    })
+}
+
 const themeOptions = (Object.keys(THEME_META) as ThemeId[]).map((id) => ({
   id,
   ...THEME_META[id],
@@ -289,6 +317,9 @@ function onPageHide() {
 
 onMounted(async () => {
   await loadBook()
+  updateClock()
+  if (showBattery) bindBattery()
+  clockTimer = window.setInterval(updateClock, 15000)
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('pagehide', onPageHide)
 })
@@ -296,6 +327,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (saveTimer) window.clearTimeout(saveTimer)
   if (guideTimer) window.clearTimeout(guideTimer)
+  if (clockTimer) window.clearInterval(clockTimer)
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('pagehide', onPageHide)
   document.title = '页间 · 跨设备阅读'
@@ -460,6 +492,16 @@ onBeforeUnmount(() => {
       </footer>
     </Transition>
 
+    <div class="reader-statusbar" :class="{ 'is-raised': barsVisible }" aria-hidden="true">
+      <span class="status-time">{{ clockText }}</span>
+      <span v-if="showBattery && batteryPercent !== null" class="status-battery">
+        <span class="battery-shell">
+          <span class="battery-fill" :style="{ width: `${batteryPercent}%` }"></span>
+        </span>
+        <span>{{ batteryPercent }}%</span>
+      </span>
+    </div>
+
     <Transition name="fade">
       <div v-if="tocOpen || settingsOpen" class="reader-scrim" @click="closePanels"></div>
     </Transition>
@@ -599,6 +641,20 @@ onBeforeUnmount(() => {
           </div>
 
           <template v-if="supportFontSettings">
+            <div class="setting-preview">
+              <p
+                class="preview-text"
+                :style="{
+                  fontFamily: preferences.prefs.fontKind === 'serif' ? 'var(--font-serif)' : 'var(--font-ui)',
+                  fontSize: `${preferences.prefs.fontSize}px`,
+                  lineHeight: preferences.prefs.lineHeight,
+                }"
+              >
+                行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。
+              </p>
+              <span class="preview-caption">实时预览</span>
+            </div>
+
             <div class="setting-row">
               <span class="setting-label">字体</span>
               <div class="segmented">
@@ -642,6 +698,14 @@ onBeforeUnmount(() => {
             <div class="setting-row">
               <span class="setting-label">行距</span>
               <div class="range-control">
+                <button
+                  class="range-step"
+                  type="button"
+                  aria-label="减小行距"
+                  @click="preferences.prefs.lineHeight = Number(Math.max(1.5, preferences.prefs.lineHeight - 0.05).toFixed(2))"
+                >
+                  −
+                </button>
                 <input
                   v-model.number="preferences.prefs.lineHeight"
                   type="range"
@@ -649,6 +713,14 @@ onBeforeUnmount(() => {
                   max="2.6"
                   step="0.05"
                 />
+                <button
+                  class="range-step"
+                  type="button"
+                  aria-label="增大行距"
+                  @click="preferences.prefs.lineHeight = Number(Math.min(2.6, preferences.prefs.lineHeight + 0.05).toFixed(2))"
+                >
+                  +
+                </button>
                 <span class="range-value">{{ preferences.prefs.lineHeight.toFixed(2) }}</span>
               </div>
             </div>
@@ -787,6 +859,67 @@ onBeforeUnmount(() => {
 
 .reader-bottom .icon-btn:hover {
   background: color-mix(in srgb, var(--reader-ink) 8%, transparent);
+}
+
+.reader-statusbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(6px, env(safe-area-inset-bottom));
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(14px, 3vw, 30px);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--reader-muted);
+  pointer-events: none;
+  transition: bottom 0.28s var(--ease-out);
+}
+
+.reader-statusbar.is-raised {
+  bottom: calc(max(10px, env(safe-area-inset-bottom)) + 48px);
+}
+
+.status-time {
+  letter-spacing: 0.02em;
+}
+
+.status-battery {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.battery-shell {
+  position: relative;
+  width: 17px;
+  height: 9px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+}
+
+.battery-shell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -3px;
+  width: 2px;
+  height: 4px;
+  border-radius: 0 1px 1px 0;
+  background: currentColor;
+  transform: translateY(-50%);
+}
+
+.battery-fill {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 1px;
+  max-width: calc(100% - 2px);
+  border-radius: 1px;
+  background: currentColor;
 }
 
 .progress-range {
@@ -1114,13 +1247,16 @@ onBeforeUnmount(() => {
 .range-control {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   flex: 1;
+  min-width: 0;
   max-width: 320px;
 }
 
 .range-control input[type="range"] {
-  flex: 1;
+  flex: 1 1 56px;
+  min-width: 40px;
   appearance: none;
   -webkit-appearance: none;
   height: 3px;
@@ -1141,6 +1277,7 @@ onBeforeUnmount(() => {
 }
 
 .range-step {
+  flex: 0 0 auto;
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--ink-muted);
@@ -1155,11 +1292,37 @@ onBeforeUnmount(() => {
 }
 
 .range-value {
+  flex: 0 0 auto;
   font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--ink-muted);
   min-width: 30px;
   text-align: right;
+}
+
+.setting-preview {
+  position: relative;
+  margin-bottom: 14px;
+  padding: 14px 16px 18px;
+  border: 1px solid var(--reader-line);
+  border-radius: var(--radius-sm);
+  background: var(--reader-bg);
+}
+
+.preview-text {
+  margin: 0;
+  color: var(--reader-ink);
+  word-break: break-word;
+}
+
+.preview-caption {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--reader-muted);
 }
 
 .reader-state {
@@ -1323,6 +1486,15 @@ onBeforeUnmount(() => {
     width: calc(100% - 20px);
     padding: 7px 10px;
     gap: 6px;
+  }
+
+  .reader-statusbar {
+    font-size: 9px;
+  }
+
+  .battery-shell {
+    width: 14px;
+    height: 8px;
   }
 
   .page-label {
