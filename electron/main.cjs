@@ -44,8 +44,9 @@ function davRequest({ method, url, headers, bodyBase64 }) {
     }
 
     const body = bodyBase64 ? Buffer.from(bodyBase64, 'base64') : null
+    const CERT_ERROR = /self[- ]signed|certificate|CERT_|UNABLE_TO_VERIFY|DEPTH_ZERO|ERR_TLS/i
 
-    const send = (target, redirects) => {
+    const send = (target, redirects, insecure = false) => {
       let parsed
       try {
         parsed = new URL(target)
@@ -67,12 +68,13 @@ function davRequest({ method, url, headers, bodyBase64 }) {
           method,
           headers: plainHeaders,
           timeout: 30000,
+          ...(parsed.protocol === 'https:' ? { rejectUnauthorized: !insecure } : {}),
         },
         (response) => {
           const location = response.headers.location
           if (location && [301, 302, 303, 307, 308].includes(response.statusCode) && redirects > 0) {
             response.resume()
-            send(new URL(location, target).toString(), redirects - 1)
+            send(new URL(location, target).toString(), redirects - 1, insecure)
             return
           }
 
@@ -95,7 +97,18 @@ function davRequest({ method, url, headers, bodyBase64 }) {
       )
 
       request.on('timeout', () => request.destroy(new Error('连接服务器超时')))
-      request.on('error', (error) => fail(error?.message || '网络请求失败'))
+      request.on('error', (error) => {
+        const message = error?.message || '网络请求失败'
+        if (!insecure && CERT_ERROR.test(message)) {
+          send(target, 5, true)
+          return
+        }
+        if (insecure && CERT_ERROR.test(message)) {
+          fail('服务器证书校验失败，且放宽校验后仍无法连接，请检查证书与域名是否匹配')
+          return
+        }
+        fail(message)
+      })
       if (body) request.write(body)
       request.end()
     }

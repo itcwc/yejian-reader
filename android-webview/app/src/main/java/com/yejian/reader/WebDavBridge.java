@@ -12,6 +12,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -38,6 +46,35 @@ public class WebDavBridge {
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .build();
+    /** 自签名证书场景的兜底客户端，仅在证书校验失败时重试一次。 */
+    private final OkHttpClient insecureClient = buildInsecureClient();
+
+    private OkHttpClient buildInsecureClient() {
+        try {
+            X509TrustManager manager = new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            };
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[]{manager}, new SecureRandom());
+            return client.newBuilder()
+                    .sslSocketFactory(context.getSocketFactory(), manager)
+                    .hostnameVerifier((hostname, session) -> true)
+                    .build();
+        } catch (Exception error) {
+            return client;
+        }
+    }
 
     WebDavBridge(WebView webView) {
         this.webView = webView;
@@ -48,9 +85,17 @@ public class WebDavBridge {
         executor.execute(() -> {
             String payload;
             try {
-                payload = execute(method, url, headersJson, bodyBase64);
+                payload = execute(client, method, url, headersJson, bodyBase64);
             } catch (Exception error) {
-                payload = failure(error.getMessage());
+                if (isCertificateError(error)) {
+                    try {
+                        payload = execute(insecureClient, method, url, headersJson, bodyBase64);
+                    } catch (Exception retryError) {
+                        payload = failure(retryError.getMessage());
+                    }
+                } else {
+                    payload = failure(error.getMessage());
+                }
             }
             final String json = payload;
             webView.post(() -> webView.evaluateJavascript(
@@ -59,7 +104,20 @@ public class WebDavBridge {
         });
     }
 
-    private String execute(String method, String url, String headersJson, String bodyBase64) throws Exception {
+    private boolean isCertificateError(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof SSLException) return true;
+            String message = current.getMessage();
+            if (message != null && message.matches("(?i).*(certificate|trust anchor|self signed|hostname).*")) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    private String execute(OkHttpClient httpClient, String method, String url, String headersJson, String bodyBase64) throws Exception {
         RequestBody body = null;
         if (bodyBase64 != null && !bodyBase64.isEmpty()) {
             final byte[] bytes = Base64.decode(bodyBase64, Base64.DEFAULT);
@@ -86,7 +144,7 @@ public class WebDavBridge {
             }
         }
 
-        try (Response response = client.newCall(builder.build()).execute()) {
+        try (Response response = httpClient.newCall(builder.build()).execute()) {
             ResponseBody responseBody = response.body();
             String encoded = responseBody == null
                     ? ""

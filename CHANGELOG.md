@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.4] - 2026-11-17
+
+### Fixed
+
+- 自建 WebDAV 使用自签名证书时同步失败：桌面端与安卓端在证书校验失败后自动放宽校验重试一次，不再报 `self signed certificate`。
+
 ## [0.1.3] - 2026-11-17
 
 ### Added
@@ -78,9 +84,10 @@
 ### Known limitations
 
 - 需要转换的格式不内置转换器；CAJ 需先用 CAJViewer 导出 PDF。
-- 纯静态部署与 Android WebView 需 WebDAV 服务端配置 CORS 或反向代理。
+- 纯静态网页部署需 WebDAV 服务端配置 CORS 或反向代理；桌面端与安卓应用使用原生请求，不受此限制。
 - 不支持带 DRM 的 EPUB/PDF。
 
+[0.1.4]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.4
 [0.1.3]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.3
 [0.1.2]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.2
 [0.1.1]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.1
