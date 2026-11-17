@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.11] - 2026-11-17
+
+### Added
+
+- 设置页「版本更新」支持主动检查：桌面端走应用内更新通道，网页版直接查询 GitHub Releases 最新版本并提示是否可升级。
+
 ## [0.1.10] - 2026-11-17
 
 ### Added
@@ -133,6 +139,7 @@
 - 纯静态网页部署需 WebDAV 服务端配置 CORS 或反向代理；桌面端与安卓应用使用原生请求，不受此限制。
 - 不支持带 DRM 的 EPUB/PDF。
 
+[0.1.11]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.11
 [0.1.10]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.10
 [0.1.9]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.9
 [0.1.8]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.8

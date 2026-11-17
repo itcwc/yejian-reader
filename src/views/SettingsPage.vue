@@ -22,6 +22,9 @@ const checkingUpdate = ref(false)
 const updateMessage = ref('')
 let unsubscribeUpdate: (() => void) | undefined
 
+const RELEASES_URL = 'https://github.com/itcwc/yejian-reader/releases'
+const LATEST_RELEASE_API = 'https://api.github.com/repos/itcwc/yejian-reader/releases/latest'
+
 const updateHint = computed(() => {
   if (updates) {
     return '启动时会自动检查 GitHub Releases，发现新版本后右下角提示下载，重启即可完成安装。'
@@ -29,23 +32,60 @@ const updateHint = computed(() => {
   if (sync.device.platform === 'android') {
     return 'Android 版启动时会自动检查新版本，也可前往 Releases 手动下载 APK。'
   }
-  return '浏览器端不支持应用内更新；桌面版与 Android 版会自动检查，也可从 Releases 手动下载。'
+  return '可随时向 GitHub Releases 查询新版本，发现新版后前往下载页安装即可。'
 })
 
+function compareVersions(a: string, b: string): number {
+  const parse = (value: string) => value.replace(/^v/i, '').split('.').map((part) => Number.parseInt(part, 10) || 0)
+  const left = parse(a)
+  const right = parse(b)
+  for (let i = 0; i < Math.max(left.length, right.length); i += 1) {
+    const diff = (left[i] || 0) - (right[i] || 0)
+    if (diff !== 0) return diff
+  }
+  return 0
+}
+
+async function fetchLatestVersion(): Promise<string> {
+  const response = await fetch(LATEST_RELEASE_API, {
+    cache: 'no-store',
+    headers: { Accept: 'application/vnd.github+json' },
+  })
+  if (response.status === 403) throw new Error('查询过于频繁，请稍后再试')
+  if (response.status === 404) throw new Error('尚未发布正式版本')
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const data = (await response.json()) as { tag_name?: string; name?: string }
+  const version = (data.tag_name || data.name || '').replace(/^v/i, '')
+  if (!version) throw new Error('返回数据缺少版本号')
+  return version
+}
+
 async function checkUpdate() {
-  if (!updates || checkingUpdate.value) return
+  if (checkingUpdate.value) return
   checkingUpdate.value = true
+  updateMessage.value = ''
   try {
-    const result = await updates.check()
-    if (!result.supported) {
-      toast.push('当前环境不支持应用内更新')
-    } else if (result.error) {
-      toast.push(`检查更新失败：${result.error}`, 'error')
-    } else if (result.version && result.version !== appVersion) {
-      toast.push(`发现新版本 v${result.version}`, 'success')
-    } else {
-      toast.push('已是最新版本', 'success')
+    if (updates) {
+      const result = await updates.check()
+      if (!result.supported) {
+        toast.push('当前环境不支持应用内更新')
+      } else if (result.error) {
+        updateMessage.value = `检查失败：${result.error}`
+      } else if (result.version && compareVersions(result.version, appVersion) > 0) {
+        updateMessage.value = `发现新版本 v${result.version}，下载完成后重启即可安装。`
+      } else {
+        updateMessage.value = '已是最新版本'
+      }
+      return
     }
+
+    const version = await fetchLatestVersion()
+    updateMessage.value =
+      compareVersions(version, appVersion) > 0
+        ? `发现新版本 v${version}，可点击「前往下载」获取安装包。`
+        : '已是最新版本'
+  } catch (error) {
+    updateMessage.value = `检查更新失败：${error instanceof Error ? error.message : String(error)}`
   } finally {
     checkingUpdate.value = false
   }
@@ -452,18 +492,20 @@ onBeforeUnmount(() => {
           <span class="update-label">当前版本</span>
           <span class="update-value">v{{ appVersion }}</span>
         </div>
-        <button v-if="updates" class="check-update" :disabled="checkingUpdate" @click="checkUpdate">
-          {{ checkingUpdate ? '检查中…' : '检查更新' }}
-        </button>
-        <a
-          v-else
-          class="check-update"
-          href="https://github.com/itcwc/yejian-reader/releases"
-          target="_blank"
-          rel="noreferrer"
-        >
-          前往下载
-        </a>
+        <div class="update-actions">
+          <button class="check-update" :disabled="checkingUpdate" @click="checkUpdate">
+            {{ checkingUpdate ? '检查中…' : '检查更新' }}
+          </button>
+          <a
+            v-if="!updates"
+            class="check-update"
+            :href="RELEASES_URL"
+            target="_blank"
+            rel="noreferrer"
+          >
+            前往下载
+          </a>
+        </div>
       </div>
 
       <p v-if="updateMessage" class="update-status">{{ updateMessage }}</p>
@@ -932,6 +974,13 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: baseline;
   gap: 10px;
+}
+
+.update-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .update-label {
