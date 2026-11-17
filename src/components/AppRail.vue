@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router'
 import Icon from './Icon.vue'
 
 const route = useRoute()
+const appVersion = __APP_VERSION__
 
 const nav = [
   { to: '/', label: '书架', icon: 'book' },
@@ -48,7 +49,7 @@ function isActive(to: string) {
         <Icon name="settings" :size="20" />
         <span class="rail-label">设置</span>
       </RouterLink>
-      <span class="rail-version">v0.1</span>
+      <span class="rail-version">v{{ appVersion }}</span>
     </div>
   </aside>
 </template>
