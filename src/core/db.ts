@@ -48,7 +48,7 @@ function done(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve()
     tx.onerror = () => reject(tx.error)
-    tx.onabort = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error ?? new Error('本地存储事务已取消'))
   })
 }
 
@@ -189,4 +189,76 @@ export async function hasBook(id: string): Promise<boolean> {
   const db = await openDb()
   const key = await wrap(db.transaction(STORE.books).objectStore(STORE.books).getKey(id))
   return key !== undefined
+}
+
+export interface BackupBook {
+  book: Book
+  file: Blob
+  cover?: Blob
+  progress?: ReadingProgress
+}
+
+export async function readBackupBooks(): Promise<BackupBook[]> {
+  const db = await openDb()
+  const tx = db.transaction(Object.values(STORE))
+  const books = tx.objectStore(STORE.books)
+  const files = tx.objectStore(STORE.files)
+  const covers = tx.objectStore(STORE.covers)
+  const progress = tx.objectStore(STORE.progress)
+  const [, entries] = await Promise.all([
+    done(tx),
+    wrap<Book[]>(books.getAll()).then((all) => Promise.all(all.map(async (book) => {
+      const [file, cover, record] = await Promise.all([
+        wrap<Blob | undefined>(files.get(book.id)),
+        wrap<Blob | undefined>(covers.get(book.id)),
+        wrap<ReadingProgress | undefined>(progress.get(book.id)),
+      ])
+      if (!file) throw new Error(`找不到《${book.title}》的书籍文件`)
+      return { book, file, cover, progress: record }
+    }))),
+  ])
+  return entries
+}
+
+export async function restoreBackupBooks(entries: BackupBook[]) {
+  const db = await openDb()
+  const tx = db.transaction(Object.values(STORE), 'readwrite')
+  const books = tx.objectStore(STORE.books)
+  const files = tx.objectStore(STORE.files)
+  const covers = tx.objectStore(STORE.covers)
+  const progress = tx.objectStore(STORE.progress)
+  const result = { added: 0, progressUpdated: 0 }
+  await Promise.all([
+    done(tx),
+    Promise.all(entries.map(async (entry) => {
+      const id = entry.book.id
+      const [local, localFile, localCover, current] = await Promise.all([
+        wrap<Book | undefined>(books.get(id)),
+        wrap<IDBValidKey | undefined>(files.getKey(id)),
+        wrap<IDBValidKey | undefined>(covers.getKey(id)),
+        wrap<ReadingProgress | undefined>(progress.get(id)),
+      ])
+      if (!localFile) files.put(entry.file, id)
+      if (!localCover && entry.cover) covers.put(entry.cover, id)
+      const incoming = entry.progress
+      const newer = incoming && (!current || incoming.updatedAt > current.updatedAt)
+      if (newer) {
+        progress.put(incoming)
+        result.progressUpdated += 1
+      }
+      if (!local) result.added += 1
+      const chosen = newer ? incoming : current
+      const book = local ?? entry.book
+      books.put({
+        ...book,
+        percent: chosen?.percent ?? book.percent,
+        lastOpenedAt: Math.max(book.lastOpenedAt, chosen?.updatedAt ?? 0),
+        meta: { ...book.meta, cover: Boolean(book.meta.cover || localCover || entry.cover) },
+      })
+    })).catch((error) => {
+      try { tx.abort() } catch { /* transaction already ended */ }
+      throw error
+    }),
+  ])
+  return result
 }

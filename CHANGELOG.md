@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.8] - 2026-11-17
+
+### Added
+
+- 设置页新增「书库与进度备份」，可离线导出并迁移书籍原文件、封面和阅读位置。导入时补充缺少的书籍，并按更新时间合并阅读进度。
+
 ## [0.1.7] - 2026-11-17
 
 ### Fixed
@@ -109,6 +115,7 @@
 - 纯静态网页部署需 WebDAV 服务端配置 CORS 或反向代理；桌面端与安卓应用使用原生请求，不受此限制。
 - 不支持带 DRM 的 EPUB/PDF。
 
+[0.1.8]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.8
 [0.1.7]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.7
 [0.1.6]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.6
 [0.1.5]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.5

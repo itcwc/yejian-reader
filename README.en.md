@@ -66,8 +66,8 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 
 Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
 
-- **Windows**: `yejian-v0.1.7-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
-- **Android**: `yejian-v0.1.7-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
+- **Windows**: `yejian-v0.1.8-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
+- **Android**: `yejian-v0.1.8-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
 
 The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
 
@@ -110,6 +110,10 @@ npm run build:android   # build and copy assets into both Android shells
 - **Install directly**: download the CI-built debug APK from Releases.
 - **Build your own**: import `android-uniapp` in HBuilderX, set your app name, package id and signing, then build.
 - **CI APK**: `android-webview` is a native WebView shell that `.github/workflows/release.yml` builds with the Android SDK and uploads to the release.
+
+## Transfer your library and reading progress offline
+
+On the old device, go to Settings → Library and progress backup and export a backup. Copy the `.yejianbackup` file to the new device and import it from the same screen. The backup contains the original books, covers, and reading positions. Import adds missing books and keeps the most recently updated reading position for each book.
 
 ## WebDAV setup
 

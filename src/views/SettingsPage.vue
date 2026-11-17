@@ -7,6 +7,7 @@ import { useLibraryStore } from '@/stores/library'
 import { useSyncStore } from '@/stores/sync'
 import { useToastStore } from '@/stores/toast'
 import { THEME_META } from '@/core/preferences'
+import { exportLibraryBackup, importLibraryBackup, saveLibraryBackup } from '@/core/backup'
 import { formatBytes } from '@/utils/text'
 import type { ThemeId } from '@/types'
 
@@ -52,6 +53,38 @@ async function checkUpdate() {
 
 const usage = ref(0)
 const quota = ref(0)
+const backupInput = ref<HTMLInputElement>()
+const backupBusy = ref<'export' | 'import' | null>(null)
+
+async function exportBackup() {
+  if (backupBusy.value) return
+  backupBusy.value = 'export'
+  try {
+    const { blob, count } = await exportLibraryBackup()
+    if (await saveLibraryBackup(blob)) toast.push(`已导出 ${count} 本书及其阅读进度`, 'success')
+  } catch (error) {
+    toast.push(`导出失败：${error instanceof Error ? error.message : '请重试'}`, 'error')
+  } finally {
+    backupBusy.value = null
+  }
+}
+
+async function importBackup(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file || backupBusy.value) return
+  backupBusy.value = 'import'
+  try {
+    const { added, progressUpdated } = await importLibraryBackup(file)
+    await library.refresh()
+    toast.push(`导入完成：新增 ${added} 本书，更新 ${progressUpdated} 条阅读进度`, 'success')
+  } catch (error) {
+    toast.push(`导入失败：${error instanceof Error ? error.message : '请重试'}`, 'error')
+  } finally {
+    backupBusy.value = null
+  }
+}
 
 const themes = (Object.keys(THEME_META) as ThemeId[]).map((id) => ({
   id,
@@ -336,7 +369,7 @@ onBeforeUnmount(() => {
 
         <p class="storage-note">
           书籍与阅读进度保存在本机 IndexedDB 中，不会自动上传。
-          清理浏览器数据会删除书架，建议开启 WebDAV 同步作为备份。
+          清理应用数据会删除本机书架，请先导出备份或使用 WebDAV 同步。
         </p>
       </section>
 
@@ -381,6 +414,29 @@ onBeforeUnmount(() => {
         </p>
       </section>
     </div>
+
+    <section class="panel">
+      <header class="panel-head">
+        <div>
+          <p class="eyebrow">BACKUP</p>
+          <h2 class="panel-title">书库与进度备份</h2>
+        </div>
+        <Icon name="folder" :size="18" />
+      </header>
+      <p class="storage-note">
+        将书籍文件、封面和阅读进度导出为一个备份文件，可离线转移到另一台设备。
+        导入会合并到当前书库，同一本书保留最近更新的进度。
+      </p>
+      <div class="backup-actions">
+        <button class="check-update" :disabled="!!backupBusy" @click="exportBackup">
+          {{ backupBusy === 'export' ? '导出中…' : '导出备份' }}
+        </button>
+        <button class="check-update" :disabled="!!backupBusy" @click="backupInput?.click()">
+          {{ backupBusy === 'import' ? '导入中…' : '导入备份' }}
+        </button>
+        <input ref="backupInput" type="file" hidden @change="importBackup" />
+      </div>
+    </section>
 
     <section class="panel">
       <header class="panel-head">
@@ -432,6 +488,13 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .settings-page {
   height: 100%;
   overflow-y: auto;

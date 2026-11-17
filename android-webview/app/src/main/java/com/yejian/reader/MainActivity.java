@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,7 +14,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.Settings;
+import android.util.Base64;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -32,6 +38,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +56,8 @@ public class MainActivity extends Activity {
             "https://github.com/itcwc/yejian-reader/releases/latest/download/update.json";
     private static final String UPDATE_PREFIX =
             "https://github.com/itcwc/yejian-reader/releases/download/";
+    private static final int PICK_WEB_FILE = 4101;
+    private static final int CREATE_BACKUP = 4102;
 
     private WebView webView;
     private WebViewAssetLoader assetLoader;
@@ -58,6 +67,8 @@ public class MainActivity extends Activity {
     private String pendingUrl = "";
     private String pendingSha256 = "";
     private boolean receiverRegistered = false;
+    private ValueCallback<Uri[]> filePicker;
+    private final BackupWriter backupWriter = new BackupWriter();
 
     private final BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
         @Override
@@ -93,6 +104,25 @@ public class MainActivity extends Activity {
 
         // WebDAV 走原生 OkHttp，不受站点 CORS 限制。
         webView.addJavascriptInterface(new WebDavBridge(webView), "YeJianBridge");
+        webView.addJavascriptInterface(backupWriter, "YeJianBackup");
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
+                                             FileChooserParams params) {
+                if (filePicker != null) filePicker.onReceiveValue(null);
+                filePicker = callback;
+                try {
+                    Intent picker = params.createIntent();
+                    picker.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                    picker.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(picker, PICK_WEB_FILE);
+                } catch (Exception error) {
+                    filePicker = null;
+                    callback.onReceiveValue(null);
+                }
+                return true;
+            }
+        });
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -117,6 +147,120 @@ public class MainActivity extends Activity {
         setContentView(webView);
         webView.loadUrl(APP_URL);
         webView.postDelayed(this::checkForUpdates, 3500);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_WEB_FILE && filePicker != null) {
+            ValueCallback<Uri[]> callback = filePicker;
+            filePicker = null;
+            Uri[] files = null;
+            if (resultCode == RESULT_OK && data != null) {
+                ClipData selected = data.getClipData();
+                if (selected != null) {
+                    files = new Uri[selected.getItemCount()];
+                    for (int i = 0; i < files.length; i++) files[i] = selected.getItemAt(i).getUri();
+                } else if (data.getData() != null) {
+                    files = new Uri[] { data.getData() };
+                }
+            }
+            if (files != null) {
+                for (Uri uri : files) {
+                    if (uri == null || !"content".equals(uri.getScheme())
+                            || (getPackageName() + ".fileprovider").equals(uri.getAuthority())) {
+                        files = null;
+                        break;
+                    }
+                }
+            }
+            callback.onReceiveValue(files);
+        } else if (requestCode == CREATE_BACKUP) {
+            Uri uri = resultCode == RESULT_OK && data != null ? data.getData() : null;
+            backupWriter.chosen(uri);
+        }
+    }
+
+    private final class BackupWriter {
+        private Uri target;
+        private OutputStream stream;
+        private boolean choosing;
+
+        @JavascriptInterface
+        public void choose(String name) {
+            runOnUiThread(() -> {
+                synchronized (this) {
+                    if (choosing || target != null) return;
+                    choosing = true;
+                }
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/octet-stream");
+                intent.putExtra(Intent.EXTRA_TITLE, name);
+                try {
+                    startActivityForResult(intent, CREATE_BACKUP);
+                } catch (Exception error) {
+                    synchronized (this) { choosing = false; }
+                    notifyResult("error");
+                }
+            });
+        }
+
+        private synchronized void chosen(Uri uri) {
+            choosing = false;
+            if (uri == null) {
+                notifyResult("cancelled");
+            } else if (!"content".equals(uri.getScheme())) {
+                notifyResult("error");
+            } else {
+                target = uri;
+                notifyResult("ready");
+            }
+        }
+
+        private void notifyResult(String status) {
+            webView.evaluateJavascript(
+                    "window.__yejianBackupChosen?.(" + JSONObject.quote(status) + ")", null);
+        }
+
+        @JavascriptInterface
+        public synchronized boolean write(String base64) {
+            if (target == null || base64.length() > 350000) return false;
+            try {
+                if (stream == null) stream = getContentResolver().openOutputStream(target, "w");
+                if (stream == null) return false;
+                stream.write(Base64.decode(base64, Base64.DEFAULT));
+                return true;
+            } catch (Exception error) {
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public synchronized boolean finish() {
+            if (stream == null) return false;
+            try {
+                stream.close();
+                stream = null;
+                target = null;
+                return true;
+            } catch (Exception error) {
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public synchronized void cancel() {
+            if (stream != null) {
+                try { stream.close(); } catch (Exception ignored) {}
+                stream = null;
+            }
+            if (target != null) {
+                try { DocumentsContract.deleteDocument(getContentResolver(), target); }
+                catch (Exception ignored) {}
+                target = null;
+            }
+        }
     }
 
     private void registerDownloadReceiver() {
@@ -314,6 +458,11 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (filePicker != null) {
+            filePicker.onReceiveValue(null);
+            filePicker = null;
+        }
+        backupWriter.cancel();
         if (receiverRegistered) {
             try {
                 unregisterReceiver(downloadReceiver);

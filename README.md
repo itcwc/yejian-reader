@@ -66,8 +66,8 @@
 
 在 [Releases](https://github.com/itcwc/yejian-reader/releases) 获取：
 
-- **Windows**：`yejian-v0.1.7-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
-- **Android**：`yejian-v0.1.7-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
+- **Windows**：`yejian-v0.1.8-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
+- **Android**：`yejian-v0.1.8-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
 
 APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；需要自定义包名、签名或上架应用商店时，用 HBuilderX 导入 `android-uniapp` 自行打包。
 
@@ -110,6 +110,10 @@ npm run build:android   # 构建并复制 Web 产物到 android-uniapp 与 andro
 - **直接安装**：从 Releases 下载 CI 构建的 debug APK。
 - **自行打包**：用 HBuilderX 导入 `android-uniapp`，配置应用名称、包名与签名后打包；应用内通过 `web-view` 加载本地 `hybrid/html/index.html`。
 - **CI 构建 APK**：`android-webview` 是原生 WebView 壳，由 `.github/workflows/release.yml` 使用 Android SDK 构建并上传 Release。
+
+## 离线迁移书库与进度
+
+在旧设备打开「设置 → 书库与进度备份」，选择「导出备份」。把生成的 `.yejianbackup` 文件复制到新设备，再在同一页面选择「导入备份」。备份包含书籍原文件、封面和阅读位置，无需配置 WebDAV。导入会补充缺少的书籍，并按更新时间合并阅读进度。
 
 ## 配置 WebDAV 同步
 

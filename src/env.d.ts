@@ -30,6 +30,13 @@ interface DavResponsePayload {
 }
 
 interface Window {
+  YeJianBackup?: {
+    choose: (name: string) => void
+    write: (base64: string) => boolean
+    finish: () => boolean
+    cancel: () => void
+  }
+  __yejianBackupChosen?: (status: string) => void
   yejian?: {
     platform: 'desktop'
     os?: string
