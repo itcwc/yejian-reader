@@ -34,7 +34,7 @@ const pageLabel = computed(() => LABELS[String(route.name)] || '页间')
   display: flex;
   align-items: center;
   gap: 9px;
-  height: 36px;
+  height: var(--titlebar-height);
   padding: 0 12px 0 16px;
   padding-right: 150px;
   background: var(--bg);

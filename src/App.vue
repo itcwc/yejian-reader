@@ -66,7 +66,9 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', handleVis
 }
 
 .app.has-titlebar {
-  padding-top: 36px;
+  /* Windows draws the caption buttons over the first 36px. Reserve the divider below them. */
+  --titlebar-height: 37px;
+  padding-top: var(--titlebar-height);
 }
 
 .app-main {
