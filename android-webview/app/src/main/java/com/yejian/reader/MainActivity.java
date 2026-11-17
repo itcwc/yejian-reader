@@ -91,6 +91,9 @@ public class MainActivity extends Activity {
         // 允许 http 自建 WebDAV；同时仍需服务端允许 CORS。
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
+        // WebDAV 走原生 OkHttp，不受站点 CORS 限制。
+        webView.addJavascriptInterface(new WebDavBridge(webView), "YeJianBridge");
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {

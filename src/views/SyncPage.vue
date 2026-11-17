@@ -301,8 +301,8 @@ function saveDeviceName() {
       </article>
       <article class="note">
         <span class="note-index">02</span>
-        <h3>为什么浏览器需要 CORS</h3>
-        <p>网页版直接请求 WebDAV 时，服务端必须允许跨域并暴露 PROPFIND 等方法。坚果云可填写 dav.jianguoyun.com 并使用应用密码。</p>
+        <h3>浏览器才需要 CORS</h3>
+        <p>桌面端与安卓应用通过原生网络栈请求 WebDAV，不需要服务端开启跨域；只有网页版直连时才要求允许 CORS 并暴露 PROPFIND 等方法。坚果云可填写 dav.jianguoyun.com 并使用应用密码。</p>
       </article>
       <article class="note">
         <span class="note-index">03</span>

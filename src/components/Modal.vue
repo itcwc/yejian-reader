@@ -13,10 +13,15 @@ const props = withDefaults(
   { title: '', subtitle: '', width: '520px', showClose: true },
 )
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: []; 'update:open': [value: boolean] }>()
+
+function close() {
+  emit('update:open', false)
+  emit('close')
+}
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && props.open) emit('close')
+  if (event.key === 'Escape' && props.open) close()
 }
 
 watch(
@@ -36,7 +41,7 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="open" class="modal-root" @click.self="emit('close')">
+      <div v-if="open" class="modal-root" @click.self="close">
         <div class="modal-panel" :style="{ maxWidth: width }" role="dialog" aria-modal="true">
           <header v-if="title || $slots.header" class="modal-head">
             <div class="modal-head-text">
@@ -45,7 +50,7 @@ onBeforeUnmount(() => {
                 <h2 class="modal-title">{{ title }}</h2>
               </slot>
             </div>
-            <button v-if="showClose" class="icon-btn" type="button" aria-label="关闭" @click="emit('close')">
+            <button v-if="showClose" class="icon-btn" type="button" aria-label="关闭" @click="close">
               <Icon name="x" :size="18" />
             </button>
           </header>

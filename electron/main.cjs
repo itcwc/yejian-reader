@@ -1,7 +1,10 @@
 const { app, BrowserWindow, ipcMain, nativeTheme, shell } = require('electron')
 const { autoUpdater } = require('electron-updater')
+const http = require('node:http')
+const https = require('node:https')
 const path = require('node:path')
 
+const TITLEBAR_HEIGHT = 36
 const THEME_BACKGROUND = {
   paper: '#f2efe6',
   night: '#101311',
@@ -12,8 +15,93 @@ function applyWindowTheme(theme) {
   const background = THEME_BACKGROUND[theme] || THEME_BACKGROUND.paper
   nativeTheme.themeSource = theme === 'night' ? 'dark' : 'light'
   for (const win of BrowserWindow.getAllWindows()) {
-    if (!win.isDestroyed()) win.setBackgroundColor(background)
+    if (win.isDestroyed()) continue
+    win.setBackgroundColor(background)
+    if (process.platform === 'win32' && typeof win.setTitleBarOverlay === 'function') {
+      win.setTitleBarOverlay({
+        color: background,
+        symbolColor: theme === 'night' ? '#e9e6db' : '#20241f',
+        height: TITLEBAR_HEIGHT,
+      })
+    }
   }
+}
+
+/** WebDAV 请求在主进程用 Node HTTP 发起，不受渲染进程 CORS 限制，也支持 PROPFIND 等自定义方法。 */
+function davRequest({ method, url, headers, bodyBase64 }) {
+  return new Promise((resolve) => {
+    let settled = false
+    const done = (payload) => {
+      if (settled) return
+      settled = true
+      resolve(payload)
+    }
+    const fail = (error) => done({ status: 0, statusText: '', headers: {}, bodyBase64: '', error: String(error) })
+
+    if (!/^https?:\/\//i.test(url || '')) {
+      fail('地址需要以 http:// 或 https:// 开头')
+      return
+    }
+
+    const body = bodyBase64 ? Buffer.from(bodyBase64, 'base64') : null
+
+    const send = (target, redirects) => {
+      let parsed
+      try {
+        parsed = new URL(target)
+      } catch {
+        fail('服务器地址格式不正确')
+        return
+      }
+
+      const lib = parsed.protocol === 'https:' ? https : http
+      const plainHeaders = { ...(headers || {}) }
+      if (body) plainHeaders['Content-Length'] = String(body.length)
+
+      const request = lib.request(
+        {
+          protocol: parsed.protocol,
+          hostname: parsed.hostname,
+          port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
+          path: `${parsed.pathname}${parsed.search}`,
+          method,
+          headers: plainHeaders,
+          timeout: 30000,
+        },
+        (response) => {
+          const location = response.headers.location
+          if (location && [301, 302, 303, 307, 308].includes(response.statusCode) && redirects > 0) {
+            response.resume()
+            send(new URL(location, target).toString(), redirects - 1)
+            return
+          }
+
+          const chunks = []
+          response.on('data', (chunk) => chunks.push(chunk))
+          response.on('end', () => {
+            const plain = {}
+            for (const [key, value] of Object.entries(response.headers)) {
+              plain[key] = Array.isArray(value) ? value.join(', ') : String(value ?? '')
+            }
+            done({
+              status: response.statusCode || 0,
+              statusText: response.statusMessage || '',
+              headers: plain,
+              bodyBase64: Buffer.concat(chunks).toString('base64'),
+            })
+          })
+          response.on('error', (error) => fail(error?.message || '响应读取失败'))
+        },
+      )
+
+      request.on('timeout', () => request.destroy(new Error('连接服务器超时')))
+      request.on('error', (error) => fail(error?.message || '网络请求失败'))
+      if (body) request.write(body)
+      request.end()
+    }
+
+    send(url, 5)
+  })
 }
 
 function broadcastUpdate(state) {
@@ -86,6 +174,16 @@ function createWindow() {
     title: '页间阅读',
     backgroundColor: '#f2efe6',
     autoHideMenuBar: true,
+    ...(process.platform === 'win32'
+      ? {
+          titleBarStyle: 'hidden',
+          titleBarOverlay: {
+            color: THEME_BACKGROUND.paper,
+            symbolColor: '#20241f',
+            height: TITLEBAR_HEIGHT,
+          },
+        }
+      : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -106,6 +204,8 @@ app.whenReady().then(() => {
   ipcMain.on('theme:set', (_event, theme) => {
     if (typeof theme === 'string') applyWindowTheme(theme)
   })
+
+  ipcMain.handle('dav:request', (_event, payload) => davRequest(payload || {}))
 
   setupUpdater()
   createWindow()

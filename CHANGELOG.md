@@ -2,6 +2,19 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.3] - 2026-11-17
+
+### Added
+
+- 导航栏新增「阅读统计」页：藏书/在读/已完成概览、最近 30 天阅读节奏、格式分布与继续阅读入口。
+- 设置页新增「阅读主题」选择，可与应用主题分别设置。
+- Windows 桌面端改用自绘标题栏，颜色与符号随应用主题变化。
+
+### Fixed
+
+- 桌面端与安卓应用内同步无法连接 WebDAV：改用原生 HTTP 栈发起请求，不再受站点 CORS 限制，支持 PROPFIND / MKCOL 等自定义方法。
+- 「格式支持」与「导入结果」弹窗的关闭按钮、遮罩点击、Esc 无法关闭。
+
 ## [0.1.2] - 2026-11-17
 
 ### Added
@@ -68,6 +81,7 @@
 - 纯静态部署与 Android WebView 需 WebDAV 服务端配置 CORS 或反向代理。
 - 不支持带 DRM 的 EPUB/PDF。
 
+[0.1.3]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.3
 [0.1.2]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.2
 [0.1.1]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.1
 [0.1.0]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.0

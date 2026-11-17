@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Icon from './Icon.vue'
-import { usePreferencesStore } from '@/stores/preferences'
 
 const route = useRoute()
-const preferences = usePreferencesStore()
 
 const items = [
   { to: '/', label: '书架', icon: 'book' },
+  { to: '/stats', label: '统计', icon: 'chart' },
   { to: '/sync', label: '同步', icon: 'sync' },
 ]
-
-const themeIcon = computed(() => {
-  if (preferences.prefs.theme === 'night') return 'moon'
-  if (preferences.prefs.theme === 'green') return 'leaf'
-  return 'sun'
-})
 
 function isActive(to: string) {
   return to === '/' ? route.path === '/' : route.path.startsWith(to)
@@ -35,10 +27,6 @@ function isActive(to: string) {
       <Icon :name="item.icon" :size="20" />
       <span>{{ item.label }}</span>
     </RouterLink>
-    <button class="mobile-nav-item" type="button" @click="preferences.cycleTheme()">
-      <Icon :name="themeIcon" :size="20" />
-      <span>外观</span>
-    </button>
     <RouterLink
       to="/settings"
       class="mobile-nav-item"

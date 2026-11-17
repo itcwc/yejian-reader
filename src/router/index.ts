@@ -16,6 +16,11 @@ const router = createRouter({
       meta: { immersive: true },
     },
     {
+      path: '/stats',
+      name: 'stats',
+      component: () => import('@/views/StatsPage.vue'),
+    },
+    {
       path: '/sync',
       name: 'sync',
       component: () => import('@/views/SyncPage.vue'),

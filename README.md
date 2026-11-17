@@ -66,8 +66,8 @@
 
 在 [Releases](https://github.com/itcwc/yejian-reader/releases) 获取：
 
-- **Windows**：`yejian-v0.1.2-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
-- **Android**：`yejian-v0.1.2-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
+- **Windows**：`yejian-v0.1.3-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
+- **Android**：`yejian-v0.1.3-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
 
 APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；需要自定义包名、签名或上架应用商店时，用 HBuilderX 导入 `android-uniapp` 自行打包。
 
@@ -128,7 +128,7 @@ npm run build:android   # 构建并复制 Web 产物到 android-uniapp 与 andro
 
 ### 关于 CORS
 
-浏览器直连 WebDAV 需要服务端允许跨域（`PROPFIND`、`MKCOL`、`PUT` 等）。`npm run dev` 与 `npm run preview` 内置了 `/__dav` 同源代理，可自动绕过 CORS；纯静态部署或 Android WebView 中请在 WebDAV 服务端配置 CORS，或使用反向代理。
+浏览器直连 WebDAV 需要服务端允许跨域（`PROPFIND`、`MKCOL`、`PUT` 等）。`npm run dev` 与 `npm run preview` 内置了 `/__dav` 同源代理，可自动绕过 CORS；桌面端（Electron）与 Android 应用已改为原生 HTTP 请求，不再需要服务端开启跨域；只有纯静态网页部署需要配置 CORS 或反向代理。
 
 自建 Nginx WebDAV 时注意：
 
@@ -178,7 +178,7 @@ scripts/         # 构建产物同步到 Android hybrid 目录
 ## 已知限制
 
 - 需要转换的格式只提供指引，不内置转换器；CAJ 需先用 CAJViewer 导出 PDF。
-- 浏览器直连 WebDAV 受 CORS 限制，静态部署需服务端配合。
+- 浏览器直连 WebDAV 受 CORS 限制，静态部署需服务端配合；桌面端与 Android 应用不受此限制。
 - 大体积 PDF / 漫画首次打开需要解码时间；PDF 滚动模式按可视区域懒渲染。
 - 加密 EPUB（DRM）、加密 PDF 不在支持范围内。
 

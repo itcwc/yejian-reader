@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppRail from '@/components/AppRail.vue'
 import MobileNav from '@/components/MobileNav.vue'
+import TitleBar from '@/components/TitleBar.vue'
 import ToastHost from '@/components/ToastHost.vue'
 import UpdateBanner from '@/components/UpdateBanner.vue'
 import { useSyncStore } from '@/stores/sync'
@@ -10,6 +11,7 @@ import { useLibraryStore } from '@/stores/library'
 
 const route = useRoute()
 const immersive = computed(() => route.meta.immersive === true)
+const customTitleBar = window.yejian?.os === 'win32'
 
 const sync = useSyncStore()
 const library = useLibraryStore()
@@ -37,7 +39,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', handleVis
 </script>
 
 <template>
-  <div class="app">
+  <div class="app" :class="{ 'has-titlebar': customTitleBar }">
+    <TitleBar v-if="customTitleBar" />
     <AppRail v-if="!immersive" />
 
     <main class="app-main" :class="{ 'is-immersive': immersive }">
@@ -60,6 +63,10 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', handleVis
   display: flex;
   height: 100%;
   width: 100%;
+}
+
+.app.has-titlebar {
+  padding-top: 36px;
 }
 
 .app-main {

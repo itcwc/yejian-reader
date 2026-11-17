@@ -66,8 +66,8 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 
 Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
 
-- **Windows**: `yejian-v0.1.2-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
-- **Android**: `yejian-v0.1.2-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
+- **Windows**: `yejian-v0.1.3-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
+- **Android**: `yejian-v0.1.3-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
 
 The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
 
@@ -128,7 +128,7 @@ Open the Sync page and fill in:
 
 ### CORS
 
-Browsers require the WebDAV server to allow cross-origin `PROPFIND`, `MKCOL` and `PUT`. `npm run dev` and `npm run preview` ship a same-origin `/__dav` proxy that bypasses CORS automatically. For static hosting or Android WebView, configure CORS on the server or use a reverse proxy.
+Browsers require the WebDAV server to allow cross-origin `PROPFIND`, `MKCOL` and `PUT`. `npm run dev` and `npm run preview` ship a same-origin `/__dav` proxy that bypasses CORS automatically. The desktop app (Electron) and Android app use native HTTP requests and do not need server-side CORS; only static web deployments require CORS or a reverse proxy.
 
 For a self-hosted Nginx WebDAV:
 
@@ -178,7 +178,7 @@ Sync order: read the remote manifest → download missing books → merge progre
 ## Known limitations
 
 - Conversion-required formats only get guidance; CAJ must be exported to PDF with CAJViewer first.
-- Direct browser WebDAV access is subject to CORS; static deployments need server-side support.
+- Direct browser WebDAV access is subject to CORS; static deployments need server-side support, while the desktop and Android apps do not.
 - Very large PDFs/comics take time to decode on first open; PDF scroll mode renders lazily by viewport.
 - DRM-protected EPUB/PDF files are not supported.
 

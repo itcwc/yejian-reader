@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
           <p class="eyebrow">APPEARANCE</p>
           <h2 class="panel-title">外观主题</h2>
         </div>
-        <span class="panel-note">仅影响应用界面</span>
+        <span class="panel-note">应用界面（不含阅读页）</span>
       </header>
 
       <div class="theme-grid">
@@ -146,9 +146,32 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
-      <p class="theme-hint">
-        阅读时的纸面主题单独设置：打开任意一本书，进入「阅读设置 → 阅读主题」，可与应用主题不同。
-      </p>
+      <div class="theme-sub">
+        <div class="theme-sub-head">
+          <div>
+            <span class="setting-label">阅读主题</span>
+            <span class="setting-hint">只影响阅读页的纸面颜色，与应用主题互不干扰</span>
+          </div>
+        </div>
+        <div class="reader-theme-row">
+          <button
+            v-for="theme in themes"
+            :key="theme.id"
+            class="reader-theme-chip"
+            :class="{ 'is-active': preferences.prefs.readerTheme === theme.id }"
+            type="button"
+            @click="preferences.setReaderTheme(theme.id)"
+          >
+            <span
+              class="chip-swatch"
+              :style="{ background: theme.preview.bg, borderColor: theme.preview.line, color: theme.preview.ink }"
+            >
+              <span class="chip-swatch-line" :style="{ background: theme.preview.accent }"></span>
+            </span>
+            <span class="chip-label">{{ theme.label }}</span>
+          </button>
+        </div>
+      </div>
     </section>
 
     <section class="panel">
@@ -481,11 +504,69 @@ onBeforeUnmount(() => {
   margin-top: 18px;
 }
 
-.theme-hint {
-  margin-top: 14px;
-  font-size: 11px;
-  line-height: 1.75;
-  color: var(--ink-faint);
+.theme-sub {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.theme-sub-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reader-theme-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.reader-theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 7px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--ink-muted);
+  font-size: 12px;
+  transition: all 0.18s var(--ease-soft);
+}
+
+.reader-theme-chip:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.reader-theme-chip.is-active {
+  color: var(--accent);
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.chip-swatch {
+  display: flex;
+  align-items: flex-end;
+  width: 22px;
+  height: 22px;
+  padding: 4px;
+  border-radius: 7px;
+  border: 1px solid;
+}
+
+.chip-swatch-line {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.chip-label {
+  letter-spacing: 0.02em;
 }
 
 .theme-card {

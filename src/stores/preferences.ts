@@ -32,11 +32,5 @@ export const usePreferencesStore = defineStore('preferences', () => {
     prefs.readerTheme = theme
   }
 
-  function cycleTheme() {
-    const order: ThemeId[] = ['paper', 'green', 'night']
-    const index = order.indexOf(prefs.theme)
-    prefs.theme = order[(index + 1) % order.length]
-  }
-
-  return { prefs, setTheme, setReaderTheme, cycleTheme }
+  return { prefs, setTheme, setReaderTheme }
 })

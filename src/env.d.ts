@@ -21,11 +21,26 @@ interface UpdateResult {
   error?: string
 }
 
+interface DavResponsePayload {
+  status: number
+  statusText: string
+  headers: Record<string, string>
+  bodyBase64: string
+  error?: string
+}
+
 interface Window {
   yejian?: {
     platform: 'desktop'
+    os?: string
     version: string
     setAppTheme?: (theme: 'paper' | 'night' | 'green') => void
+    davRequest?: (payload: {
+      method: string
+      url: string
+      headers: Record<string, string>
+      bodyBase64?: string
+    }) => Promise<DavResponsePayload>
     updates?: {
       check: () => Promise<UpdateResult>
       download: () => Promise<{ ok: boolean; supported?: boolean }>
@@ -33,4 +48,5 @@ interface Window {
       onStatus: (callback: (state: UpdateState) => void) => () => void
     }
   }
+  __yejianDavResolve?: (id: string, json: string) => void
 }

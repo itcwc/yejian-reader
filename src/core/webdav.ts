@@ -1,3 +1,5 @@
+import { bytesToBase64, davBridge, toResponse } from './nativeDav'
+
 export type WebdavErrorKind = 'config' | 'auth' | 'cors' | 'http' | 'notfound'
 
 export class WebdavError extends Error {
@@ -89,6 +91,28 @@ export class WebdavClient {
     const headers = new Headers(init.headers)
     headers.set('Authorization', this.authorization)
     const target = this.url(path)
+
+    // 桌面端与安卓壳走原生 HTTP 栈，不受浏览器 CORS 限制。
+    const native = davBridge()
+    if (native) {
+      const plainHeaders: Record<string, string> = {}
+      headers.forEach((value, key) => {
+        plainHeaders[key] = value
+      })
+      let bodyBase64: string | undefined
+      if (typeof init.body === 'string') {
+        bodyBase64 = bytesToBase64(new TextEncoder().encode(init.body))
+      } else if (init.body instanceof Uint8Array) {
+        bodyBase64 = bytesToBase64(init.body)
+      } else if (init.body instanceof Blob) {
+        bodyBase64 = bytesToBase64(new Uint8Array(await init.body.arrayBuffer()))
+      }
+      const result = await native({ method, url: target, headers: plainHeaders, bodyBase64 })
+      if (result.error) {
+        throw new WebdavError('cors', `无法连接服务器：${result.error}。请检查地址、网络与证书。`)
+      }
+      return this.guard(toResponse(result))
+    }
 
     if (await proxyAvailable()) {
       let response: Response
