@@ -155,6 +155,8 @@ export interface RemoteManifest {
   version: 1
   updatedAt: number
   books: RemoteBookMeta[]
+  /** 已上传封面的书籍 id，旧版本清单没有该字段 */
+  covers?: string[]
 }
 
 export interface RemoteProgressFile {

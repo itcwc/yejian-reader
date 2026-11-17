@@ -84,17 +84,27 @@ public class WebDavBridge {
     public void request(String id, String method, String url, String headersJson, String bodyBase64) {
         executor.execute(() -> {
             String payload;
+            String target = url;
             try {
-                payload = execute(client, method, url, headersJson, bodyBase64);
+                payload = execute(client, method, target, headersJson, bodyBase64, false);
             } catch (Exception error) {
-                if (isCertificateError(error)) {
-                    try {
-                        payload = execute(insecureClient, method, url, headersJson, bodyBase64);
-                    } catch (Exception retryError) {
-                        payload = failure(retryError.getMessage());
+                try {
+                    if (isCertificateError(error)) {
+                        // 自签名证书：放宽校验重试。
+                        payload = execute(insecureClient, method, target, headersJson, bodyBase64, false);
+                    } else if (isStreamClosed(error) && target.regionMatches(true, 0, "http://", 0, 7)) {
+                        // 站点强制 HTTPS 时 http 会被直接断开，升级协议再试。
+                        target = "https://" + target.substring(7);
+                        try {
+                            payload = execute(client, method, target, headersJson, bodyBase64, true);
+                        } catch (Exception httpsError) {
+                            payload = execute(insecureClient, method, target, headersJson, bodyBase64, true);
+                        }
+                    } else {
+                        payload = execute(client, method, target, headersJson, bodyBase64, true);
                     }
-                } else {
-                    payload = failure(error.getMessage());
+                } catch (Exception retryError) {
+                    payload = failure(retryError.getMessage());
                 }
             }
             final String json = payload;
@@ -117,7 +127,8 @@ public class WebDavBridge {
         return false;
     }
 
-    private String execute(OkHttpClient httpClient, String method, String url, String headersJson, String bodyBase64) throws Exception {
+    private String execute(OkHttpClient httpClient, String method, String url, String headersJson,
+                           String bodyBase64, boolean closeConnection) throws Exception {
         RequestBody body = null;
         if (bodyBase64 != null && !bodyBase64.isEmpty()) {
             final byte[] bytes = Base64.decode(bodyBase64, Base64.DEFAULT);
@@ -128,6 +139,12 @@ public class WebDavBridge {
                 }
 
                 @Override
+                public long contentLength() {
+                    // 明确长度，避免 PROPFIND / MKCOL 走 chunked 被部分 WebDAV 服务端直接断开。
+                    return bytes.length;
+                }
+
+                @Override
                 public void writeTo(BufferedSink sink) throws IOException {
                     sink.write(bytes);
                 }
@@ -135,6 +152,9 @@ public class WebDavBridge {
         }
 
         Request.Builder builder = new Request.Builder().url(url).method(method, body);
+        if (closeConnection) {
+            builder.header("Connection", "close");
+        }
         if (headersJson != null && !headersJson.isEmpty()) {
             JSONObject headers = new JSONObject(headersJson);
             Iterator<String> keys = headers.keys();
@@ -165,14 +185,30 @@ public class WebDavBridge {
         }
     }
 
+    private boolean isStreamClosed(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            String message = current.getMessage();
+            if (message != null && message.toLowerCase().contains("unexpected end of stream")) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
     private String failure(String message) {
+        String detail = message == null || message.isEmpty() ? "网络请求失败" : message;
+        if (detail.toLowerCase().contains("unexpected end of stream")) {
+            detail = "服务器在返回数据前断开了连接，若站点强制使用 HTTPS，请把地址改为 https:// 后重试";
+        }
         try {
             JSONObject payload = new JSONObject();
             payload.put("status", 0);
             payload.put("statusText", "");
             payload.put("headers", new JSONObject());
             payload.put("bodyBase64", "");
-            payload.put("error", message == null || message.isEmpty() ? "网络请求失败" : message);
+            payload.put("error", detail);
             return payload.toString();
         } catch (Exception ignored) {
             return "{\"status\":0,\"statusText\":\"\",\"headers\":{},\"bodyBase64\":\"\",\"error\":\"网络请求失败\"}";

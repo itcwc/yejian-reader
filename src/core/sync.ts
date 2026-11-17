@@ -1,11 +1,12 @@
 import type { Book, RemoteBookMeta, RemoteManifest, RemoteProgressFile, SyncConfig, SyncSummary } from '@/types'
 import { getDeviceInfo } from './device'
 import { getBookBundle, syncRemoteBook } from './library'
-import { listBooks, listProgress, mergeProgress } from './db'
+import { listBooks, listProgress, mergeProgress, getCover, putCover } from './db'
 import { WebdavClient, WebdavError } from './webdav'
 
 const BASE_DIR = 'yejian'
 const BOOKS_DIR = 'yejian/books'
+const COVERS_DIR = 'yejian/covers'
 const PROGRESS_FILE = 'yejian/progress.json'
 const MANIFEST_FILE = 'yejian/books.json'
 
@@ -16,6 +17,27 @@ export interface SyncCallbacks {
 function remoteFileName(meta: RemoteBookMeta): string {
   const ext = meta.fileName.split('.').pop()?.toLowerCase() || meta.format
   return `${meta.id}.${ext}`
+}
+
+function coverFileName(bookId: string): string {
+  return `${bookId}.cover`
+}
+
+/** 封面统一按无类型字节流上传，下载时用文件头还原 MIME。 */
+function sniffImageType(bytes: Uint8Array): string {
+  if (bytes.length > 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+    return 'image/png'
+  }
+  if (bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg'
+  if (bytes.length > 6 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) return 'image/gif'
+  if (
+    bytes.length > 12 &&
+    bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+  ) {
+    return 'image/webp'
+  }
+  return 'image/jpeg'
 }
 
 function toRemoteMeta(book: Book): RemoteBookMeta {
@@ -85,6 +107,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     callbacks.onStage?.('准备同步目录')
     await client.ensureCollection(BASE_DIR)
     await client.ensureCollection(BOOKS_DIR)
+    await client.ensureCollection(COVERS_DIR)
 
     callbacks.onStage?.('读取云端记录')
     const [manifestText, progressText] = await Promise.all([
@@ -93,6 +116,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     ])
     const remoteManifest = parseManifest(manifestText)
     const remoteProgress = parseProgress(progressText)
+    const remoteCoverIds = new Set(remoteManifest?.covers || [])
 
     const localBooks = await listBooks()
     const localBookIds = new Set(localBooks.map((book) => book.id))
@@ -147,6 +171,30 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
         booksUploaded += 1
         bytes += bundle.blob.size
       }
+
+      /* ---------- 封面（单独存储，随书籍一起同步） ---------- */
+      callbacks.onStage?.('同步书籍封面')
+      const booksAfterDownload = await listBooks()
+
+      for (const book of booksAfterDownload) {
+        if (!book.meta.cover) continue
+        if (await getCover(book.id)) continue
+        // 旧版清单没有 covers 字段，逐个尝试；新版没有记录则说明云端确实没有。
+        if (remoteManifest?.covers && !remoteCoverIds.has(book.id)) continue
+        const raw = await client.getBlob(`${COVERS_DIR}/${coverFileName(book.id)}`).catch(() => null)
+        if (!raw) continue
+        const bytes = new Uint8Array(await raw.arrayBuffer())
+        if (!bytes.length) continue
+        await putCover(book.id, new Blob([bytes], { type: sniffImageType(bytes) }))
+      }
+
+      for (const book of booksAfterDownload) {
+        if (!book.meta.cover || remoteCoverIds.has(book.id)) continue
+        const cover = await getCover(book.id)
+        if (!cover) continue
+        await client.put(`${COVERS_DIR}/${coverFileName(book.id)}`, cover)
+        remoteCoverIds.add(book.id)
+      }
     }
 
     /* ---------- 阅读进度（在书籍下载后合并，确保新设备也能落到书架上） ---------- */
@@ -186,6 +234,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
       version: 1,
       updatedAt: now,
       books: Array.from(mergedBooks.values()),
+      covers: Array.from(remoteCoverIds),
     }
     const progressPayload: RemoteProgressFile = {
       version: 1,

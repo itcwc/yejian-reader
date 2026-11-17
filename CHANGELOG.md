@@ -2,6 +2,16 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.5] - 2026-11-17
+
+### Added
+
+- 书籍封面随 WebDAV 同步：封面单独存入 `yejian/covers/`，换设备或重新同步后无需重新解析即可显示。
+
+### Fixed
+
+- 安卓端 WebDAV 请求显式发送 `Content-Length`，连接被服务端重置时会用 `Connection: close` 重试；若站点强制 HTTPS，会自动把 `http://` 地址升级为 `https://` 再试一次。
+
 ## [0.1.4] - 2026-11-17
 
 ### Fixed
@@ -87,6 +97,7 @@
 - 纯静态网页部署需 WebDAV 服务端配置 CORS 或反向代理；桌面端与安卓应用使用原生请求，不受此限制。
 - 不支持带 DRM 的 EPUB/PDF。
 
+[0.1.5]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.5
 [0.1.4]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.4
 [0.1.3]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.3
 [0.1.2]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.2
