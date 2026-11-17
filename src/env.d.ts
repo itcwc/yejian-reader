@@ -25,6 +25,7 @@ interface Window {
   yejian?: {
     platform: 'desktop'
     version: string
+    setAppTheme?: (theme: 'paper' | 'night' | 'green') => void
     updates?: {
       check: () => Promise<UpdateResult>
       download: () => Promise<{ ok: boolean; supported?: boolean }>

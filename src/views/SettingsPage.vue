@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import Icon from '@/components/Icon.vue'
 import FormatMatrix from '@/components/FormatMatrix.vue'
 import { usePreferencesStore } from '@/stores/preferences'
@@ -18,6 +18,18 @@ const toast = useToastStore()
 const appVersion = __APP_VERSION__
 const updates = window.yejian?.updates
 const checkingUpdate = ref(false)
+const updateMessage = ref('')
+let unsubscribeUpdate: (() => void) | undefined
+
+const updateHint = computed(() => {
+  if (updates) {
+    return '启动时会自动检查 GitHub Releases，发现新版本后右下角提示下载，重启即可完成安装。'
+  }
+  if (sync.device.platform === 'android') {
+    return 'Android 版启动时会自动检查新版本，也可前往 Releases 手动下载 APK。'
+  }
+  return '浏览器端不支持应用内更新；桌面版与 Android 版会自动检查，也可从 Releases 手动下载。'
+})
 
 async function checkUpdate() {
   if (!updates || checkingUpdate.value) return
@@ -64,6 +76,15 @@ const usagePercent = computed(() => {
 })
 
 onMounted(async () => {
+  unsubscribeUpdate = updates?.onStatus((state) => {
+    if (state.state === 'checking') updateMessage.value = '正在检查新版本…'
+    else if (state.state === 'none') updateMessage.value = '已是最新版本'
+    else if (state.state === 'available') updateMessage.value = `发现新版本 v${state.version}`
+    else if (state.state === 'downloading') updateMessage.value = `正在下载 ${state.percent ?? 0}%`
+    else if (state.state === 'downloaded') updateMessage.value = `v${state.version} 已下载，重启后安装`
+    else updateMessage.value = state.message || '检查更新失败'
+  })
+
   try {
     if (navigator.storage?.estimate) {
       const estimate = await navigator.storage.estimate()
@@ -73,6 +94,10 @@ onMounted(async () => {
   } catch {
     /* 估算不可用时忽略 */
   }
+})
+
+onBeforeUnmount(() => {
+  unsubscribeUpdate?.()
 })
 </script>
 
@@ -92,7 +117,7 @@ onMounted(async () => {
           <p class="eyebrow">APPEARANCE</p>
           <h2 class="panel-title">外观主题</h2>
         </div>
-        <span class="panel-note">全应用同步切换</span>
+        <span class="panel-note">仅影响应用界面</span>
       </header>
 
       <div class="theme-grid">
@@ -120,6 +145,10 @@ onMounted(async () => {
           </span>
         </button>
       </div>
+
+      <p class="theme-hint">
+        阅读时的纸面主题单独设置：打开任意一本书，进入「阅读设置 → 阅读主题」，可与应用主题不同。
+      </p>
     </section>
 
     <section class="panel">
@@ -294,12 +323,7 @@ onMounted(async () => {
             <p class="eyebrow">ABOUT</p>
             <h2 class="panel-title">关于页间</h2>
           </div>
-          <div class="about-head-actions">
-            <span class="version-chip">v{{ appVersion }}</span>
-            <button v-if="updates" class="check-update" :disabled="checkingUpdate" @click="checkUpdate">
-              {{ checkingUpdate ? '检查中…' : '检查更新' }}
-            </button>
-          </div>
+          <span class="panel-note">本地优先 · 不上传</span>
         </header>
 
         <div class="about-mark">
@@ -334,6 +358,38 @@ onMounted(async () => {
         </p>
       </section>
     </div>
+
+    <section class="panel">
+      <header class="panel-head">
+        <div>
+          <p class="eyebrow">UPDATE</p>
+          <h2 class="panel-title">版本更新</h2>
+        </div>
+        <span class="panel-note">GitHub Releases</span>
+      </header>
+
+      <div class="update-row">
+        <div class="update-version">
+          <span class="update-label">当前版本</span>
+          <span class="update-value">v{{ appVersion }}</span>
+        </div>
+        <button v-if="updates" class="check-update" :disabled="checkingUpdate" @click="checkUpdate">
+          {{ checkingUpdate ? '检查中…' : '检查更新' }}
+        </button>
+        <a
+          v-else
+          class="check-update"
+          href="https://github.com/itcwc/yejian-reader/releases"
+          target="_blank"
+          rel="noreferrer"
+        >
+          前往下载
+        </a>
+      </div>
+
+      <p v-if="updateMessage" class="update-status">{{ updateMessage }}</p>
+      <p class="update-note">{{ updateHint }}</p>
+    </section>
 
     <section class="panel">
       <header class="panel-head">
@@ -423,6 +479,13 @@ onMounted(async () => {
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-top: 18px;
+}
+
+.theme-hint {
+  margin-top: 14px;
+  font-size: 11px;
+  line-height: 1.75;
+  color: var(--ink-faint);
 }
 
 .theme-card {
@@ -635,7 +698,7 @@ onMounted(async () => {
 
 .two-column {
   max-width: 1080px;
-  margin: 0 auto;
+  margin: 0 auto 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
@@ -712,30 +775,58 @@ onMounted(async () => {
   color: var(--ink-faint);
 }
 
-.version-chip {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.08em;
-  padding: 4px 8px;
-  border-radius: var(--radius-xs);
-  border: 1px solid var(--line);
+.update-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.update-version {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.update-label {
+  font-size: 11px;
   color: var(--ink-muted);
 }
 
-.about-head-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.update-value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.update-status {
+  margin-top: 12px;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--accent-strong);
+}
+
+.update-note {
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.75;
+  color: var(--ink-faint);
 }
 
 .check-update {
-  height: 26px;
-  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--line);
   background: transparent;
   color: var(--ink-soft);
   font-size: 11px;
+  text-decoration: none;
   cursor: pointer;
   transition: background 0.16s var(--ease-soft);
 }
@@ -784,22 +875,34 @@ onMounted(async () => {
 .about-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px 16px;
+  gap: 2px 24px;
   margin-top: 18px;
 }
 
+.about-list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px 0;
+  min-width: 0;
+}
+
 .about-list dt {
+  flex: 0 0 auto;
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  margin-bottom: 3px;
 }
 
 .about-list dd {
+  min-width: 0;
   font-size: 12px;
   color: var(--ink-soft);
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .about-note {

@@ -10,7 +10,6 @@ const preferences = usePreferencesStore()
 const nav = [
   { to: '/', label: '书架', icon: 'book' },
   { to: '/sync', label: '同步', icon: 'sync' },
-  { to: '/settings', label: '设置', icon: 'settings' },
 ]
 
 const themeIcon = computed(() => {
@@ -51,13 +50,28 @@ function isActive(to: string) {
         <Icon :name="item.icon" :size="20" />
         <span class="rail-label">{{ item.label }}</span>
       </RouterLink>
+
+      <button
+        class="rail-item"
+        type="button"
+        :title="`外观：${themeLabel}，点击切换`"
+        @click="preferences.cycleTheme()"
+      >
+        <Icon :name="themeIcon" :size="20" />
+        <span class="rail-label">外观</span>
+      </button>
     </nav>
 
     <div class="rail-foot">
-      <button class="theme-cycle" type="button" @click="preferences.cycleTheme()" :title="`外观：${themeLabel}，点击切换`">
-        <Icon :name="themeIcon" :size="19" />
-        <span>{{ themeLabel }}</span>
-      </button>
+      <RouterLink
+        to="/settings"
+        class="rail-item rail-item-foot"
+        :class="{ 'is-active': isActive('/settings') }"
+      >
+        <span class="rail-indicator" aria-hidden="true"></span>
+        <Icon name="settings" :size="20" />
+        <span class="rail-label">设置</span>
+      </RouterLink>
       <span class="rail-version">v0.1</span>
     </div>
   </aside>
@@ -192,28 +206,8 @@ function isActive(to: string) {
   gap: 12px;
 }
 
-.theme-cycle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
+.rail-item-foot {
   width: 58px;
-  padding: 10px 0 8px;
-  border-radius: var(--radius-md);
-  color: var(--ink-muted);
-  border: 1px solid transparent;
-  transition: all 0.2s;
-}
-
-.theme-cycle:hover {
-  color: var(--ink);
-  background: var(--surface-hover);
-  border-color: var(--line);
-}
-
-.theme-cycle span {
-  font-size: 10px;
-  letter-spacing: 0.08em;
 }
 
 .rail-version {

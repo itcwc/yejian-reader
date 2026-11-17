@@ -16,14 +16,20 @@ export const usePreferencesStore = defineStore('preferences', () => {
     () => {
       savePreferences({ ...prefs })
       applyTheme(prefs.theme)
+      window.yejian?.setAppTheme?.(prefs.theme)
     },
     { deep: true },
   )
 
   applyTheme(prefs.theme)
+  window.yejian?.setAppTheme?.(prefs.theme)
 
   function setTheme(theme: ThemeId) {
     prefs.theme = theme
+  }
+
+  function setReaderTheme(theme: ThemeId) {
+    prefs.readerTheme = theme
   }
 
   function cycleTheme() {
@@ -32,5 +38,5 @@ export const usePreferencesStore = defineStore('preferences', () => {
     prefs.theme = order[(index + 1) % order.length]
   }
 
-  return { prefs, setTheme, cycleTheme }
+  return { prefs, setTheme, setReaderTheme, cycleTheme }
 })

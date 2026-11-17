@@ -4,6 +4,7 @@ const { version } = require('../package.json')
 contextBridge.exposeInMainWorld('yejian', {
   platform: 'desktop',
   version,
+  setAppTheme: (theme) => ipcRenderer.send('theme:set', theme),
   updates: {
     check: () => ipcRenderer.invoke('update:check'),
     download: () => ipcRenderer.invoke('update:download'),

@@ -33,7 +33,7 @@
 }
 
 /* ---------------- 白纸 ---------------- */
-html[data-theme="paper"] {
+[data-theme="paper"] {
   color-scheme: light;
   --bg: #f2efe6;
   --bg-deep: #e9e4d7;
@@ -69,7 +69,7 @@ html[data-theme="paper"] {
 }
 
 /* ---------------- 夜读 ---------------- */
-html[data-theme="night"] {
+[data-theme="night"] {
   color-scheme: dark;
   --bg: #101311;
   --bg-deep: #0a0c0a;
@@ -105,7 +105,7 @@ html[data-theme="night"] {
 }
 
 /* ---------------- 护眼绿 ---------------- */
-html[data-theme="green"] {
+[data-theme="green"] {
   color-scheme: light;
   --bg: #dbe8d4;
   --bg-deep: #cfdfc7;

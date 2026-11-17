@@ -1,6 +1,20 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, nativeTheme, shell } = require('electron')
 const { autoUpdater } = require('electron-updater')
 const path = require('node:path')
+
+const THEME_BACKGROUND = {
+  paper: '#f2efe6',
+  night: '#101311',
+  green: '#dbe8d4',
+}
+
+function applyWindowTheme(theme) {
+  const background = THEME_BACKGROUND[theme] || THEME_BACKGROUND.paper
+  nativeTheme.themeSource = theme === 'night' ? 'dark' : 'light'
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) win.setBackgroundColor(background)
+  }
+}
 
 function broadcastUpdate(state) {
   for (const win of BrowserWindow.getAllWindows()) {
@@ -89,6 +103,10 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  ipcMain.on('theme:set', (_event, theme) => {
+    if (typeof theme === 'string') applyWindowTheme(theme)
+  })
+
   setupUpdater()
   createWindow()
 

@@ -50,10 +50,10 @@ function percentOf(value: number): number {
 }
 
 function filterCss(): string {
-  if (props.settings.theme === 'night' && props.settings.pdfInvert) {
+  if (props.settings.readerTheme === 'night' && props.settings.pdfInvert) {
     return 'invert(0.91) hue-rotate(180deg) contrast(0.94) saturate(0.9)'
   }
-  if (props.settings.theme === 'green') {
+  if (props.settings.readerTheme === 'green') {
     return 'sepia(0.16) hue-rotate(46deg) saturate(0.92) brightness(0.985)'
   }
   return 'none'
@@ -390,7 +390,7 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.settings.theme, props.settings.pdfInvert],
+  () => [props.settings.readerTheme, props.settings.pdfInvert],
   () => applyCanvasFilter(),
 )
 

@@ -243,7 +243,7 @@ function jumpTo(item: TocItem) {
 }
 
 function switchTheme(theme: ThemeId) {
-  preferences.setTheme(theme)
+  preferences.setReaderTheme(theme)
 }
 
 async function exit() {
@@ -304,7 +304,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="reader" :class="[`theme-${preferences.prefs.theme}`, `engine-${engineType}`]">
+  <div class="reader" :class="`engine-${engineType}`" :data-theme="preferences.prefs.readerTheme">
     <div class="reader-surface">
       <EpubReader
         v-if="engineType === 'epub' && buffer"
@@ -511,13 +511,13 @@ onBeforeUnmount(() => {
 
         <div class="sheet-body">
           <div class="setting-block">
-            <span class="setting-label">主题</span>
+            <span class="setting-label">阅读主题</span>
             <div class="theme-grid">
               <button
                 v-for="theme in themeOptions"
                 :key="theme.id"
                 class="theme-option"
-                :class="{ 'is-active': preferences.prefs.theme === theme.id }"
+                :class="{ 'is-active': preferences.prefs.readerTheme === theme.id }"
                 type="button"
                 @click="switchTheme(theme.id)"
               >

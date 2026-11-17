@@ -4,6 +4,7 @@ const KEY = 'yejian.preferences.v1'
 
 export const DEFAULT_PREFERENCES: Preferences = {
   theme: 'paper',
+  readerTheme: 'paper',
   readingMode: 'paged',
   fontSize: 19,
   lineHeight: 1.95,
@@ -24,7 +25,10 @@ export function loadPreferences(): Preferences {
     const raw = localStorage.getItem(KEY)
     if (!raw) return { ...DEFAULT_PREFERENCES }
     const parsed = JSON.parse(raw) as Partial<Preferences>
-    return { ...DEFAULT_PREFERENCES, ...parsed }
+    const merged = { ...DEFAULT_PREFERENCES, ...parsed }
+    // 旧版本只有应用主题，首次升级时让阅读主题跟随它，避免阅读器突然变成白纸。
+    if (!parsed.readerTheme) merged.readerTheme = merged.theme
+    return merged
   } catch {
     return { ...DEFAULT_PREFERENCES }
   }

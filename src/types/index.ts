@@ -110,6 +110,7 @@ export type ReadingMode = 'paged' | 'scroll'
 
 export interface Preferences {
   theme: ThemeId
+  readerTheme: ThemeId
   readingMode: ReadingMode
   fontSize: number
   lineHeight: number

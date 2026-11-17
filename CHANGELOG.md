@@ -2,6 +2,23 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.2] - 2026-11-17
+
+### Added
+
+- 阅读主题与应用主题拆分：阅读时的纸面主题在「阅读设置 → 阅读主题」中单独选择，可与应用主题不同。
+- 设置页新增独立的「版本更新」面板，显示当前版本并提供检查更新 / 前往下载入口。
+
+### Changed
+
+- Windows 原生窗口外框跟随应用主题：夜读时标题栏与窗口底色变深，避免白边与白底。
+- 侧栏与移动端底栏互换「设置」「外观」位置，设置图标改为齿轮。
+- 关于页间的 `dt` / `dd` 改为同行左右对齐，窄屏不再上下堆叠。
+
+### Fixed
+
+- 窄屏下搜索框无法收缩，导致首页出现横向滚动（375px 实测越界 9px）。
+
 ## [0.1.1] - 2026-11-17
 
 ### Added
@@ -51,5 +68,6 @@
 - 纯静态部署与 Android WebView 需 WebDAV 服务端配置 CORS 或反向代理。
 - 不支持带 DRM 的 EPUB/PDF。
 
+[0.1.2]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.2
 [0.1.1]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.1
 [0.1.0]: https://github.com/itcwc/yejian-reader/releases/tag/v0.1.0

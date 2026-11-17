@@ -10,7 +10,6 @@ const preferences = usePreferencesStore()
 const items = [
   { to: '/', label: '书架', icon: 'book' },
   { to: '/sync', label: '同步', icon: 'sync' },
-  { to: '/settings', label: '设置', icon: 'settings' },
 ]
 
 const themeIcon = computed(() => {
@@ -40,6 +39,14 @@ function isActive(to: string) {
       <Icon :name="themeIcon" :size="20" />
       <span>外观</span>
     </button>
+    <RouterLink
+      to="/settings"
+      class="mobile-nav-item"
+      :class="{ 'is-active': isActive('/settings') }"
+    >
+      <Icon name="settings" :size="20" />
+      <span>设置</span>
+    </RouterLink>
   </nav>
 </template>
 

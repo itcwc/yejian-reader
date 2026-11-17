@@ -28,7 +28,8 @@ let initialPercent = 0
 const sourceDoc = ref('')
 
 function cssVar(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  const host = document.querySelector('.reader') || document.documentElement
+  return getComputedStyle(host).getPropertyValue(name).trim()
 }
 
 function readerStyle(): string {
@@ -255,7 +256,7 @@ onMounted(() => {
 })
 
 watch(
-  () => [props.settings.fontSize, props.settings.lineHeight, props.settings.fontKind, props.settings.contentWidth, props.settings.theme],
+  () => [props.settings.fontSize, props.settings.lineHeight, props.settings.fontKind, props.settings.contentWidth, props.settings.readerTheme],
   () => ensureStyle(),
 )
 

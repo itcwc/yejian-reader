@@ -34,7 +34,8 @@ function isScroll(): boolean {
 }
 
 function cssVar(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  const host = document.querySelector('.reader') || document.documentElement
+  return getComputedStyle(host).getPropertyValue(name).trim()
 }
 
 function themeRules() {
@@ -406,7 +407,7 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.settings.fontSize, props.settings.lineHeight, props.settings.fontKind, props.settings.theme],
+  () => [props.settings.fontSize, props.settings.lineHeight, props.settings.fontKind, props.settings.readerTheme],
   () => applyTheme(),
 )
 
