@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import AppRail from '@/components/AppRail.vue'
 import MobileNav from '@/components/MobileNav.vue'
 import ToastHost from '@/components/ToastHost.vue'
+import UpdateBanner from '@/components/UpdateBanner.vue'
 import { useSyncStore } from '@/stores/sync'
 import { useLibraryStore } from '@/stores/library'
 
@@ -48,6 +49,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', handleVis
     </main>
 
     <MobileNav v-if="!immersive" />
+    <UpdateBanner v-if="!immersive" />
     <ToastHost />
   </div>
 </template>

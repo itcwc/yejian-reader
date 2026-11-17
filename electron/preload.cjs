@@ -1,6 +1,17 @@
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
+const { version } = require('../package.json')
 
 contextBridge.exposeInMainWorld('yejian', {
   platform: 'desktop',
-  version: '0.1.0',
+  version,
+  updates: {
+    check: () => ipcRenderer.invoke('update:check'),
+    download: () => ipcRenderer.invoke('update:download'),
+    install: () => ipcRenderer.invoke('update:install'),
+    onStatus: (callback) => {
+      const listener = (_event, state) => callback(state)
+      ipcRenderer.on('update:status', listener)
+      return () => ipcRenderer.removeListener('update:status', listener)
+    },
+  },
 })

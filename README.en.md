@@ -66,10 +66,17 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 
 Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
 
-- **Windows**: `Setup.0.1.0.exe` (NSIS installer; the installed app is named 页间阅读)
-- **Android**: `yejian-v0.1.0-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
+- **Windows**: `yejian-v0.1.1-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
+- **Android**: `yejian-v0.1.1-android-debug.apk` (debug-signed, sideload after allowing unknown sources)
 
 The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
+
+### In-app updates
+
+- **Windows**: checks GitHub Releases shortly after launch, shows a corner prompt on a new version, downloads it in-app and installs on restart. You can also check manually in Settings → About.
+- **Android**: reads `update.json` on launch, compares versions, downloads the APK, verifies its SHA-256 and hands it to the system installer for an in-place update.
+
+> Android builds before v0.1.1 used an ephemeral CI key, so they cannot be updated in place — uninstall the old app once before installing v0.1.1.
 
 ## Getting started
 

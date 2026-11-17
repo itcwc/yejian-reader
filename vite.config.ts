@@ -1,8 +1,13 @@
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import { readFileSync } from 'node:fs'
 import http from 'node:http'
 import https from 'node:https'
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as {
+  version: string
+}
 
 function isPrivateHost(hostname: string): boolean {
   const host = hostname.toLowerCase()
@@ -131,6 +136,7 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
   server: {
     host: true,

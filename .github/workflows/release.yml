@@ -137,3 +137,23 @@ jobs:
           apk="yejian-v${version}-android-debug.apk"
           cp android-webview/app/build/outputs/apk/debug/app-debug.apk "$apk"
           gh release upload "$tag" "$apk" --clobber
+
+      - name: Publish update manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          tag="v${version}"
+          apk="yejian-v${version}-android-debug.apk"
+          sha="$(sha256sum "$apk" | awk '{print $1}')"
+          url="https://github.com/itcwc/yejian-reader/releases/download/${tag}/${apk}"
+          VERSION="$version" APK_URL="$url" APK_SHA="$sha" node -e '
+            const fs = require("node:fs")
+            fs.writeFileSync("update.json", JSON.stringify({
+              version: process.env.VERSION,
+              publishedAt: new Date().toISOString(),
+              android: { url: process.env.APK_URL, sha256: process.env.APK_SHA }
+            }, null, 2) + "\n")
+          '
+          gh release upload "$tag" update.json --clobber

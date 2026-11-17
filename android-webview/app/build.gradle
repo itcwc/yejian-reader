@@ -10,13 +10,26 @@ android {
         applicationId 'com.yejian.reader'
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName '0.1.0'
+        versionCode 2
+        versionName '0.1.1'
+    }
+
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('keystore/yejian-debug.jks')
+            storePassword 'yejian123'
+            keyAlias 'yejiandebug'
+            keyPassword 'yejian123'
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -27,5 +40,6 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.core:core:1.13.1'
     implementation 'androidx.webkit:webkit:1.11.0'
 }

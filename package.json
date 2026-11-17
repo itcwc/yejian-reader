@@ -1,6 +1,6 @@
 {
   "name": "yejian-reader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "页间 · 跨设备阅读器（Web / PC / Android）",
   "type": "module",
@@ -14,6 +14,7 @@
     "build:android": "vite build && node scripts/sync-hybrid.mjs"
   },
   "dependencies": {
+    "electron-updater": "^6.8.11",
     "epubjs": "^0.3.93",
     "jszip": "^3.10.1",
     "mammoth": "^1.9.1",
@@ -42,14 +43,22 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "artifactName": "yejian-v${version}-windows-x64.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "itcwc",
+        "repo": "yejian-reader"
+      }
+    ]
   },
   "keywords": [
     "reader",

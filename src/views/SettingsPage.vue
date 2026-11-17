@@ -5,6 +5,7 @@ import FormatMatrix from '@/components/FormatMatrix.vue'
 import { usePreferencesStore } from '@/stores/preferences'
 import { useLibraryStore } from '@/stores/library'
 import { useSyncStore } from '@/stores/sync'
+import { useToastStore } from '@/stores/toast'
 import { THEME_META } from '@/core/preferences'
 import { formatBytes } from '@/utils/text'
 import type { ThemeId } from '@/types'
@@ -12,6 +13,30 @@ import type { ThemeId } from '@/types'
 const preferences = usePreferencesStore()
 const library = useLibraryStore()
 const sync = useSyncStore()
+const toast = useToastStore()
+
+const appVersion = __APP_VERSION__
+const updates = window.yejian?.updates
+const checkingUpdate = ref(false)
+
+async function checkUpdate() {
+  if (!updates || checkingUpdate.value) return
+  checkingUpdate.value = true
+  try {
+    const result = await updates.check()
+    if (!result.supported) {
+      toast.push('当前环境不支持应用内更新')
+    } else if (result.error) {
+      toast.push(`检查更新失败：${result.error}`, 'error')
+    } else if (result.version && result.version !== appVersion) {
+      toast.push(`发现新版本 v${result.version}`, 'success')
+    } else {
+      toast.push('已是最新版本', 'success')
+    }
+  } finally {
+    checkingUpdate.value = false
+  }
+}
 
 const usage = ref(0)
 const quota = ref(0)
@@ -269,7 +294,12 @@ onMounted(async () => {
             <p class="eyebrow">ABOUT</p>
             <h2 class="panel-title">关于页间</h2>
           </div>
-          <span class="version-chip">v0.1.0</span>
+          <div class="about-head-actions">
+            <span class="version-chip">v{{ appVersion }}</span>
+            <button v-if="updates" class="check-update" :disabled="checkingUpdate" @click="checkUpdate">
+              {{ checkingUpdate ? '检查中…' : '检查更新' }}
+            </button>
+          </div>
         </header>
 
         <div class="about-mark">
@@ -690,6 +720,33 @@ onMounted(async () => {
   border-radius: var(--radius-xs);
   border: 1px solid var(--line);
   color: var(--ink-muted);
+}
+
+.about-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.check-update {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.16s var(--ease-soft);
+}
+
+.check-update:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.check-update:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .about-mark {
