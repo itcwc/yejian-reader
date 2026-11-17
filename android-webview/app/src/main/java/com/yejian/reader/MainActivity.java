@@ -61,6 +61,7 @@ public class MainActivity extends Activity {
 
     private WebView webView;
     private WebViewAssetLoader assetLoader;
+    private ImmersiveBridge immersiveBridge;
     private DownloadManager downloadManager;
     private long downloadId = -1;
     private String pendingVersion = "";
@@ -105,6 +106,8 @@ public class MainActivity extends Activity {
         // WebDAV 走原生 OkHttp，不受站点 CORS 限制。
         webView.addJavascriptInterface(new WebDavBridge(webView), "YeJianBridge");
         webView.addJavascriptInterface(backupWriter, "YeJianBackup");
+        immersiveBridge = new ImmersiveBridge(this);
+        webView.addJavascriptInterface(immersiveBridge, "YeJianShell");
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
@@ -447,6 +450,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (immersiveBridge != null) immersiveBridge.reapply();
         if (!pendingUrl.isEmpty()
                 && (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
                 || getPackageManager().canRequestPackageInstalls())) {

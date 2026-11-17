@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppRail from '@/components/AppRail.vue'
 import MobileNav from '@/components/MobileNav.vue'
@@ -12,6 +12,12 @@ import { useLibraryStore } from '@/stores/library'
 const route = useRoute()
 const immersive = computed(() => route.meta.immersive === true)
 const customTitleBar = window.yejian?.os === 'win32'
+
+// 安卓壳：阅读模式隐藏系统状态栏与导航栏，退出后恢复。
+const shell = (window as unknown as {
+  YeJianShell?: { setImmersive?: (value: boolean) => void }
+}).YeJianShell
+watch(immersive, (value) => shell?.setImmersive?.(value), { immediate: true })
 
 const sync = useSyncStore()
 const library = useLibraryStore()
