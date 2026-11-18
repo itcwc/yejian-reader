@@ -503,6 +503,13 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        // 从系统弹窗/安装器返回后，系统可能恢复状态栏，重新套用颜色与隐藏状态。
+        if (hasFocus && immersiveBridge != null) immersiveBridge.reapply();
+    }
+
+    @Override
     protected void onDestroy() {
         if (filePicker != null) {
             filePicker.onReceiveValue(null);

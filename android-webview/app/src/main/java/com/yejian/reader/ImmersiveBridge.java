@@ -56,6 +56,12 @@ public class ImmersiveBridge {
         if (activity.isFinishing() || activity.isDestroyed()) return;
         Window window = activity.getWindow();
 
+        // 关键：始终保持“内容位于系统栏下方”的普通布局，不要进入 edge-to-edge。
+        // 一旦 setDecorFitsSystemWindows(false)，系统会把状态栏改为透明并接管绘制，
+        // window.setStatusBarColor() 不再决定栏的最终颜色；部分 ROM 在沉浸隐藏失败时
+        // 会直接把状态栏画成黑色（首页没进 edge-to-edge，所以颜色一直正常）。
+        WindowCompat.setDecorFitsSystemWindows(window, true);
+
         if (webView != null) webView.setBackgroundColor(shellColor);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(
@@ -63,8 +69,8 @@ public class ImmersiveBridge {
                         | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         window.setBackgroundDrawable(new ColorDrawable(shellColor));
         window.getDecorView().setBackgroundColor(shellColor);
-        // 系统栏直接使用当前纸面/应用底色：沉浸时栏本身不可见，
-        // 即使被系统或手势临时唤出也是同色，不会出现灰色或黑色条。
+        // 系统栏直接使用当前纸面/应用底色：沉浸隐藏成功时不可见，
+        // 隐藏失败或被手势临时唤出时也是同色，不会出现黑色条。
         window.setStatusBarColor(shellColor);
         window.setNavigationBarColor(shellColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -75,18 +81,18 @@ public class ImmersiveBridge {
             window.setNavigationBarContrastEnforced(false);
         }
 
-        WindowCompat.setDecorFitsSystemWindows(window, !immersive);
-        window.getDecorView().requestApplyInsets();
         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
         boolean lightBars = isLight(shellColor);
         controller.setAppearanceLightStatusBars(lightBars);
         controller.setAppearanceLightNavigationBars(lightBars);
         if (immersive) {
+            // 隐藏系统栏只是“尽力而为”：能隐藏则全屏，不能隐藏时上面已把栏涂成主题色。
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             controller.hide(WindowInsetsCompat.Type.systemBars());
         } else {
             controller.show(WindowInsetsCompat.Type.systemBars());
         }
+        window.getDecorView().requestApplyInsets();
     }
 
     private static boolean isLight(int color) {

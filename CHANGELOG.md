@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.16] - 2026-11-18
+
+### Fixed
+
+- 安卓阅读页系统状态栏在浅色/深色/sepia 三种阅读主题下始终为黑色：阅读页此前会把 Activity 切到 edge-to-edge，系统接管状态栏绘制后 `setStatusBarColor` 失效。现在阅读页与首页使用相同的窗口布局（fitsSystemWindows），状态栏始终使用当前阅读主题底色，沉浸隐藏失败时也不会露出黑条。
+- 从系统弹窗、安装器返回后重新套用状态栏颜色与沉浸状态（新增 `onWindowFocusChanged` 处理）。
+
 ## [0.1.15] - 2026-11-18
 
 ### Changed
