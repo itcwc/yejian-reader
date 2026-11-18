@@ -293,13 +293,16 @@ async function createRendition(target?: string) {
 
   applyTheme()
 
+  let positioned = false
   try {
     await rendition.display(target)
+    positioned = true
   } catch {
     /* 忽略定位失败 */
   }
-  if (destroyed) return
+  if (destroyed) return positioned
   emit('ready')
+  return positioned
 }
 
 async function scrollToPercent(percent: number) {
@@ -376,26 +379,33 @@ onMounted(async () => {
     const toc = flattenToc(book.navigation?.toc || [])
     emit('toc', toc)
 
-    await createRendition(initialLocator || undefined)
+    const positioned = await createRendition(initialLocator || undefined)
     if (destroyed) return
 
-    if (isScroll()) await scrollToPercent(initialPercent)
+    // 有精确 CFI 时直接用 CFI 定位；百分比定位在 locations 就绪前只能按章节粗算，
+    // 会落到章首，因此滚动模式也不能用它覆盖 CFI。
+    const hasLocator = Boolean(initialLocator) && positioned
+    if (isScroll() && !hasLocator) await scrollToPercent(initialPercent)
 
     book.locations
       .generate(1400)
       .then(async () => {
         if (destroyed) return
         locationsReady = true
-        if (isScroll()) return
-        if (!initialLocator && initialPercent > 0) {
+        if (hasLocator) {
+          const located = rendition?.currentLocation?.()
+          if (located) emitLocation(located)
+          return
+        }
+        if (initialPercent > 0) {
           try {
             const cfi = book.locations.cfiFromPercentage(initialPercent / 100)
-            if (cfi) await rendition.display(cfi)
+            if (cfi) await rendition?.display(cfi)
           } catch {
             /* 忽略定位失败 */
           }
         }
-        const current = rendition.currentLocation?.()
+        const current = rendition?.currentLocation?.()
         if (current) emitLocation(current)
       })
       .catch(() => undefined)
