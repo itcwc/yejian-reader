@@ -18,8 +18,12 @@ const toast = useToastStore()
 
 const appVersion = __APP_VERSION__
 const updates = window.yejian?.updates
+const androidUpdate = window.YeJianUpdate
 const checkingUpdate = ref(false)
 const updateMessage = ref('')
+const availableVersion = ref('')
+const downloadBusy = ref(false)
+const updateReady = ref(false)
 let unsubscribeUpdate: (() => void) | undefined
 
 const RELEASES_URL = 'https://github.com/itcwc/yejian-reader/releases'
@@ -27,12 +31,15 @@ const LATEST_RELEASE_API = 'https://api.github.com/repos/itcwc/yejian-reader/rel
 
 const updateHint = computed(() => {
   if (updates) {
-    return '启动时会自动检查 GitHub Releases，发现新版本后右下角提示下载，重启即可完成安装。'
+    return '启动时自动检查 GitHub Releases；发现新版本后可直接在这里下载，重启即可完成安装。'
+  }
+  if (androidUpdate) {
+    return '启动时自动检查新版本，也可随时在这里手动检查；发现新版会在应用内下载并调起安装。'
   }
   if (sync.device.platform === 'android') {
-    return 'Android 版启动时会自动检查新版本，也可前往 Releases 手动下载 APK。'
+    return '启动时会自动检查新版本，也可在这里手动检查。'
   }
-  return '可随时向 GitHub Releases 查询新版本，发现新版后前往下载页安装即可。'
+  return '可随时向 GitHub Releases 查询新版本；浏览器版请前往下载页获取安装包。'
 })
 
 function compareVersions(a: string, b: string): number {
@@ -65,6 +72,13 @@ async function checkUpdate() {
   checkingUpdate.value = true
   updateMessage.value = ''
   try {
+    // 安卓壳：交给原生更新流程，检查结果与应用内下载都在系统弹窗里完成。
+    if (androidUpdate?.check) {
+      androidUpdate.check()
+      updateMessage.value = '正在检查新版本，如有更新会在应用内提示下载。'
+      return
+    }
+
     if (updates) {
       const result = await updates.check()
       if (!result.supported) {
@@ -72,7 +86,8 @@ async function checkUpdate() {
       } else if (result.error) {
         updateMessage.value = `检查失败：${result.error}`
       } else if (result.version && compareVersions(result.version, appVersion) > 0) {
-        updateMessage.value = `发现新版本 v${result.version}，下载完成后重启即可安装。`
+        availableVersion.value = result.version
+        updateMessage.value = `发现新版本 v${result.version}，可直接在应用内下载。`
       } else {
         updateMessage.value = '已是最新版本'
       }
@@ -89,6 +104,22 @@ async function checkUpdate() {
   } finally {
     checkingUpdate.value = false
   }
+}
+
+async function downloadUpdate() {
+  if (!updates || downloadBusy.value || updateReady.value) return
+  downloadBusy.value = true
+  updateMessage.value = '正在准备下载更新…'
+  try {
+    const result = await updates.download()
+    if (!result.ok) updateMessage.value = '下载失败，请稍后重试。'
+  } finally {
+    downloadBusy.value = false
+  }
+}
+
+async function installUpdate() {
+  await updates?.install()
 }
 
 const usage = ref(0)
@@ -151,11 +182,25 @@ const usagePercent = computed(() => {
 onMounted(async () => {
   unsubscribeUpdate = updates?.onStatus((state) => {
     if (state.state === 'checking') updateMessage.value = '正在检查新版本…'
-    else if (state.state === 'none') updateMessage.value = '已是最新版本'
-    else if (state.state === 'available') updateMessage.value = `发现新版本 v${state.version}`
-    else if (state.state === 'downloading') updateMessage.value = `正在下载 ${state.percent ?? 0}%`
-    else if (state.state === 'downloaded') updateMessage.value = `v${state.version} 已下载，重启后安装`
-    else updateMessage.value = state.message || '检查更新失败'
+    else if (state.state === 'none') {
+      availableVersion.value = ''
+      updateReady.value = false
+      updateMessage.value = '已是最新版本'
+    } else if (state.state === 'available') {
+      availableVersion.value = state.version || ''
+      updateReady.value = false
+      updateMessage.value = `发现新版本 v${state.version}，可直接在应用内下载。`
+    } else if (state.state === 'downloading') {
+      downloadBusy.value = true
+      updateMessage.value = `正在下载 ${state.percent ?? 0}%`
+    } else if (state.state === 'downloaded') {
+      downloadBusy.value = false
+      updateReady.value = true
+      updateMessage.value = `v${state.version} 已下载，可直接重启安装`
+    } else {
+      downloadBusy.value = false
+      updateMessage.value = state.message || '检查更新失败'
+    }
   })
 
   try {
@@ -510,11 +555,22 @@ onBeforeUnmount(() => {
           <span class="update-value">v{{ appVersion }}</span>
         </div>
         <div class="update-actions">
-          <button class="check-update" :disabled="checkingUpdate" @click="checkUpdate">
+          <button class="check-update" :disabled="checkingUpdate || downloadBusy" @click="checkUpdate">
             {{ checkingUpdate ? '检查中…' : '检查更新' }}
           </button>
+          <button
+            v-if="updates && availableVersion && !updateReady"
+            class="check-update"
+            :disabled="downloadBusy"
+            @click="downloadUpdate"
+          >
+            {{ downloadBusy ? '下载中…' : '下载更新' }}
+          </button>
+          <button v-if="updates && updateReady" class="check-update" @click="installUpdate">
+            重启安装
+          </button>
           <a
-            v-if="!updates"
+            v-if="!updates && !androidUpdate"
             class="check-update"
             :href="RELEASES_URL"
             target="_blank"

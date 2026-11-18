@@ -787,6 +787,19 @@ onBeforeUnmount(() => {
   transition: background 0.3s var(--ease-soft);
 }
 
+/* 底部安全区（手势条/导航栏所在区域）始终铺阅读底色，避免露出系统默认黑色 */
+.reader::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: env(safe-area-inset-bottom);
+  background: var(--reader-bg);
+  pointer-events: none;
+  z-index: 44;
+}
+
 .reader-top {
   position: absolute;
   top: 0;
@@ -898,7 +911,7 @@ onBeforeUnmount(() => {
   padding: 0 clamp(14px, 3vw, 30px);
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--reader-muted);
+  color: color-mix(in srgb, var(--reader-ink) 58%, var(--reader-bg));
   pointer-events: none;
   transition: bottom 0.28s var(--ease-out);
 }

@@ -110,6 +110,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(backupWriter, "YeJianBackup");
         immersiveBridge = new ImmersiveBridge(this, webView);
         webView.addJavascriptInterface(immersiveBridge, "YeJianShell");
+        webView.addJavascriptInterface(new UpdateBridge(this), "YeJianUpdate");
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
@@ -164,7 +165,7 @@ public class MainActivity extends Activity {
 
         setContentView(webView);
         webView.loadUrl(APP_URL);
-        webView.postDelayed(this::checkForUpdates, 3500);
+        webView.postDelayed(() -> checkForUpdates(false), 3500);
     }
 
     @Override
@@ -300,7 +301,15 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void checkForUpdates() {
+    /** 设置页手动检查：给出明确的“正在检查/已是最新/检查失败”反馈。 */
+    void checkForUpdatesManually() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "正在检查更新…", Toast.LENGTH_SHORT).show();
+            checkForUpdates(true);
+        });
+    }
+
+    private void checkForUpdates(boolean manual) {
         new Thread(() -> {
             HttpURLConnection connection = null;
             try {
@@ -309,7 +318,10 @@ public class MainActivity extends Activity {
                 connection.setReadTimeout(8000);
                 connection.setInstanceFollowRedirects(true);
                 connection.setRequestProperty("User-Agent", "Yejian-Android/" + currentVersion());
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) return;
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    notifyManual(manual, "检查更新失败，请稍后重试");
+                    return;
+                }
 
                 StringBuilder text = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -321,20 +333,35 @@ public class MainActivity extends Activity {
                 JSONObject root = new JSONObject(text.toString());
                 String version = root.optString("version", "");
                 JSONObject android = root.optJSONObject("android");
-                if (android == null || version.isEmpty()) return;
+                if (android == null || version.isEmpty()) {
+                    notifyManual(manual, "检查更新失败，请稍后重试");
+                    return;
+                }
 
                 String url = android.optString("url", "");
                 String sha256 = android.optString("sha256", "");
-                if (!url.startsWith(UPDATE_PREFIX)) return;
-                if (!isNewer(version, currentVersion())) return;
+                if (!url.startsWith(UPDATE_PREFIX)) {
+                    notifyManual(manual, "检查更新失败，请稍后重试");
+                    return;
+                }
+                if (!isNewer(version, currentVersion())) {
+                    notifyManual(manual, "已是最新版本");
+                    return;
+                }
 
                 runOnUiThread(() -> showUpdateDialog(version, url, sha256));
             } catch (Exception ignored) {
                 // 网络不可用时静默跳过，不影响阅读。
+                notifyManual(manual, "检查更新失败，请检查网络");
             } finally {
                 if (connection != null) connection.disconnect();
             }
         }).start();
+    }
+
+    private void notifyManual(boolean manual, String text) {
+        if (!manual) return;
+        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
     private boolean isNewer(String remote, String local) {

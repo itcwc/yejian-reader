@@ -67,12 +67,16 @@ public class ImmersiveBridge {
         // 即使被系统或手势临时唤出也是同色，不会出现灰色或黑色条。
         window.setStatusBarColor(shellColor);
         window.setNavigationBarColor(shellColor);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.setNavigationBarDividerColor(shellColor);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.setStatusBarContrastEnforced(false);
             window.setNavigationBarContrastEnforced(false);
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, !immersive);
+        window.getDecorView().requestApplyInsets();
         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
         boolean lightBars = isLight(shellColor);
         controller.setAppearanceLightStatusBars(lightBars);
