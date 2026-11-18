@@ -140,6 +140,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     let booksDownloaded = 0
     let booksUploaded = 0
     let bytes = 0
+    let pendingRemoteBooks = 0
 
     if (config.syncBooks) {
       callbacks.onStage?.('下载云端书籍')
@@ -195,6 +196,9 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
         await client.put(`${COVERS_DIR}/${coverFileName(book.id)}`, cover)
         remoteCoverIds.add(book.id)
       }
+    } else {
+      // 关闭书籍同步时仍要提示云端还有多少本书没落到本地，避免误以为已经同步完成
+      pendingRemoteBooks = Array.from(mergedBooks.keys()).filter((id) => !localBookIds.has(id)).length
     }
 
     /* ---------- 阅读进度（在书籍下载后合并，确保新设备也能落到书架上） ---------- */
@@ -252,6 +256,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     if (booksUploaded) parts.push(`上传 ${booksUploaded} 本`)
     if (progressPulled) parts.push(`拉取 ${progressPulled} 条进度`)
     if (progressPushed) parts.push(`推送 ${progressPushed} 条进度`)
+    if (pendingRemoteBooks) parts.push(`云端还有 ${pendingRemoteBooks} 本未下载（请开启「同步书籍文件」）`)
     if (!parts.length) parts.push('云端与本地已一致')
 
     return {

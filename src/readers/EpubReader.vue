@@ -26,6 +26,9 @@ let rendition: any = null
 let locationsReady = false
 let destroyed = false
 let resizeTimer = 0
+let warmTimer = 0
+let warmPending = false
+let scrollBound: HTMLElement | null = null
 let initialPercent = 0
 let lastPercent = 0
 
@@ -165,6 +168,73 @@ function scrollByViewport(direction: number) {
   else rendition?.prev()
 }
 
+function onReaderScroll() {
+  scheduleWarmChapter()
+}
+
+function bindScrollWatch() {
+  const container = host.value?.querySelector('.epub-container') as HTMLElement | null
+  if (scrollBound === container) return
+  unbindScrollWatch()
+  scrollBound = container
+  scrollBound?.addEventListener('scroll', onReaderScroll, { passive: true })
+}
+
+function unbindScrollWatch() {
+  scrollBound?.removeEventListener('scroll', onReaderScroll)
+  scrollBound = null
+}
+
+function scheduleWarmChapter(delay = 220) {
+  if (warmTimer) window.clearTimeout(warmTimer)
+  warmTimer = window.setTimeout(() => {
+    warmTimer = 0
+    void warmPreviousChapter()
+  }, delay)
+}
+
+// 连续滚动时 epub.js 会在视口远离后销毁上一章的 iframe，只留下等高的空白占位，
+// 用户向上滚回章首时会先看到白屏，再重新渲染，表现为闪动/回弹。
+// 这里空闲时提前渲染上一章并阻止其被销毁，滚回章首时内容已就绪。
+async function warmPreviousChapter() {
+  if (destroyed || warmPending || !isScroll() || !rendition) return
+  const manager = rendition.manager
+  if (!manager || manager.name !== 'continuous' || !manager.views) return
+  let anchor: any = null
+  try {
+    anchor = manager.visible?.()[0]
+  } catch {
+    anchor = null
+  }
+  if (!anchor) {
+    const all = manager.views.all?.() || []
+    anchor = all[all.length - 1] || manager.views.first?.()
+  }
+  const prev = anchor?.section?.prev?.()
+  if (!prev) return
+  const views: any[] = manager.views.all?.() || []
+  const existing = views.find((view: any) => view?.section?.index === prev.index)
+
+  warmPending = true
+  try {
+    if (existing) {
+      // 保留该视图，避免视口远离后被 update() 销毁；已被销毁的空白视图需要重新渲染
+      existing.destroy = () => {}
+      if (!existing.displayed) await existing.display(manager.request)
+    } else {
+      const view = manager.prepend(prev)
+      if (!view) return
+      view.destroy = () => {}
+      await view.display(manager.request)
+    }
+    bindScrollWatch()
+  } catch {
+    /* 预热失败时仍由 epub.js 在滚动到章首时自行处理 */
+  } finally {
+    warmPending = false
+  }
+}
+
 function zoneFromContentEvent(event: MouseEvent) {
   const hostEl = host.value
   if (!hostEl) return null
@@ -174,7 +244,12 @@ function zoneFromContentEvent(event: MouseEvent) {
   // iframe 内部坐标需换算成阅读器窗口坐标，避免分栏宽度大于可视区域时误判左右
   const screenX = (frameRect?.left ?? 0) + event.clientX
   const screenY = (frameRect?.top ?? 0) + event.clientY
-  return resolveTapZone(rootEl.getBoundingClientRect(), screenX, screenY)
+  return resolveTapZone(
+    rootEl.getBoundingClientRect(),
+    screenX,
+    screenY,
+    isScroll() ? 'vertical' : 'horizontal',
+  )
 }
 
 function hookContent(contents: any) {
@@ -272,6 +347,7 @@ function handleResize() {
 
 async function createRendition(target?: string) {
   if (!book || !host.value || destroyed) return
+  unbindScrollWatch()
   try {
     rendition?.destroy()
   } catch {
@@ -289,7 +365,10 @@ async function createRendition(target?: string) {
   })
 
   rendition.hooks.content.register(hookContent)
-  rendition.on('relocated', emitLocation)
+  rendition.on('relocated', (location: any) => {
+    emitLocation(location)
+    scheduleWarmChapter()
+  })
 
   applyTheme()
 
@@ -302,6 +381,10 @@ async function createRendition(target?: string) {
   }
   if (destroyed) return positioned
   emit('ready')
+  bindScrollWatch()
+  window.requestAnimationFrame(() => {
+    if (!destroyed) void warmPreviousChapter()
+  })
   return positioned
 }
 
@@ -487,6 +570,8 @@ onBeforeUnmount(() => {
   destroyed = true
   window.removeEventListener('resize', handleResize)
   if (resizeTimer) window.clearTimeout(resizeTimer)
+  if (warmTimer) window.clearTimeout(warmTimer)
+  unbindScrollWatch()
   try {
     rendition?.destroy()
     book?.destroy()
@@ -509,6 +594,7 @@ defineExpose({ next, prev, goTo, goToPercent })
   position: absolute;
   inset: 0;
   padding: 10px clamp(16px, 5vw, 58px) 24px;
+  overflow-anchor: none;
 }
 
 .epub-host {
@@ -516,6 +602,14 @@ defineExpose({ next, prev, goTo, goToPercent })
   height: 100%;
   max-width: 900px;
   margin: 0 auto;
+  overflow-anchor: none;
+}
+
+/* 连续滚动时 epub.js 会自行补偿滚动位置，浏览器的滚动锚定会与之叠加导致回弹 */
+.epub-host :deep(.epub-container) {
+  overflow-anchor: none;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .epub-host :deep(iframe) {

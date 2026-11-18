@@ -118,6 +118,7 @@ export interface Preferences {
   contentWidth: number
   pdfInvert: boolean
   comicSpread: boolean
+  tapGuide: boolean
 }
 
 export interface SyncConfig {

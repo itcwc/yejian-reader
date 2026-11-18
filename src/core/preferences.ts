@@ -12,12 +12,34 @@ export const DEFAULT_PREFERENCES: Preferences = {
   contentWidth: 720,
   pdfInvert: true,
   comicSpread: false,
+  tapGuide: true,
 }
 
-export const THEME_META: Record<ThemeId, { label: string; caption: string; swatch: string; color: string }> = {
-  paper: { label: '白纸', caption: '温和米白，长读不刺眼', swatch: '#f2efe6', color: '#f2efe6' },
-  night: { label: '夜读', caption: '低亮深墨，暗处不扰人', swatch: '#141814', color: '#101311' },
-  green: { label: '护眼', caption: '低饱和绿，缓解视疲劳', swatch: '#dbe8d4', color: '#dbe8d4' },
+export const THEME_META: Record<
+  ThemeId,
+  { label: string; caption: string; swatch: string; color: string; readerColor: string }
+> = {
+  paper: {
+    label: '白纸',
+    caption: '温和米白，长读不刺眼',
+    swatch: '#f2efe6',
+    color: '#f2efe6',
+    readerColor: '#f7f4ea',
+  },
+  night: {
+    label: '夜读',
+    caption: '低亮深墨，暗处不扰人',
+    swatch: '#141814',
+    color: '#101311',
+    readerColor: '#121612',
+  },
+  green: {
+    label: '护眼',
+    caption: '低饱和绿，缓解视疲劳',
+    swatch: '#dbe8d4',
+    color: '#dbe8d4',
+    readerColor: '#e3eedb',
+  },
 }
 
 export function loadPreferences(): Preferences {

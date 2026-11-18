@@ -58,5 +58,6 @@ interface Window {
   __yejianDavResolve?: (id: string, json: string) => void
   YeJianShell?: {
     setImmersive?: (value: boolean) => void
+    setShellColor?: (color: string) => void
   }
 }

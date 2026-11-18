@@ -204,7 +204,7 @@ function onFrameLoad() {
 
     const width = doc?.documentElement.clientWidth || 1
     const height = doc?.documentElement.clientHeight || 1
-    const zone = resolveTapZone({ left: 0, top: 0, width, height }, event.clientX, event.clientY)
+    const zone = resolveTapZone({ left: 0, top: 0, width, height }, event.clientX, event.clientY, 'vertical')
     if (zone === 'prev') prev()
     else if (zone === 'next') next()
     else emit('toggle-bars')

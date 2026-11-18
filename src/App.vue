@@ -8,16 +8,32 @@ import ToastHost from '@/components/ToastHost.vue'
 import UpdateBanner from '@/components/UpdateBanner.vue'
 import { useSyncStore } from '@/stores/sync'
 import { useLibraryStore } from '@/stores/library'
+import { usePreferencesStore } from '@/stores/preferences'
+import { THEME_META } from '@/core/preferences'
 
 const route = useRoute()
 const immersive = computed(() => route.meta.immersive === true)
 const customTitleBar = window.yejian?.os === 'win32'
 
-// 安卓壳：阅读模式隐藏系统状态栏与导航栏，退出后恢复。
+// 安卓壳：阅读模式隐藏系统状态栏与导航栏，并把窗口底色同步为当前主题，
+// 避免系统栏区域露出黑色底。
 const shell = (window as unknown as {
-  YeJianShell?: { setImmersive?: (value: boolean) => void }
+  YeJianShell?: {
+    setImmersive?: (value: boolean) => void
+    setShellColor?: (color: string) => void
+  }
 }).YeJianShell
-watch(immersive, (value) => shell?.setImmersive?.(value), { immediate: true })
+const preferences = usePreferencesStore()
+watch(
+  [immersive, () => preferences.prefs.readerTheme, () => preferences.prefs.theme],
+  ([isImmersive]) => {
+    shell?.setImmersive?.(isImmersive)
+    const theme = isImmersive ? preferences.prefs.readerTheme : preferences.prefs.theme
+    const meta = THEME_META[theme]
+    shell?.setShellColor?.(isImmersive ? meta.readerColor : meta.color)
+  },
+  { immediate: true },
+)
 
 const sync = useSyncStore()
 const library = useLibraryStore()

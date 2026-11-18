@@ -21,7 +21,7 @@ function loadConfig(): SyncConfig {
 }
 
 function defaults(): SyncConfig {
-  return { url: '', username: '', password: '', autoSync: false, syncBooks: false }
+  return { url: '', username: '', password: '', autoSync: false, syncBooks: true }
 }
 
 function loadResult(): SyncSummary | null {

@@ -305,6 +305,23 @@ onBeforeUnmount(() => {
 
         <div class="setting-row">
           <div>
+            <span class="setting-label">点击区域提示</span>
+            <span class="setting-hint">每次进入阅读时显示可点击区域，关闭后不再弹出</span>
+          </div>
+          <button
+            class="switch"
+            :class="{ 'is-on': preferences.prefs.tapGuide }"
+            type="button"
+            role="switch"
+            :aria-checked="preferences.prefs.tapGuide"
+            @click="preferences.prefs.tapGuide = !preferences.prefs.tapGuide"
+          >
+            <span></span>
+          </button>
+        </div>
+
+        <div class="setting-row">
+          <div>
             <span class="setting-label">默认字号</span>
             <span class="setting-hint">14 – 32 px</span>
           </div>

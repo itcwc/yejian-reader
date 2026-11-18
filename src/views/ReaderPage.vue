@@ -50,7 +50,6 @@ let hasProgress = false
 let saveTimer = 0
 let guideTimer = 0
 let guideChecked = false
-const TAP_GUIDE_KEY = 'yejian.tapGuideSeen'
 
 const showLoader = computed(
   () => preparing.value || (!engineReady.value && !loadError.value && engineType.value !== 'none'),
@@ -105,6 +104,13 @@ const supportReadingMode = computed(
   () => engineType.value === 'flow' || engineType.value === 'epub' || engineType.value === 'pdf' || engineType.value === 'comic',
 )
 
+// html 阅读器只有滚动；其余引擎跟随阅读方式设置
+const verticalTapZones = computed(
+  () =>
+    engineType.value === 'html' ||
+    (supportReadingMode.value && preferences.prefs.readingMode === 'scroll'),
+)
+
 const hasToc = computed(() => chapters.value.length > 0)
 
 const currentChapter = computed(() => current.value.detail?.chapter || '')
@@ -116,11 +122,7 @@ function toggleBars() {
 function maybeShowTapGuide() {
   if (guideChecked) return
   guideChecked = true
-  try {
-    if (localStorage.getItem(TAP_GUIDE_KEY)) return
-  } catch {
-    /* 存储不可用时仍然展示一次 */
-  }
+  if (!preferences.prefs.tapGuide) return
   showTapGuide.value = true
   guideTimer = window.setTimeout(() => dismissTapGuide(), 4600)
 }
@@ -129,11 +131,6 @@ function dismissTapGuide() {
   if (!showTapGuide.value) return
   showTapGuide.value = false
   if (guideTimer) window.clearTimeout(guideTimer)
-  try {
-    localStorage.setItem(TAP_GUIDE_KEY, '1')
-  } catch {
-    /* 忽略存储失败 */
-  }
 }
 
 function closePanels() {
@@ -421,14 +418,25 @@ onBeforeUnmount(() => {
     </div>
 
     <Transition name="fade">
-      <div v-if="showTapGuide" class="tap-guide" @click="dismissTapGuide">
-        <div class="tap-guide-half is-prev"><span>上一页</span></div>
-        <div class="tap-guide-half is-next"><span>下一页</span></div>
+      <div
+        v-if="showTapGuide"
+        class="tap-guide"
+        :class="{ 'is-scroll': verticalTapZones }"
+        @click="dismissTapGuide"
+      >
+        <div class="tap-guide-half is-prev">
+          <span>{{ verticalTapZones ? '上一屏' : '上一页' }}</span>
+        </div>
+        <div class="tap-guide-half is-next">
+          <span>{{ verticalTapZones ? '下一屏' : '下一页' }}</span>
+        </div>
         <div class="tap-guide-center">
           <span class="tap-guide-title">轻点中间</span>
           <span class="tap-guide-sub">显示 / 隐藏菜单</span>
         </div>
-        <p class="tap-guide-tip">左右点击翻页 · 轻点任意位置关闭提示</p>
+        <p class="tap-guide-tip">
+          {{ verticalTapZones ? '上下点击滚动' : '左右点击翻页' }} · 轻点任意位置关闭提示
+        </p>
       </div>
     </Transition>
 
@@ -598,6 +606,23 @@ onBeforeUnmount(() => {
                 滚动
               </button>
             </div>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <span class="setting-label">点击区域提示</span>
+              <span class="setting-hint">每次进入阅读时显示可点击区域</span>
+            </div>
+            <button
+              class="switch"
+              :class="{ 'is-on': preferences.prefs.tapGuide }"
+              type="button"
+              role="switch"
+              :aria-checked="preferences.prefs.tapGuide"
+              @click="preferences.prefs.tapGuide = !preferences.prefs.tapGuide"
+            >
+              <span></span>
+            </button>
           </div>
 
           <div v-if="engineType === 'pdf'" class="setting-row">
@@ -1579,6 +1604,42 @@ onBeforeUnmount(() => {
     color-mix(in srgb, var(--reader-ink) 5%, transparent),
     transparent
   );
+}
+
+/* 滚动模式：上下两屏 */
+.tap-guide.is-scroll .tap-guide-half {
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 40%;
+}
+
+.tap-guide.is-scroll .tap-guide-half.is-prev {
+  top: 0;
+  bottom: auto;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--reader-ink) 5%, transparent),
+    transparent
+  );
+}
+
+.tap-guide.is-scroll .tap-guide-half.is-next {
+  top: auto;
+  bottom: 0;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--reader-ink) 5%, transparent),
+    transparent
+  );
+}
+
+.tap-guide.is-scroll .tap-guide-half span {
+  writing-mode: horizontal-tb;
+  border-top: 0;
+  border-bottom: 0;
+  padding: 0;
+  font-size: 13px;
 }
 
 .tap-guide-center {

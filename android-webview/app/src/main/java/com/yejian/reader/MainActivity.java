@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
         // WebDAV 走原生 OkHttp，不受站点 CORS 限制。
         webView.addJavascriptInterface(new WebDavBridge(webView), "YeJianBridge");
         webView.addJavascriptInterface(backupWriter, "YeJianBackup");
-        immersiveBridge = new ImmersiveBridge(this);
+        immersiveBridge = new ImmersiveBridge(this, webView);
         webView.addJavascriptInterface(immersiveBridge, "YeJianShell");
         webView.setWebChromeClient(new WebChromeClient() {
             @Override

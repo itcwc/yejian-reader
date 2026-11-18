@@ -185,7 +185,7 @@ function onClick(event: MouseEvent) {
   const el = stage.value
   if (!el) return
   const rect = el.getBoundingClientRect()
-  const zone = resolveTapZone(rect, event.clientX, event.clientY)
+  const zone = resolveTapZone(rect, event.clientX, event.clientY, isScroll.value ? 'vertical' : 'horizontal')
   if (zone === 'prev') prev()
   else if (zone === 'next') next()
   else emit('toggle-bars')
