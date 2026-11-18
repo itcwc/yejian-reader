@@ -509,6 +509,20 @@ watch(
 )
 
 watch(
+  () => props.settings.contentWidth,
+  () => {
+    if (!rendition || destroyed) return
+    window.setTimeout(() => {
+      try {
+        rendition.resize()
+      } catch {
+        /* 忽略重排异常 */
+      }
+    }, 120)
+  },
+)
+
+watch(
   () => props.settings.readingMode,
   async () => {
     if (!book || destroyed) return
@@ -589,7 +603,11 @@ defineExpose({ next, prev, goTo, goToPercent })
 
 <template>
   <div class="epub-reader" @click="onFrameClick">
-    <div ref="host" class="epub-host"></div>
+    <div
+      ref="host"
+      class="epub-host"
+      :style="{ maxWidth: `${props.settings.contentWidth}px` }"
+    ></div>
   </div>
 </template>
 

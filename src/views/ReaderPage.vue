@@ -98,7 +98,15 @@ const supportFontSettings = computed(
   () => engineType.value === 'flow' || engineType.value === 'html' || engineType.value === 'epub',
 )
 
-const supportWidthSetting = computed(() => engineType.value === 'flow' || engineType.value === 'html')
+const supportWidthSetting = computed(
+  () => engineType.value === 'flow' || engineType.value === 'html' || engineType.value === 'epub',
+)
+
+// 预览块按版心宽度设置缩放文字栏宽度，让调节效果可见
+const previewWidth = computed(() => {
+  const ratio = Math.max(0, Math.min(1, (preferences.prefs.contentWidth - 560) / 420))
+  return `${Math.round(56 + ratio * 44)}%`
+})
 
 const supportReadingMode = computed(
   () => engineType.value === 'flow' || engineType.value === 'epub' || engineType.value === 'pdf' || engineType.value === 'comic',
@@ -673,6 +681,7 @@ onBeforeUnmount(() => {
                   fontFamily: preferences.prefs.fontKind === 'serif' ? 'var(--font-serif)' : 'var(--font-ui)',
                   fontSize: `${preferences.prefs.fontSize}px`,
                   lineHeight: preferences.prefs.lineHeight,
+                  maxWidth: previewWidth,
                 }"
               >
                 行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。
@@ -1340,7 +1349,7 @@ onBeforeUnmount(() => {
 
 .setting-preview {
   position: relative;
-  margin-bottom: 14px;
+  margin: 14px 0;
   padding: 14px 16px 18px;
   border: 1px solid var(--reader-line);
   border-radius: var(--radius-sm);
@@ -1348,9 +1357,10 @@ onBeforeUnmount(() => {
 }
 
 .preview-text {
-  margin: 0;
+  margin: 0 auto;
   color: var(--reader-ink);
   word-break: break-word;
+  transition: max-width 0.2s var(--ease-soft);
 }
 
 .preview-caption {

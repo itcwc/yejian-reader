@@ -42,6 +42,17 @@ const updateHint = computed(() => {
   return '可随时向 GitHub Releases 查询新版本；浏览器版请前往下载页获取安装包。'
 })
 
+// 排版预览：字号/行距/字体/版心宽度实时映射到预览文字
+const typoPreviewStyle = computed(() => {
+  const ratio = Math.max(0, Math.min(1, (preferences.prefs.contentWidth - 560) / 420))
+  return {
+    fontFamily: preferences.prefs.fontKind === 'serif' ? 'var(--font-serif)' : 'var(--font-ui)',
+    fontSize: `${preferences.prefs.fontSize}px`,
+    lineHeight: String(preferences.prefs.lineHeight),
+    maxWidth: `${Math.round(56 + ratio * 44)}%`,
+  }
+})
+
 function compareVersions(a: string, b: string): number {
   const parse = (value: string) => value.replace(/^v/i, '').split('.').map((part) => Number.parseInt(part, 10) || 0)
   const left = parse(a)
@@ -302,6 +313,13 @@ onBeforeUnmount(() => {
       </header>
 
       <div class="setting-list">
+        <div class="typo-preview">
+          <p class="typo-preview-text" :style="typoPreviewStyle">
+            行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。
+          </p>
+          <span class="typo-preview-caption">实时预览</span>
+        </div>
+
         <div class="setting-row">
           <div>
             <span class="setting-label">正文字体</span>
@@ -840,6 +858,32 @@ onBeforeUnmount(() => {
 
 .setting-list {
   padding-top: 4px;
+}
+
+.typo-preview {
+  position: relative;
+  margin: 14px 0 6px;
+  padding: 16px 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.typo-preview-text {
+  margin: 0 auto;
+  color: var(--ink);
+  word-break: break-word;
+  transition: max-width 0.2s var(--ease-soft);
+}
+
+.typo-preview-caption {
+  position: absolute;
+  right: 12px;
+  bottom: 7px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
 }
 
 .setting-row {
