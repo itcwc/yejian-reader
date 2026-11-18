@@ -30,7 +30,20 @@ watch(
     shell?.setImmersive?.(isImmersive)
     const theme = isImmersive ? preferences.prefs.readerTheme : preferences.prefs.theme
     const meta = THEME_META[theme]
-    shell?.setShellColor?.(isImmersive ? meta.readerColor : meta.color)
+    const color = isImmersive ? meta.readerColor : meta.color
+    shell?.setShellColor?.(color)
+
+    // 兜底：让页面本身在阅读模式下也是纸面底色，
+    // 任何未被正文覆盖的区域（状态栏/安全区）都与阅读背景一致。
+    let themeColor = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
+    if (!themeColor) {
+      themeColor = document.createElement('meta')
+      themeColor.name = 'theme-color'
+      document.head.appendChild(themeColor)
+    }
+    themeColor.content = color
+    document.documentElement.style.backgroundColor = isImmersive ? color : ''
+    document.body.style.backgroundColor = isImmersive ? color : ''
   },
   { immediate: true },
 )

@@ -235,11 +235,15 @@ async function warmPreviousChapter() {
   }
 }
 
-function zoneFromContentEvent(event: MouseEvent) {
+function zoneFromContentEvent(event: MouseEvent, doc?: Document) {
   const hostEl = host.value
   if (!hostEl) return null
   const rootEl = (hostEl.closest('.epub-reader') as HTMLElement | null) || hostEl
-  const frame = hostEl.querySelector('iframe') as HTMLIFrameElement | null
+  // 连续滚动时容器里会有多个章节 iframe（例如此前预热的上一章），
+  // 必须用事件所在 iframe 换算坐标，否则会命中错误的视图。
+  const frame =
+    (doc?.defaultView?.frameElement as HTMLIFrameElement | null) ||
+    (hostEl.querySelector('iframe') as HTMLIFrameElement | null)
   const frameRect = frame?.getBoundingClientRect()
   // iframe 内部坐标需换算成阅读器窗口坐标，避免分栏宽度大于可视区域时误判左右
   const screenX = (frameRect?.left ?? 0) + event.clientX
@@ -271,7 +275,7 @@ function hookContent(contents: any) {
       if (target?.closest('a, button, input, textarea, select')) return
       const selection = doc.defaultView?.getSelection()
       if (selection && selection.toString().trim()) return
-      const zone = zoneFromContentEvent(event)
+      const zone = zoneFromContentEvent(event, doc)
       if (zone === 'prev') scrollByViewport(-1)
       else if (zone === 'next') scrollByViewport(1)
       else if (zone === 'toggle') emit('toggle-bars')
@@ -286,7 +290,7 @@ function hookContent(contents: any) {
     if (target?.closest('a, button, input, textarea, select')) return
     const selection = doc.defaultView?.getSelection()
     if (selection && selection.toString().trim()) return
-    const zone = zoneFromContentEvent(event)
+    const zone = zoneFromContentEvent(event, doc)
     if (zone === 'prev') rendition?.prev()
     else if (zone === 'next') rendition?.next()
     else if (zone === 'toggle') emit('toggle-bars')

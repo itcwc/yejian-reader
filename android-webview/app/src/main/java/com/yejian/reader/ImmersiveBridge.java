@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -56,11 +57,16 @@ public class ImmersiveBridge {
         Window window = activity.getWindow();
 
         if (webView != null) webView.setBackgroundColor(shellColor);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(
+                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                        | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         window.setBackgroundDrawable(new ColorDrawable(shellColor));
         window.getDecorView().setBackgroundColor(shellColor);
-        // 沉浸时系统栏透明，露出与纸面一致的窗口底色；普通页面使用主题背景色。
-        window.setStatusBarColor(immersive ? Color.TRANSPARENT : shellColor);
-        window.setNavigationBarColor(immersive ? Color.TRANSPARENT : shellColor);
+        // 系统栏直接使用当前纸面/应用底色：沉浸时栏本身不可见，
+        // 即使被系统或手势临时唤出也是同色，不会出现灰色或黑色条。
+        window.setStatusBarColor(shellColor);
+        window.setNavigationBarColor(shellColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.setStatusBarContrastEnforced(false);
             window.setNavigationBarContrastEnforced(false);

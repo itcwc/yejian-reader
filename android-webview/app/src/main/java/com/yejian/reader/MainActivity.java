@@ -43,6 +43,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 页间安卓壳：通过 WebViewAssetLoader 以 https 源加载本地离线书库，
@@ -130,7 +132,20 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                return assetLoader.shouldInterceptRequest(request.getUrl());
+                WebResourceResponse response = assetLoader.shouldInterceptRequest(request.getUrl());
+                if (response != null) {
+                    // 禁用缓存，避免升级 APK 后 WebView 仍使用上一版打包的页面资源。
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Cache-Control", "no-store");
+                    response.setResponseHeaders(headers);
+                }
+                return response;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // 页面加载完成后重新套用沉浸与底色，避免首帧露出系统栏默认颜色。
+                immersiveBridge.reapply();
             }
 
             @Override
