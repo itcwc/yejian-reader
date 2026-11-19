@@ -15,23 +15,20 @@ const route = useRoute()
 const immersive = computed(() => route.meta.immersive === true)
 const customTitleBar = window.yejian?.os === 'win32'
 
-// 安卓壳：阅读模式隐藏系统状态栏与导航栏，并把窗口底色同步为当前主题，
-// 避免系统栏区域露出黑色底。
-const shell = (window as unknown as {
-  YeJianShell?: {
-    setImmersive?: (value: boolean) => void
-    setShellColor?: (color: string) => void
-  }
-}).YeJianShell
+const shell = window.YeJianShell
 const preferences = usePreferencesStore()
 watch(
   [immersive, () => preferences.prefs.readerTheme, () => preferences.prefs.theme],
   ([isImmersive]) => {
-    shell?.setImmersive?.(isImmersive)
     const theme = isImmersive ? preferences.prefs.readerTheme : preferences.prefs.theme
     const meta = THEME_META[theme]
     const color = isImmersive ? meta.readerColor : meta.color
-    shell?.setShellColor?.(color)
+    if (shell?.setSystemBars) {
+      shell.setSystemBars(isImmersive, color)
+    } else {
+      shell?.setShellColor?.(color)
+      shell?.setImmersive?.(isImmersive)
+    }
 
     // 兜底：让页面本身在阅读模式下也是纸面底色，
     // 任何未被正文覆盖的区域（状态栏/安全区）都与阅读背景一致。

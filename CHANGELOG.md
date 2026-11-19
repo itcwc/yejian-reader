@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.18] - 2026-11-19
+
+### Fixed
+
+- Android 阅读页保留顶部系统状态栏，背景随白纸、护眼和夜读主题实时切换，退出阅读后恢复应用主题。
+
 ## [0.1.17] - 2026-11-18
 
 ### Added

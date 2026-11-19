@@ -14,9 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 /**
- * 阅读模式的沉浸控制：隐藏系统状态栏与导航栏，让正文占满屏幕。
- * 由网页根据路由调用 window.YeJianShell.setImmersive(true/false)，
- * 并通过 setShellColor 同步当前主题底色，避免系统栏区域露出黑色底。
+ * 为系统栏同步当前页面的主题背景。阅读时保留顶部状态栏，隐藏底部导航栏。
  */
 public class ImmersiveBridge {
 
@@ -31,23 +29,44 @@ public class ImmersiveBridge {
     }
 
     @JavascriptInterface
+    public void setSystemBars(boolean reading, String color) {
+        final int parsedColor;
+        try {
+            parsedColor = Color.parseColor(color);
+        } catch (IllegalArgumentException ignored) {
+            return;
+        }
+        activity.runOnUiThread(() -> {
+            immersive = reading;
+            shellColor = parsedColor;
+            apply();
+        });
+    }
+
+    @JavascriptInterface
     public void setImmersive(boolean enabled) {
-        immersive = enabled;
-        activity.runOnUiThread(this::apply);
+        activity.runOnUiThread(() -> {
+            immersive = enabled;
+            apply();
+        });
     }
 
     /** 网页主题变化时同步窗口底色（阅读页传纸面颜色，其它页面传应用背景色）。 */
     @JavascriptInterface
     public void setShellColor(String color) {
+        final int parsedColor;
         try {
-            shellColor = Color.parseColor(color);
+            parsedColor = Color.parseColor(color);
         } catch (IllegalArgumentException ignored) {
             return;
         }
-        activity.runOnUiThread(this::apply);
+        activity.runOnUiThread(() -> {
+            shellColor = parsedColor;
+            apply();
+        });
     }
 
-    /** 从后台返回时重新隐藏系统栏，避免被系统恢复。 */
+    /** 从后台返回时恢复当前页面的系统栏设置。 */
     void reapply() {
         activity.runOnUiThread(this::apply);
     }
@@ -69,8 +88,7 @@ public class ImmersiveBridge {
                         | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         window.setBackgroundDrawable(new ColorDrawable(shellColor));
         window.getDecorView().setBackgroundColor(shellColor);
-        // 系统栏直接使用当前纸面/应用底色：沉浸隐藏成功时不可见，
-        // 隐藏失败或被手势临时唤出时也是同色，不会出现黑色条。
+        // 系统栏使用当前纸面色或应用背景色。
         window.setStatusBarColor(shellColor);
         window.setNavigationBarColor(shellColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -86,9 +104,14 @@ public class ImmersiveBridge {
         controller.setAppearanceLightStatusBars(lightBars);
         controller.setAppearanceLightNavigationBars(lightBars);
         if (immersive) {
-            // 隐藏系统栏只是“尽力而为”：能隐藏则全屏，不能隐藏时上面已把栏涂成主题色。
+            // 关键：阅读页必须让状态栏保持可见。
+            // 状态栏一旦被 hide()，gesture/顶栏下滑唤出的是 SystemUI 自己绘制的
+            // 半透明黑色遮罩（不是应用窗口里的 ColorView），setStatusBarColor 与
+            // 图标明暗都对它无效，所以三种阅读主题下都会显示成黑条。
+            // 这里只隐藏底部导航栏，状态栏保持可见并持续使用阅读主题纸面色。
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-            controller.hide(WindowInsetsCompat.Type.systemBars());
+            controller.show(WindowInsetsCompat.Type.statusBars());
+            controller.hide(WindowInsetsCompat.Type.navigationBars());
         } else {
             controller.show(WindowInsetsCompat.Type.systemBars());
         }

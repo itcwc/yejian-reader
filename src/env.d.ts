@@ -57,6 +57,7 @@ interface Window {
   }
   __yejianDavResolve?: (id: string, json: string) => void
   YeJianShell?: {
+    setSystemBars?: (reading: boolean, color: string) => void
     setImmersive?: (value: boolean) => void
     setShellColor?: (color: string) => void
   }
