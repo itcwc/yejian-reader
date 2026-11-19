@@ -1,8 +1,8 @@
-# 页间 · Yejian
+# Yejian (页间)
 
-简体中文 | [English](README.en.md)
+[简体中文](README.zh-CN.md) | [हिंदी](README.hi.md) | [Português](README.pt.md) | [Indonesian](README.id.md) | **English** | [Türkçe](README.tr.md)
 
-[项目官网](https://itcwc.github.io/yejian-reader/)
+[Project website](https://itcwc.github.io/yejian-reader/)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3-42b883?logo=vue.js&logoColor=white)](https://vuejs.org/)
@@ -11,187 +11,187 @@
 [![Electron](https://img.shields.io/badge/Electron-34-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![uni-app](https://img.shields.io/badge/uni--app-Android-2B9939)](https://uniapp.dcloud.net.cn/)
 
-> 本地优先的跨设备阅读器。书架、书籍与阅读进度都留在你自己的设备与 WebDAV 空间里，没有账号体系，没有中间服务器。
+> A local-first, cross-device reader. Your library, books and reading progress stay on your devices and your own WebDAV space — no accounts, no middle server.
 
-页间覆盖 **Web / Windows / Android**：浏览器里即开即读，桌面端用 Electron 打包，移动端用 uni-app 承载同一套阅读内核。所有解析都在本地完成，联网只发生在你主动配置的 WebDAV 同步。
+Yejian runs on **Web / Windows / Android**: open it in a browser, package it with Electron, or ship the same reading core through a uni-app Android shell. All parsing is local; network access only happens through the WebDAV sync you configure.
 
-## 界面预览
+## Screenshots
 
-### 桌面
-
-<p align="center">
-  <img src="docs/screenshots/library.png" width="49%" alt="书架">
-  <img src="docs/screenshots/reader-paper.png" width="49%" alt="白纸主题阅读器">
-</p>
-<p align="center">
-  <img src="docs/screenshots/reader-night.png" width="49%" alt="夜读主题与排版设置">
-  <img src="docs/screenshots/sync.png" width="49%" alt="WebDAV 同步">
-</p>
-<p align="center">
-  <img src="docs/screenshots/settings.png" width="72%" alt="设置与主题">
-</p>
-
-### 移动端
+### Desktop
 
 <p align="center">
-  <img src="docs/screenshots/mobile-library.png" width="26%" alt="移动端书架">
-  <img src="docs/screenshots/mobile-guide.png" width="26%" alt="点击区域引导">
+  <img src="docs/screenshots/library.png" width="49%" alt="Library">
+  <img src="docs/screenshots/reader-paper.png" width="49%" alt="Paper theme reader">
+</p>
+<p align="center">
+  <img src="docs/screenshots/reader-night.png" width="49%" alt="Night theme and typography settings">
+  <img src="docs/screenshots/sync.png" width="49%" alt="WebDAV sync">
+</p>
+<p align="center">
+  <img src="docs/screenshots/settings.png" width="72%" alt="Settings and themes">
 </p>
 
-> 截图使用演示书籍与占位账号，未包含真实书籍或凭据。
+### Mobile
 
-## 特性
+<p align="center">
+  <img src="docs/screenshots/mobile-library.png" width="26%" alt="Mobile library">
+  <img src="docs/screenshots/mobile-guide.png" width="26%" alt="Tap-zone guide">
+</p>
 
-- **多格式阅读**：EPUB、PDF、TXT、Markdown、RTF、FB2、HTML/XHTML/XML/MHTML、CBZ/CBT、DOCX 直接打开；Kindle、CHM、DjVu、OFD、CAJ 等格式识别后给出转换指引。
-- **两种阅读方式**：逐屏翻页与连续滚动，文本、EPUB、PDF、漫画全部支持，切换时保留位置。
-- **克制的交互**：点击屏幕左右翻页，点击中央正方形唤起/收起工具栏，首次进入有一次性热区引导。
-- **三种主题**：白色（paper）、黑色（night）、护眼绿（green），阅读器、目录、设置面板同步换色。
-- **排版可调**：字号、行距、版心宽度、衬线/无衬线字体；PDF 夜读反色与护眼滤镜；漫画单页/双页。
-- **进度永不丢**：IndexedDB 本地持久化，退出、刷新、切页都会保存，重开自动续读。
-- **WebDAV 同步**：书目、阅读进度、书籍文件都可同步；按 `updatedAt` 合并进度，换设备后直接接着读。
-- **桌面与移动**：Electron 桌面壳、uni-app Android 壳共用同一份构建产物。
+> Screenshots use demo books and placeholder credentials; no real books or secrets are included.
 
-## 格式支持
+## Features
 
-| 类别 | 直接阅读 | 需要转换 |
+- **Broad format support**: open EPUB, PDF, TXT, Markdown, RTF, FB2, HTML/XHTML/XML/MHTML, CBZ/CBT and DOCX directly. Kindle, CHM, DjVu, OFD and CAJ files are detected with conversion guidance.
+- **Two reading modes**: paginated or continuous scrolling for text, EPUB, PDF and comics, preserving your position when switching.
+- **Deliberate gestures**: tap the left/right side to turn pages, tap the central square to toggle the toolbars, with a one-time tap-zone guide.
+- **Three themes**: paper, night and a green eye-comfort theme across the reader, TOC and settings.
+- **Typography controls**: font size, line height, measure, serif/sans; PDF night inversion and eye-comfort filter; single/double-page comics.
+- **Progress that survives**: IndexedDB persistence on page turns, exits and reloads; reading resumes where you left off.
+- **WebDAV sync**: library metadata, reading progress and book files; progress merges by `updatedAt` so every device continues at the right place.
+- **Desktop and mobile shells**: Electron and uni-app Android share the same built assets.
+
+## Format support
+
+| Category | Native | Conversion required |
 | --- | --- | --- |
-| 电子书 | EPUB、PDF、FB2 | MOBI、AZW、AZW3 → EPUB |
-| 纯文本 | TXT、Markdown、RTF | — |
-| 网页 | HTML、HTM、XHTML、XML、MHTML、MHT | CHM → EPUB / HTML |
-| 漫画 | CBZ、CBT | CBR、CB7 → CBZ |
-| 文档 | DOCX | DOC、PPT、PPTX、XPS、OXPS、DjVu、DJV、OFD → PDF / DOCX |
-| 学术 | — | CAJ → PDF（导入时给出转换指引） |
+| E-books | EPUB, PDF, FB2 | MOBI, AZW, AZW3 → EPUB |
+| Plain text | TXT, Markdown, RTF | — |
+| Web | HTML, HTM, XHTML, XML, MHTML, MHT | CHM → EPUB / HTML |
+| Comics | CBZ, CBT | CBR, CB7 → CBZ |
+| Documents | DOCX | DOC, PPT, PPTX, XPS, OXPS, DjVu, DJV, OFD → PDF / DOCX |
+| Academic | — | CAJ → PDF (guidance shown on import) |
 
-> 转换工具推荐：Calibre（MOBI/AZW3/CHM）、7-Zip（CBR/CB7/CHM）、DjVuLibre、CAJViewer、WPS / Office。页间不内置转换器，也不上传你的文件。
+> Suggested converters: Calibre (MOBI/AZW3/CHM), 7-Zip (CBR/CB7/CHM), DjVuLibre, CAJViewer, WPS/Office. Yejian does not bundle converters and never uploads your files.
 
-## 下载安装
+## Download
 
-在 [Releases](https://github.com/itcwc/yejian-reader/releases) 获取：
+Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
 
-- **Windows**：`yejian-v0.1.21-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
-- **Android**：`yejian-v0.1.21-android.apk`（Release 签名，允许「未知来源」后可直接安装）
+- **Windows**: `yejian-v0.1.21-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
+- **Android**: `yejian-v0.1.21-android.apk` (release-signed, sideload after allowing unknown sources)
 
-APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；需要自定义包名、签名或上架应用商店时，用 HBuilderX 导入 `android-uniapp` 自行打包。
+The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
 
-### 应用内更新
+### In-app updates
 
-- **Windows**：启动后自动检查 GitHub Releases，发现新版本时右下角弹出提示，可直接下载并在重启后完成安装；也可在「设置 → 关于页间」手动检查。
-- **Android**：启动时读取 `android-release-update.json` 比对版本，确认后下载 APK 并校验 SHA-256，再交给系统安装器覆盖安装。
+- **Windows**: checks GitHub Releases shortly after launch, shows a corner prompt on a new version, downloads it in-app and installs on restart. You can also check manually in Settings → About.
+- **Android**: reads `android-release-update.json` on launch, compares versions, downloads the APK, verifies its SHA-256 and hands it to the system installer for an in-place update.
 
-> 从调试签名版迁移到 v0.1.21 时，先导出书库备份，再卸载旧版、安装正式包并导入备份。详见 [迁移说明](.github/release-notes/v0.1.21.md)。
+> To migrate from a debug-signed Android build to v0.1.21, export a library backup before uninstalling, then install the release APK and import the backup. See the [migration steps](.github/release-notes/v0.1.21.md).
 
-## 快速开始
+## Getting started
 
-要求 Node.js 18+。
+Requires Node.js 18+.
 
 ```bash
 npm install
-npm run dev          # Web 开发服务器，默认 http://localhost:5180
+npm run dev          # web dev server at http://localhost:5180
 ```
 
 ```bash
-npm run build        # 构建 Web 静态产物到 dist/
-npm run preview      # 预览构建产物（含 WebDAV 同源代理）
+npm run build        # static web build in dist/
+npm run preview      # preview build (includes the WebDAV same-origin proxy)
 ```
 
-### Windows 桌面端
+### Windows desktop
 
 ```bash
-npm run pc           # 构建并用 Electron 启动
-npm run build:pc     # 打包安装程序到 release/
+npm run pc           # build and launch with Electron
+npm run build:pc     # package the installer into release/
 ```
 
-若 Electron 二进制未下载成功，先执行 `npm rebuild electron`。
+If the Electron binary was skipped during install, run `npm rebuild electron`.
 
 ### Android
 
 ```bash
-npm run build:android   # 构建并复制 Web 产物到 android-uniapp 与 android-webview
+npm run build:android   # build and copy assets into both Android shells
 ```
 
-- **直接安装**：从 Releases 下载 CI 构建的 debug APK。
-- **自行打包**：用 HBuilderX 导入 `android-uniapp`，配置应用名称、包名与签名后打包；应用内通过 `web-view` 加载本地 `hybrid/html/index.html`。
-- **CI 构建 APK**：`android-webview` 是原生 WebView 壳，由 `.github/workflows/release.yml` 使用 Android SDK 构建并上传 Release。
+- **Install directly**: download the CI-built debug APK from Releases.
+- **Build your own**: import `android-uniapp` in HBuilderX, set your app name, package id and signing, then build.
+- **CI APK**: `android-webview` is a native WebView shell that `.github/workflows/release.yml` builds with the Android SDK and uploads to the release.
 
-## 离线迁移书库与进度
+## Transfer your library and reading progress offline
 
-在旧设备打开「设置 → 书库与进度备份」，选择「导出备份」。把生成的 `.yejianbackup` 文件复制到新设备，再在同一页面选择「导入备份」。备份包含书籍原文件、封面和阅读位置，无需配置 WebDAV。导入会补充缺少的书籍，并按更新时间合并阅读进度。
+On the old device, go to Settings → Library and progress backup and export a backup. Copy the `.yejianbackup` file to the new device and import it from the same screen. The backup contains the original books, covers, and reading positions. Import adds missing books and keeps the most recently updated reading position for each book.
 
-## 配置 WebDAV 同步
+## WebDAV setup
 
-打开「同步」页，填写：
+Open the Sync page and fill in:
 
-| 字段 | 示例 |
+| Field | Example |
 | --- | --- |
-| 服务器地址 | `https://dav.jianguoyun.com/dav/` |
-| 账号 | 坚果云邮箱 |
-| 密码 | 应用专用密码 |
-| 设备名称 | 用于标记进度来源 |
+| Server URL | `https://dav.jianguoyun.com/dav/` |
+| Username | your account |
+| Password | app-specific password |
+| Device name | labels where progress comes from |
 
-- 先点「测试连接」，通过后再「立即同步」。
-- 打开「同步书籍文件」后，其他设备可直接下载书籍本体；关闭则只同步书目与进度。
-- 云端目录：`yejian/books.json`、`yejian/progress.json`、`yejian/books/<id>.<ext>`。
+- Run **Test connection** first, then **Sync now**.
+- Enable **Sync book files** to upload the books themselves; otherwise only metadata and progress are synced.
+- Remote layout: `yejian/books.json`, `yejian/progress.json`, `yejian/books/<id>.<ext>`.
 
-### 关于 CORS
+### CORS
 
-浏览器直连 WebDAV 需要服务端允许跨域（`PROPFIND`、`MKCOL`、`PUT` 等）。`npm run dev` 与 `npm run preview` 内置了 `/__dav` 同源代理，可自动绕过 CORS；桌面端（Electron）与 Android 应用已改为原生 HTTP 请求，不再需要服务端开启跨域；只有纯静态网页部署需要配置 CORS 或反向代理。
+Browsers require the WebDAV server to allow cross-origin `PROPFIND`, `MKCOL` and `PUT`. `npm run dev` and `npm run preview` ship a same-origin `/__dav` proxy that bypasses CORS automatically. The desktop app (Electron) and Android app use native HTTP requests and do not need server-side CORS; only static web deployments require CORS or a reverse proxy.
 
-自建 Nginx WebDAV 时注意：
+For a self-hosted Nginx WebDAV:
 
 ```nginx
 location ^~ /dav/ {
-    alias /www/wwwroot/your-site/dav/;   # location 与 alias 都要带结尾斜杠
+    alias /www/wwwroot/your-site/dav/;   # keep trailing slashes on both sides
     dav_methods PUT DELETE MKCOL COPY MOVE;
-    dav_ext_methods PROPFIND OPTIONS;    # 需要 nginx-dav-ext-module
+    dav_ext_methods PROPFIND OPTIONS;    # requires nginx-dav-ext-module
     create_full_put_path on;
     dav_access user:rw group:rw all:r;
     client_max_body_size 0;
 }
 ```
 
-目录属主需为 Nginx 运行用户（如 `www`），否则 `MKCOL` 会失败。
+The directory must be writable by the Nginx user (e.g. `www`), otherwise `MKCOL` fails.
 
-## 项目结构
+## Project structure
 
 ```
 src/
-  core/          # IndexedDB、格式注册、元数据/封面、文本解析、WebDAV、同步
-  readers/       # EPUB / PDF / 流式文本 / 漫画 / HTML 阅读引擎
-  views/         # 书架、阅读器、同步、设置
-  components/    # 书架卡片、导航、弹层、Toast 等
-  stores/        # Pinia：书架、偏好、同步、提示
-  styles/        # 三主题设计变量与基础样式
-electron/        # 桌面主进程与 preload
-android-uniapp/  # uni-app 壳（HBuilderX 打包，web-view 加载 hybrid 产物）
-android-webview/ # 原生 WebView 壳，CI 用于直接产出 APK
-scripts/         # 构建产物同步到 Android hybrid 目录
+  core/          # IndexedDB, format registry, metadata/covers, parsers, WebDAV, sync
+  readers/       # EPUB / PDF / flow-text / comic / HTML engines
+  views/         # library, reader, sync, settings
+  components/    # book cover, rail, mobile nav, modal, toast
+  stores/        # Pinia: library, preferences, sync, toasts
+  styles/        # theme tokens and base styles
+electron/        # desktop main process and preload
+android-uniapp/  # uni-app shell for HBuilderX builds
+android-webview/ # native WebView shell used by CI to produce the APK
+scripts/         # copy build output into the Android hybrid folders
 ```
 
-数据层使用 IndexedDB（`yejian`）：`books`、`files`、`covers`、`progress` 四个 store。书籍指纹取文件前 1MB 的 SHA-256 与文件大小，跨设备稳定，用于避免重复导入与对齐云端文件。
+Data lives in IndexedDB (`yejian`) with `books`, `files`, `covers` and `progress` stores. A book fingerprint is the SHA-256 of its first 1 MB plus file size, stable across devices, used to deduplicate imports and match remote files.
 
-同步顺序：读取云端书目 → 下载缺失书籍 → 合并阅读进度（按 `updatedAt` 取新） → 回写书目与进度。先下载再合并，保证新设备上的进度能落到已下载的书上。
+Sync order: read the remote manifest → download missing books → merge progress (newest `updatedAt` wins) → write back manifest and progress. Downloading before merging ensures progress lands on books a new device just fetched.
 
-## 快捷键
+## Keyboard shortcuts
 
-| 按键 | 作用 |
+| Key | Action |
 | --- | --- |
-| `←` / `→` / `↑` / `↓` | 上一页 / 下一页（滚动模式下上下滚动） |
-| `PageUp` / `PageDown` / `Space` | 翻页 |
-| `T` | 打开/关闭目录 |
-| `S` | 打开/关闭排版设置 |
-| `Esc` | 关闭面板 |
+| `←` / `→` / `↑` / `↓` | Previous / next page (scroll in continuous mode) |
+| `PageUp` / `PageDown` / `Space` | Page turn |
+| `T` | Toggle table of contents |
+| `S` | Toggle typography settings |
+| `Esc` | Close panels |
 
-## 已知限制
+## Known limitations
 
-- 需要转换的格式只提供指引，不内置转换器；CAJ 需先用 CAJViewer 导出 PDF。
-- 浏览器直连 WebDAV 受 CORS 限制，静态部署需服务端配合；桌面端与 Android 应用不受此限制。
-- 大体积 PDF / 漫画首次打开需要解码时间；PDF 滚动模式按可视区域懒渲染。
-- 加密 EPUB（DRM）、加密 PDF 不在支持范围内。
+- Conversion-required formats only get guidance; CAJ must be exported to PDF with CAJViewer first.
+- Direct browser WebDAV access is subject to CORS; static deployments need server-side support, while the desktop and Android apps do not.
+- Very large PDFs/comics take time to decode on first open; PDF scroll mode renders lazily by viewport.
+- DRM-protected EPUB/PDF files are not supported.
 
-## 参与贡献
+## Contributing
 
-欢迎 Issue 与 Pull Request。提交前请确保 `npm run build` 通过，并尽量附上复现步骤与样例文件格式（无需上传受版权保护的正文）。
+Issues and pull requests are welcome. Please make sure `npm run build` passes and include reproduction steps plus the file format involved (no copyrighted content needed).
 
-## 许可证
+## License
 
 [MIT](LICENSE) © 2026 Yejian Contributors
