@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import ePub from 'epubjs'
+import ePub, { EpubCFI, type Contents } from 'epubjs'
 import type { Preferences, ReaderProgress, ReadingProgress, TocItem } from '@/types'
 import { readerFontStack } from '@/core/preferences'
 import { resolveTapZone } from '@/core/tap-zones'
@@ -23,6 +23,8 @@ const host = ref<HTMLElement>()
 
 let book: any = null
 let rendition: any = null
+let chapters: TocItem[] = []
+const cfiComparator = new EpubCFI()
 let locationsReady = false
 let destroyed = false
 let resizeTimer = 0
@@ -117,14 +119,16 @@ function flattenToc(items: any[], level = 1): TocItem[] {
   return result
 }
 
-function chapterLabel(href?: string): string | undefined {
-  if (!href || !book?.navigation?.get) return undefined
-  try {
-    const item = book.navigation.get(href)
-    const label = typeof item?.label === 'string' ? item.label.trim() : ''
-    return label || undefined
-  } catch {
-    return undefined
+function currentChapter(index: number, cfi: string): TocItem | undefined {
+  const contents = rendition?.getContents().find((item: Contents) => item.sectionIndex === index)
+  for (let position = chapters.length - 1; position >= 0; position--) {
+    const item = chapters[position]
+    const fragment = item.locator.split('#')[1]
+    const section = book.spine.get(item.locator)
+    if (!section || section.index > index) continue
+    if (section.index < index || !fragment) return item
+    const anchor = contents?.document.getElementById(fragment)
+    if (anchor && cfiComparator.compare(contents.cfiFromNode(anchor), cfi) <= 0) return item
   }
 }
 
@@ -149,11 +153,13 @@ function emitLocation(location: any) {
   }
 
   lastPercent = Math.max(0, Math.min(100, percent))
+  const chapter = currentChapter(location.start.index, cfi)
   emit('progress', {
     percent: lastPercent,
     locator: cfi,
     detail: {
-      chapter: chapterLabel(location.start.href),
+      chapter: chapter?.label,
+      chapterLocator: chapter?.locator,
     },
   })
 }
@@ -464,6 +470,7 @@ onMounted(async () => {
     if (destroyed || !host.value) return
 
     const toc = flattenToc(book.navigation?.toc || [])
+    chapters = toc
     emit('toc', toc)
 
     const positioned = await createRendition(initialLocator || undefined)

@@ -68,6 +68,7 @@ export interface ProgressDetail {
   page?: number
   totalPages?: number
   chapter?: string
+  chapterLocator?: string
 }
 
 export interface ReadingProgress {

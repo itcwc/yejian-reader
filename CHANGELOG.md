@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.19] - 2026-11-19
+
+### Changed
+
+- Android 阅读页隐藏系统状态栏图标，顶部保留与阅读主题同色的区域，底部继续显示时间和电量。
+- 阅读底部菜单改为「上一章」和「下一章」，按书籍目录跳转。
+
 ## [0.1.18] - 2026-11-19
 
 ### Fixed

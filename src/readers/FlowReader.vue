@@ -29,6 +29,7 @@ let totalPages = 1
 let columnWidth = 0
 let columnGap = 64
 let anchors: { id: string; label: string; page: number; offset: number }[] = []
+let selectedChapter: { id: string; position: number } | undefined
 let lastPercent = props.initial?.percent || 0
 let resizeObserver: ResizeObserver | null = null
 let resizeTimer = 0
@@ -59,21 +60,27 @@ function pageFromPercent(percent: number): number {
   return Math.min(totalPages - 1, Math.max(0, Math.round((percent / 100) * (totalPages - 1))))
 }
 
-function currentChapter(): string | undefined {
-  let label: string | undefined
+function currentChapter() {
+  const position = isScroll.value ? viewport.value?.scrollTop ?? 0 : page
+  if (selectedChapter?.position === position) {
+    const selected = anchors.find((anchor) => anchor.id === selectedChapter?.id)
+    if (selected) return selected
+  }
+  selectedChapter = undefined
+  let chapter: (typeof anchors)[number] | undefined
   if (isScroll.value) {
-    const top = (viewport.value?.scrollTop || 0) + 24
+    const top = position + 24
     for (const anchor of anchors) {
-      if (anchor.offset <= top) label = anchor.label
+      if (anchor.offset <= top) chapter = anchor
       else break
     }
-    return label
+    return chapter
   }
   for (const anchor of anchors) {
-    if (anchor.page <= page) label = anchor.label
+    if (anchor.page <= page) chapter = anchor
     else break
   }
-  return label
+  return chapter
 }
 
 function applyTransform() {
@@ -83,6 +90,8 @@ function applyTransform() {
 }
 
 function emitProgress() {
+  const chapter = currentChapter()
+  const chapterDetail = { chapter: chapter?.label, chapterLocator: chapter?.id }
   if (isScroll.value) {
     const el = viewport.value
     if (!el) return
@@ -92,7 +101,7 @@ function emitProgress() {
     emit('progress', {
       percent,
       locator: `scroll:${Math.round(el.scrollTop)}`,
-      detail: { chapter: currentChapter() },
+      detail: chapterDetail,
     })
     return
   }
@@ -105,7 +114,7 @@ function emitProgress() {
     detail: {
       page: page + 1,
       totalPages,
-      chapter: currentChapter(),
+      ...chapterDetail,
     },
   })
 }
@@ -249,10 +258,13 @@ function goTo(locator: string) {
   if (isScroll.value) {
     const el = viewport.value
     if (!el) return
-    el.scrollTo({ top: Math.max(0, anchor.offset - 24), behavior: 'smooth' })
+    el.scrollTop = Math.max(0, anchor.offset - 24)
+    selectedChapter = { id: locator, position: el.scrollTop }
+    emitProgress()
     return
   }
   page = anchor.page
+  selectedChapter = { id: locator, position: page }
   applyTransform()
   emitProgress()
 }

@@ -42,8 +42,6 @@ const settingsOpen = ref(false)
 const barsVisible = ref(false)
 const showTapGuide = ref(false)
 const current = ref<ReaderProgress>({ percent: 0, locator: '', detail: {} })
-const sliderValue = ref(0)
-const dragging = ref(false)
 const engine = ref<any>(null)
 
 let hasProgress = false
@@ -54,12 +52,6 @@ let guideChecked = false
 const showLoader = computed(
   () => preparing.value || (!engineReady.value && !loadError.value && engineType.value !== 'none'),
 )
-
-const pageLabel = computed(() => {
-  const detail = current.value.detail
-  if (detail?.totalPages) return `${detail.page || 1} / ${detail.totalPages}`
-  return `${Math.round(current.value.percent)}%`
-})
 
 const clockText = ref('')
 const batteryPercent = ref<number | null>(null)
@@ -122,6 +114,28 @@ const verticalTapZones = computed(
 const hasToc = computed(() => chapters.value.length > 0)
 
 const currentChapter = computed(() => current.value.detail?.chapter || '')
+const selectedPdfChapter = ref<TocItem>()
+const chapterIndex = computed(() => {
+  const detail = current.value.detail
+  if (engineType.value === 'pdf') {
+    const page = detail?.page ?? 1
+    const selected = selectedPdfChapter.value
+    if (selected && Number(selected.locator) === page) return chapters.value.indexOf(selected)
+    let nearestIndex = -1
+    let nearestPage = 0
+    for (const [index, item] of chapters.value.entries()) {
+      const chapterPage = Number(item.locator)
+      if (chapterPage > nearestPage && chapterPage <= page) {
+        nearestIndex = index
+        nearestPage = chapterPage
+      }
+    }
+    return nearestIndex
+  }
+  return chapters.value.findIndex((item) => item.locator === detail?.chapterLocator)
+})
+const previousChapter = computed(() => chapters.value[chapterIndex.value - 1])
+const nextChapter = computed(() => chapters.value[chapterIndex.value + 1])
 
 function toggleBars() {
   barsVisible.value = !barsVisible.value
@@ -179,7 +193,6 @@ async function loadBook() {
       locator: initialProgress.value?.locator || '',
       detail: initialProgress.value?.detail || {},
     }
-    sliderValue.value = current.value.percent
     chapters.value = []
     document.title = `${bundle.book.title} · 页间`
 
@@ -217,13 +230,16 @@ function onError(message: string) {
 }
 
 function onToc(items: TocItem[]) {
+  selectedPdfChapter.value = undefined
   chapters.value = items
 }
 
 function onProgress(progress: ReaderProgress) {
   hasProgress = true
+  if (selectedPdfChapter.value && progress.detail?.page !== Number(selectedPdfChapter.value.locator)) {
+    selectedPdfChapter.value = undefined
+  }
   current.value = progress
-  if (!dragging.value) sliderValue.value = progress.percent
   library.applyProgress(props.id, progress.percent, Date.now())
   scheduleSave()
 }
@@ -261,16 +277,9 @@ function prev() {
   engine.value?.prev?.()
 }
 
-function onSliderInput() {
-  dragging.value = true
-}
-
-function onSliderChange() {
-  dragging.value = false
-  engine.value?.goToPercent?.(sliderValue.value)
-}
-
-function jumpTo(item: TocItem) {
+function jumpTo(item: TocItem | undefined) {
+  if (!item) return
+  if (engineType.value === 'pdf') selectedPdfChapter.value = item
   engine.value?.goTo?.(item.locator)
   tocOpen.value = false
 }
@@ -483,26 +492,12 @@ onBeforeUnmount(() => {
 
     <Transition name="bar-bottom">
       <footer v-show="barsVisible" class="reader-bottom">
-        <button class="icon-btn" type="button" aria-label="上一页" @click="prev">
+        <button class="chapter-btn" type="button" :disabled="!engineReady || !previousChapter" @click="jumpTo(previousChapter)">
           <Icon name="left" :size="18" />
+          <span>上一章</span>
         </button>
-
-        <input
-          v-model.number="sliderValue"
-          class="progress-range"
-          type="range"
-          min="0"
-          max="100"
-          step="0.1"
-          :style="{ '--fill': `${sliderValue}%` }"
-          aria-label="阅读进度"
-          @input="onSliderInput"
-          @change="onSliderChange"
-        />
-
-        <span class="page-label">{{ pageLabel }}</span>
-
-        <button class="icon-btn" type="button" aria-label="下一页" @click="next">
+        <button class="chapter-btn" type="button" :disabled="!engineReady || !nextChapter" @click="jumpTo(nextChapter)">
+          <span>下一章</span>
           <Icon name="right" :size="18" />
         </button>
       </footer>
@@ -534,10 +529,10 @@ onBeforeUnmount(() => {
 
         <nav class="toc-list">
           <button
-            v-for="item in chapters"
+            v-for="(item, index) in chapters"
             :key="`${item.locator}-${item.label}`"
             class="toc-item"
-            :class="{ 'is-current': item.label === currentChapter }"
+            :class="{ 'is-current': index === chapterIndex }"
             :style="{ paddingLeft: `${18 + (item.level - 1) * 14}px` }"
             type="button"
             @click="jumpTo(item)"
@@ -899,13 +894,29 @@ onBeforeUnmount(() => {
   -webkit-backdrop-filter: blur(18px) saturate(1.1);
 }
 
-.reader-bottom .icon-btn {
+.chapter-btn {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
   color: var(--reader-ink);
-  flex: 0 0 auto;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-.reader-bottom .icon-btn:hover {
+.chapter-btn:hover:not(:disabled) {
   background: color-mix(in srgb, var(--reader-ink) 8%, transparent);
+}
+
+.chapter-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .reader-statusbar {
@@ -967,58 +978,6 @@ onBeforeUnmount(() => {
   max-width: calc(100% - 2px);
   border-radius: 1px;
   background: currentColor;
-}
-
-.progress-range {
-  flex: 1;
-  min-width: 0;
-  appearance: none;
-  -webkit-appearance: none;
-  height: 3px;
-  border-radius: 99px;
-  background: linear-gradient(
-    to right,
-    var(--reader-accent) 0%,
-    var(--reader-accent) var(--fill, 0%),
-    var(--reader-line) var(--fill, 0%),
-    var(--reader-line) 100%
-  );
-  outline: none;
-  cursor: pointer;
-}
-
-.progress-range::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--reader-accent);
-  border: 2px solid var(--reader-bg);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s;
-}
-
-.progress-range::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
-
-.progress-range::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--reader-accent);
-  border: 2px solid var(--reader-bg);
-}
-
-.page-label {
-  flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  color: var(--reader-muted);
-  min-width: 42px;
-  text-align: center;
 }
 
 .reader-scrim {
@@ -1543,11 +1502,6 @@ onBeforeUnmount(() => {
   .battery-shell {
     width: 14px;
     height: 8px;
-  }
-
-  .page-label {
-    min-width: 38px;
-    font-size: 9.5px;
   }
 
   .theme-grid {

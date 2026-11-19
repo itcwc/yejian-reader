@@ -66,8 +66,8 @@
 
 在 [Releases](https://github.com/itcwc/yejian-reader/releases) 获取：
 
-- **Windows**：`yejian-v0.1.18-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
-- **Android**：`yejian-v0.1.18-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
+- **Windows**：`yejian-v0.1.19-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
+- **Android**：`yejian-v0.1.19-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
 
 APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；需要自定义包名、签名或上架应用商店时，用 HBuilderX 导入 `android-uniapp` 自行打包。
 

@@ -120,22 +120,27 @@ function ensureStyle() {
   style.textContent = readerStyle()
 }
 
+let selectedChapter: { id: string; scrollTop: number } | undefined
+
 function emitProgress() {
   if (!doc || disposed) return
   const scroller = doc.scrollingElement || doc.documentElement
   const max = scroller.scrollHeight - scroller.clientHeight
   const percent = max > 8 ? Math.min(100, Math.max(0, (scroller.scrollTop / max) * 100)) : 100
 
-  let chapter: string | undefined
-  for (const item of headings) {
-    if (item.element.getBoundingClientRect().top <= 140) chapter = item.label
-    else break
+  if (selectedChapter?.scrollTop !== scroller.scrollTop) selectedChapter = undefined
+  let chapter = headings.find((item) => item.id === selectedChapter?.id)
+  if (!chapter) {
+    for (const item of headings) {
+      if (item.element.getBoundingClientRect().top <= 140) chapter = item
+      else break
+    }
   }
 
   emit('progress', {
     percent,
     locator: String(Math.round(scroller.scrollTop)),
-    detail: { chapter },
+    detail: { chapter: chapter?.label, chapterLocator: chapter?.id },
   })
 }
 
@@ -242,8 +247,13 @@ function prev() {
 }
 
 function goTo(locator: string) {
-  const element = doc?.getElementById(locator)
-  element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (!doc) return
+  const element = doc.getElementById(locator)
+  if (!element) return
+  element.scrollIntoView({ behavior: 'instant', block: 'start' })
+  const scroller = doc.scrollingElement || doc.documentElement
+  selectedChapter = { id: locator, scrollTop: scroller.scrollTop }
+  emitProgress()
 }
 
 function goToPercent(percent: number) {

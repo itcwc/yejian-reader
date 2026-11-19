@@ -25,6 +25,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
@@ -108,7 +109,10 @@ public class MainActivity extends Activity {
         // WebDAV 走原生 OkHttp，不受站点 CORS 限制。
         webView.addJavascriptInterface(new WebDavBridge(webView), "YeJianBridge");
         webView.addJavascriptInterface(backupWriter, "YeJianBackup");
-        immersiveBridge = new ImmersiveBridge(this, webView);
+        FrameLayout readerWindow = new FrameLayout(this);
+        readerWindow.addView(webView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        immersiveBridge = new ImmersiveBridge(this, readerWindow, webView);
         webView.addJavascriptInterface(immersiveBridge, "YeJianShell");
         webView.addJavascriptInterface(new UpdateBridge(this), "YeJianUpdate");
         webView.setWebChromeClient(new WebChromeClient() {
@@ -163,7 +167,7 @@ public class MainActivity extends Activity {
         downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         registerDownloadReceiver();
 
-        setContentView(webView);
+        setContentView(readerWindow);
         webView.loadUrl(APP_URL);
         webView.postDelayed(() -> checkForUpdates(false), 3500);
     }
