@@ -1,6 +1,6 @@
 {
   "name": "yejian-reader",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "private": true,
   "description": "页间 · 跨设备阅读器（Web / PC / Android）",
   "type": "module",

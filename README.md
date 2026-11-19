@@ -53,8 +53,8 @@ On Android, choose a language on first launch. You can change it later in **Sett
 
 Grab the latest build from [Releases](https://github.com/itcwc/yejian-reader/releases):
 
-- **Windows**: `yejian-v0.1.22-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
-- **Android**: `yejian-v0.1.22-android.apk` (release-signed, sideload after allowing unknown sources)
+- **Windows**: `yejian-v0.1.23-windows-x64.exe` (NSIS installer; the installed app is named 页间阅读)
+- **Android**: `yejian-v0.1.23-android.apk` (release-signed, sideload after allowing unknown sources)
 
 The APK is built in CI with a native WebView shell and includes the full offline reader. To ship your own package name, signing key or store listing, import `android-uniapp` in HBuilderX and build it yourself.
 
