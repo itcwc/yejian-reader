@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.22] - 2026-11-19
+
+### Added
+
+- Android 首次打开可选择简体中文、印地语、葡萄牙语、印尼语、英语或土耳其语。书架、阅读菜单和设置随语言切换，选择会保存在本机。
+- GitHub Pages 提供网页版阅读器，并支持白纸、护眼和夜读主题。
+
 ## [0.1.21] - 2026-11-19
 
 ### Changed
