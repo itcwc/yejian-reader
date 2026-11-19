@@ -32,8 +32,49 @@ Android uygulamasını ilk açtığınızda dilinizi seçin. Daha sonra **Ayarla
 
 Hata ayıklama APK’sından geçiyorsanız eski uygulamada **Ayarlar → Kitaplık ve okuma ilerlemesi yedeği → Dışa aktar** (设置 → 书库与进度备份 → 导出备份) seçeneğini açın. `.yejianbackup` dosyasını İndirilenler klasörüne veya buluta kaydedin. Eski uygulamayı kaldırın, yeni APK’yı kurun ve aynı panelden yedeği içe aktarın. Uygulama tercihlerini ve WebDAV’ı yeniden yapılandırın. [Geçiş adımları](.github/release-notes/v0.1.21.md)
 
-## Geliştirme ve lisans
+## Web sürümünü çalıştırma
 
-Node.js 18 veya üzeriyle `npm install` ve `npm run dev` komutlarını çalıştırın. Üretim derlemesi için `npm run build` kullanın. Bazı biçimler dönüştürme gerektirir ve DRM korumalı dosyalar desteklenmez. Ayrıntılar için [İngilizce belgelere](README.md) bakın.
+[Yejian’ı tarayıcıda açın](https://itcwc.github.io/yejian-reader/app/?lang=tr) veya Node.js 18 ya da üzeriyle depo kök dizininde şu komutları çalıştırın:
+
+```bash
+npm install
+npm run dev
+```
+
+`http://localhost:5180` adresini açın. Üretim derlemesini oluşturmak ve yerel olarak önizlemek için:
+
+```bash
+npm run build
+npm run preview
+```
+
+### Web sürümünü yayımlama
+
+`npm run build` komutundan sonra `dist/` içeriğini statik web barındırma hizmetinize yükleyin. Bu depodaki [GitHub Pages iş akışı](.github/workflows/pages.yml) tanıtım sitesini ve web okuyucusunu birlikte yayımlar. Tarayıcıda WebDAV eşitlemesi için sunucuda CORS’a izin verin veya aynı kökende bir ters vekil kullanın. `npm run dev` ve `npm run preview`, yerel `/__dav` vekilini içerir.
+
+### Windows x64 paketleme
+
+```bash
+npm run pc
+npm run build:pc
+```
+
+İlk komut uygulamayı Electron ile açar. İkinci komut x64 yükleyicisini `release/` dizinine oluşturur. Kurulumda Electron indirilmediyse `npm rebuild electron` komutunu çalıştırın.
+
+### Android paketleme
+
+```bash
+npm run build:android
+```
+
+Bu komut web sürümünü derler ve dosyaları iki Android projesine kopyalar. Kendi paketinizi oluşturmak için `android-uniapp` projesini HBuilderX’e aktarın ve uygulama adını, paket kimliğini ve imzasını ayarlayın. [Sürüm iş akışı](.github/workflows/release.yml), Android SDK ve Gradle ile `android-webview` projesinden imzalı APK üretir.
+
+### WebDAV
+
+**Eşitle** sayfasına sunucu adresini, kullanıcı adını, uygulama parolasını ve cihaz adını girin. Eşitlemeden önce bağlantıyı test edin. Meta veriler ve ilerlemeyle birlikte kitap dosyalarını da aktarmak için dosya eşitlemesini açın. Tarayıcı erişimi için WebDAV sunucusu `PROPFIND`, `MKCOL` ve `PUT` yöntemlerine izin vermelidir.
+
+## Lisans
+
+Bazı biçimler dönüştürme gerektirir ve DRM korumalı dosyalar desteklenmez. Ayrıntılar için [İngilizce belgelere](README.md) bakın.
 
 [MIT lisansı](LICENSE) · [Sorun bildirin](https://github.com/itcwc/yejian-reader/issues)

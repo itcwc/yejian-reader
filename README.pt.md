@@ -32,8 +32,49 @@ Na [versão mais recente](https://github.com/itcwc/yejian-reader/releases/latest
 
 Ao migrar de um APK de depuração, abra **Definições → Cópia de segurança da biblioteca e do progresso → Exportar** (设置 → 书库与进度备份 → 导出备份) na aplicação antiga. Guarde o ficheiro `.yejianbackup` em Transferências ou na nuvem. Desinstale a aplicação antiga, instale o APK atual e importe o ficheiro no mesmo painel. Configure novamente as preferências e o WebDAV. [Instruções de migração](.github/release-notes/v0.1.21.md)
 
-## Desenvolvimento e licença
+## Executar a versão web
 
-Com Node.js 18 ou posterior, execute `npm install` e `npm run dev`. Use `npm run build` para compilar para produção. Alguns formatos exigem conversão e os ficheiros protegidos por DRM não são suportados. Consulte a [documentação em inglês](README.md).
+[Abra o Yejian no navegador](https://itcwc.github.io/yejian-reader/app/?lang=pt) ou, com Node.js 18 ou posterior, execute na raiz do repositório:
+
+```bash
+npm install
+npm run dev
+```
+
+Abra `http://localhost:5180`. Para compilar para produção e verificar o resultado localmente:
+
+```bash
+npm run build
+npm run preview
+```
+
+### Publicar a versão web
+
+Depois de executar `npm run build`, envie o conteúdo de `dist/` para o seu alojamento estático. Neste repositório, o [fluxo de trabalho do GitHub Pages](.github/workflows/pages.yml) publica o site e o leitor web em conjunto. Para sincronizar com WebDAV no navegador, configure CORS no servidor ou use um proxy inverso na mesma origem. `npm run dev` e `npm run preview` incluem o proxy local `/__dav`.
+
+### Empacotar para Windows x64
+
+```bash
+npm run pc
+npm run build:pc
+```
+
+O primeiro comando abre a aplicação no Electron. O segundo gera o instalador x64 em `release/`. Se a transferência do Electron tiver sido omitida durante a instalação, execute `npm rebuild electron`.
+
+### Empacotar para Android
+
+```bash
+npm run build:android
+```
+
+Este comando compila a versão web e copia os ficheiros para os dois projetos Android. Para criar o seu próprio pacote, importe `android-uniapp` no HBuilderX e configure o nome, o ID do pacote e a assinatura. O [fluxo de publicação](.github/workflows/release.yml) usa o Android SDK e o Gradle para gerar o APK assinado a partir de `android-webview`.
+
+### WebDAV
+
+Em **Sincronizar**, preencha o URL do servidor, o nome de utilizador, a palavra-passe da aplicação e o nome do dispositivo. Teste a ligação antes de sincronizar. Ative a sincronização de ficheiros para transferir os livros juntamente com os metadados e o progresso. Para acesso no navegador, o servidor WebDAV deve permitir `PROPFIND`, `MKCOL` e `PUT`.
+
+## Licença
+
+Alguns formatos exigem conversão e os ficheiros protegidos por DRM não são suportados. Consulte a [documentação em inglês](README.md).
 
 [Licença MIT](LICENSE) · [Comunicar um problema](https://github.com/itcwc/yejian-reader/issues)

@@ -79,6 +79,10 @@ npm run build        # 构建 Web 静态产物到 dist/
 npm run preview      # 预览构建产物（含 WebDAV 同源代理）
 ```
 
+### 部署网页版
+
+可直接[打开网页版](https://itcwc.github.io/yejian-reader/app/?lang=zh-CN)，也可运行 `npm run build` 后把 `dist/` 目录中的文件上传到自己的静态网站托管服务。[GitHub Pages 工作流](.github/workflows/pages.yml)会一并发布项目官网和网页版阅读器。在静态站点中使用 WebDAV 时，服务端需允许跨域请求，或通过同源反向代理访问。
+
 ### Windows 桌面端
 
 ```bash
@@ -94,7 +98,7 @@ npm run build:pc     # 打包安装程序到 release/
 npm run build:android   # 构建并复制 Web 产物到 android-uniapp 与 android-webview
 ```
 
-- **直接安装**：从 Releases 下载 CI 构建的 debug APK。
+- **直接安装**：从 Releases 下载正式签名的 APK。
 - **自行打包**：用 HBuilderX 导入 `android-uniapp`，配置应用名称、包名与签名后打包；应用内通过 `web-view` 加载本地 `hybrid/html/index.html`。
 - **CI 构建 APK**：`android-webview` 是原生 WebView 壳，由 `.github/workflows/release.yml` 使用 Android SDK 构建并上传 Release。
 

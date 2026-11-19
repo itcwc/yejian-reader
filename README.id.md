@@ -32,8 +32,49 @@ Pilih berkas perangkat Anda di halaman [rilis terbaru](https://github.com/itcwc/
 
 Untuk beralih dari APK debug, buka **Pengaturan → Cadangan pustaka dan progres → Ekspor** (设置 → 书库与进度备份 → 导出备份) di aplikasi lama. Simpan berkas `.yejianbackup` di folder Unduhan atau penyimpanan awan. Hapus aplikasi lama, pasang APK baru, lalu impor cadangan dari panel yang sama. Atur ulang preferensi aplikasi dan WebDAV. [Panduan migrasi](.github/release-notes/v0.1.21.md)
 
-## Pengembangan dan lisensi
+## Jalankan versi web
 
-Gunakan Node.js 18 atau lebih baru, lalu jalankan `npm install` dan `npm run dev`. Untuk build produksi, jalankan `npm run build`. Beberapa format memerlukan konversi dan berkas berpelindung DRM tidak didukung. Lihat [dokumentasi bahasa Inggris](README.md) untuk detailnya.
+[Buka Yejian di peramban](https://itcwc.github.io/yejian-reader/app/?lang=id), atau gunakan Node.js 18 atau lebih baru dan jalankan perintah berikut dari direktori utama repositori:
+
+```bash
+npm install
+npm run dev
+```
+
+Buka `http://localhost:5180`. Untuk membuat build produksi dan memeriksanya secara lokal:
+
+```bash
+npm run build
+npm run preview
+```
+
+### Publikasikan versi web
+
+Setelah menjalankan `npm run build`, unggah isi `dist/` ke hosting web statis. Di repositori ini, [alur kerja GitHub Pages](.github/workflows/pages.yml) menerbitkan situs dan pembaca web sekaligus. Untuk sinkronisasi WebDAV di peramban, aktifkan CORS pada server atau gunakan reverse proxy dengan origin yang sama. `npm run dev` dan `npm run preview` menyediakan proxy lokal `/__dav`.
+
+### Buat paket Windows x64
+
+```bash
+npm run pc
+npm run build:pc
+```
+
+Perintah pertama membuka aplikasi di Electron. Perintah kedua membuat pemasang x64 di `release/`. Jika unduhan Electron dilewati saat pemasangan, jalankan `npm rebuild electron`.
+
+### Buat paket Android
+
+```bash
+npm run build:android
+```
+
+Perintah ini membangun versi web dan menyalin aset ke kedua proyek Android. Untuk paket sendiri, impor `android-uniapp` di HBuilderX, lalu atur nama aplikasi, ID paket, dan tanda tangan. [Alur kerja rilis](.github/workflows/release.yml) menggunakan Android SDK dan Gradle untuk membuat APK bertanda tangan dari `android-webview`.
+
+### WebDAV
+
+Pada halaman **Sinkronisasi**, isi URL server, nama pengguna, kata sandi aplikasi, dan nama perangkat. Uji koneksi sebelum menyinkronkan. Aktifkan sinkronisasi berkas buku jika Anda ingin menyinkronkan buku bersama metadata dan progres. Untuk akses dari peramban, server WebDAV harus mengizinkan `PROPFIND`, `MKCOL`, dan `PUT`.
+
+## Lisensi
+
+Beberapa format memerlukan konversi dan berkas berpelindung DRM tidak didukung. Lihat [dokumentasi bahasa Inggris](README.md) untuk detailnya.
 
 [Lisensi MIT](LICENSE) · [Laporkan masalah](https://github.com/itcwc/yejian-reader/issues)

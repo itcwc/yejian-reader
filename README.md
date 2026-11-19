@@ -79,6 +79,10 @@ npm run build        # static web build in dist/
 npm run preview      # preview build (includes the WebDAV same-origin proxy)
 ```
 
+### Deploy the web reader
+
+[Open the hosted web reader](https://itcwc.github.io/yejian-reader/app/), or run `npm run build` and upload the contents of `dist/` to your own static web host. The [GitHub Pages workflow](.github/workflows/pages.yml) publishes the project site and web reader together. Browser WebDAV on static hosting requires CORS support on the server or a same-origin reverse proxy.
+
 ### Windows desktop
 
 ```bash
@@ -94,7 +98,7 @@ If the Electron binary was skipped during install, run `npm rebuild electron`.
 npm run build:android   # build and copy assets into both Android shells
 ```
 
-- **Install directly**: download the CI-built debug APK from Releases.
+- **Install directly**: download the signed release APK from Releases.
 - **Build your own**: import `android-uniapp` in HBuilderX, set your app name, package id and signing, then build.
 - **CI APK**: `android-webview` is a native WebView shell that `.github/workflows/release.yml` builds with the Android SDK and uploads to the release.
 
