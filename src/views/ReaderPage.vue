@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/Icon.vue'
@@ -113,7 +114,13 @@ const verticalTapZones = computed(
 
 const hasToc = computed(() => chapters.value.length > 0)
 
-const currentChapter = computed(() => current.value.detail?.chapter || '')
+const currentChapter = computed(() => {
+  const detail = current.value.detail
+  if ((engineType.value === 'pdf' || engineType.value === 'comic') && detail?.page && detail.totalPages) {
+    return t('第 {0} / {1} 页', [detail.page, detail.totalPages])
+  }
+  return detail?.chapter || ''
+})
 const selectedPdfChapter = ref<TocItem>()
 const chapterIndex = computed(() => {
   const detail = current.value.detail
@@ -184,7 +191,7 @@ async function loadBook() {
   engineReady.value = false
   try {
     const bundle = await getBookBundle(props.id)
-    if (!bundle) throw new Error('这本书不在本地书架中，可能已被移除。')
+    if (!bundle) throw new Error(t('这本书不在本地书架中，可能已被移除。'))
     book.value = bundle.book
     buffer.value = bundle.buffer
     initialProgress.value = (await getProgress(props.id)) || null
@@ -194,7 +201,7 @@ async function loadBook() {
       detail: initialProgress.value?.detail || {},
     }
     chapters.value = []
-    document.title = `${bundle.book.title} · 页间`
+    document.title = t('{0} · 页间', [bundle.book.title])
 
     const format = bundle.book.format
     if (format === 'epub') {
@@ -213,7 +220,7 @@ async function loadBook() {
       engineType.value = 'flow'
     }
   } catch (error) {
-    loadError.value = error instanceof Error ? error.message : '无法打开这本书'
+    loadError.value = error instanceof Error ? error.message : t('无法打开这本书')
   } finally {
     preparing.value = false
   }
@@ -344,7 +351,7 @@ onBeforeUnmount(() => {
   if (clockTimer) window.clearInterval(clockTimer)
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('pagehide', onPageHide)
-  document.title = '页间 · 跨设备阅读'
+  document.title = t('页间 · 跨设备阅读')
   void flushProgress()
 })
 </script>
@@ -419,18 +426,18 @@ onBeforeUnmount(() => {
             <BookCover :book="book" :url="null" variant="mini" :show-progress="false" />
           </div>
           <div v-else class="loading-mark">页</div>
-          <p class="loading-eyebrow">OPENING</p>
-          <h2 class="loading-title">{{ book ? `正在展开《${book.title}》` : '正在取出这本书' }}</h2>
+
+          <h2 class="loading-title">{{ book ? t('正在展开《{0}》', [book.title]) : t('正在取出这本书') }}</h2>
           <div class="loading-bar"><span></span></div>
-          <p class="loading-hint">首次打开会解析排版，稍等片刻</p>
+          <p class="loading-hint">{{ t('首次打开会解析排版，稍等片刻') }}</p>
         </div>
       </Transition>
 
       <div v-if="loadError && !showLoader" class="reader-state reader-error">
         <Icon name="alert" :size="30" />
-        <h2 class="loading-title">打不开这本书</h2>
+        <h2 class="loading-title">{{ t('打不开这本书') }}</h2>
         <p class="error-copy">{{ loadError }}</p>
-        <button class="btn btn-primary" type="button" @click="exit">返回书架</button>
+        <button class="btn btn-primary" type="button" @click="exit">{{ t('返回书架') }}</button>
       </div>
     </div>
 
@@ -442,30 +449,29 @@ onBeforeUnmount(() => {
         @click="dismissTapGuide"
       >
         <div class="tap-guide-half is-prev">
-          <span>{{ verticalTapZones ? '上一屏' : '上一页' }}</span>
+          <span>{{ verticalTapZones ? t('上一屏') : t('上一页') }}</span>
         </div>
         <div class="tap-guide-half is-next">
-          <span>{{ verticalTapZones ? '下一屏' : '下一页' }}</span>
+          <span>{{ verticalTapZones ? t('下一屏') : t('下一页') }}</span>
         </div>
         <div class="tap-guide-center">
-          <span class="tap-guide-title">轻点中间</span>
-          <span class="tap-guide-sub">显示 / 隐藏菜单</span>
+          <span class="tap-guide-title">{{ t('轻点中间') }}</span>
+          <span class="tap-guide-sub">{{ t('显示 / 隐藏菜单') }}</span>
         </div>
         <p class="tap-guide-tip">
-          {{ verticalTapZones ? '上下点击滚动' : '左右点击翻页' }} · 轻点任意位置关闭提示
-        </p>
+          {{ t('{0} · 轻点任意位置关闭提示', [verticalTapZones ? t('上下点击滚动') : t('左右点击翻页')]) }}</p>
       </div>
     </Transition>
 
     <Transition name="bar-top">
       <header v-show="barsVisible" class="reader-top">
         <div class="top-inner">
-          <button class="icon-btn top-back" type="button" aria-label="返回书架" @click="exit">
+          <button class="icon-btn top-back" type="button" :aria-label="t('返回书架')" @click="exit">
             <Icon name="back" :size="19" />
           </button>
 
           <div class="top-title">
-            <span class="top-book">{{ book?.title || '未命名' }}</span>
+            <span class="top-book">{{ book?.title || t('未命名') }}</span>
             <span class="top-chapter">
               {{ currentChapter || (book ? formatLabel(book.format) : '') }}
             </span>
@@ -476,13 +482,13 @@ onBeforeUnmount(() => {
               class="icon-btn"
               type="button"
               :disabled="!hasToc"
-              :title="hasToc ? '目录 (T)' : '本书没有目录'"
-              aria-label="目录"
+              :title="hasToc ? t('目录 (T)') : t('本书没有目录')"
+              :aria-label="t('目录')"
               @click="toggleToc"
             >
               <Icon name="toc" :size="19" />
             </button>
-            <button class="icon-btn" type="button" title="阅读设置 (S)" aria-label="阅读设置" @click="toggleSettings">
+            <button class="icon-btn" type="button" :title="t('阅读设置 (S)')" :aria-label="t('阅读设置')" @click="toggleSettings">
               <Icon name="type" :size="19" />
             </button>
           </div>
@@ -494,10 +500,10 @@ onBeforeUnmount(() => {
       <footer v-show="barsVisible" class="reader-bottom">
         <button class="chapter-btn" type="button" :disabled="!engineReady || !previousChapter" @click="jumpTo(previousChapter)">
           <Icon name="left" :size="18" />
-          <span>上一章</span>
+          <span>{{ t('上一章') }}</span>
         </button>
         <button class="chapter-btn" type="button" :disabled="!engineReady || !nextChapter" @click="jumpTo(nextChapter)">
-          <span>下一章</span>
+          <span>{{ t('下一章') }}</span>
           <Icon name="right" :size="18" />
         </button>
       </footer>
@@ -520,9 +526,9 @@ onBeforeUnmount(() => {
     <Transition name="drawer">
       <aside v-if="tocOpen" class="toc-drawer">
         <header class="toc-head">
-          <p class="eyebrow">CONTENTS · {{ chapters.length }}</p>
+          <p class="eyebrow">{{ t('目录') }} · {{ chapters.length }}</p>
           <h2 class="toc-book-title">{{ book?.title }}</h2>
-          <button class="icon-btn toc-close" type="button" aria-label="关闭目录" @click="tocOpen = false">
+          <button class="icon-btn toc-close" type="button" :aria-label="t('关闭目录')" @click="tocOpen = false">
             <Icon name="x" :size="17" />
           </button>
         </header>
@@ -543,7 +549,7 @@ onBeforeUnmount(() => {
         </nav>
 
         <footer class="toc-foot">
-          <span>{{ Math.round(current.percent) }}% 已读</span>
+          <span>{{ t('{0}% 已读', [Math.round(current.percent)]) }}</span>
           <span class="dot-sep">·</span>
           <span>{{ pageLabel }}</span>
         </footer>
@@ -554,17 +560,17 @@ onBeforeUnmount(() => {
       <section v-if="settingsOpen" class="settings-sheet">
         <header class="sheet-head">
           <div>
-            <p class="eyebrow">READING</p>
-            <h2 class="sheet-title">阅读设置</h2>
+
+            <h2 class="sheet-title">{{ t('阅读设置') }}</h2>
           </div>
-          <button class="icon-btn" type="button" aria-label="关闭设置" @click="settingsOpen = false">
+          <button class="icon-btn" type="button" :aria-label="t('关闭设置')" @click="settingsOpen = false">
             <Icon name="x" :size="18" />
           </button>
         </header>
 
         <div class="sheet-body">
           <div class="setting-block">
-            <span class="setting-label">阅读主题</span>
+            <span class="setting-label">{{ t('阅读主题') }}</span>
             <div class="theme-grid">
               <button
                 v-for="theme in themeOptions"
@@ -580,17 +586,17 @@ onBeforeUnmount(() => {
                     :size="14"
                   />
                 </span>
-                <span class="theme-name">{{ theme.label }}</span>
-                <span class="theme-caption">{{ theme.caption }}</span>
+                <span class="theme-name">{{ t(theme.label) }}</span>
+                <span class="theme-caption">{{ t(theme.caption) }}</span>
               </button>
             </div>
           </div>
 
           <div v-if="supportReadingMode" class="setting-row">
             <div>
-              <span class="setting-label">阅读方式</span>
+              <span class="setting-label">{{ t('阅读方式') }}</span>
               <span class="setting-hint">
-                {{ preferences.prefs.readingMode === 'scroll' ? '向下滚动，连续阅读' : '左右翻页，逐页阅读' }}
+                {{ preferences.prefs.readingMode === 'scroll' ? t('向下滚动，连续阅读') : t('左右翻页，逐页阅读') }}
               </span>
             </div>
             <div class="segmented">
@@ -598,23 +604,19 @@ onBeforeUnmount(() => {
                 type="button"
                 :class="{ 'is-active': preferences.prefs.readingMode === 'paged' }"
                 @click="preferences.prefs.readingMode = 'paged'"
-              >
-                翻页
-              </button>
+              >{{ t('翻页') }}</button>
               <button
                 type="button"
                 :class="{ 'is-active': preferences.prefs.readingMode === 'scroll' }"
                 @click="preferences.prefs.readingMode = 'scroll'"
-              >
-                滚动
-              </button>
+              >{{ t('滚动') }}</button>
             </div>
           </div>
 
           <div class="setting-row">
             <div>
-              <span class="setting-label">点击区域提示</span>
-              <span class="setting-hint">每次进入阅读时显示可点击区域</span>
+              <span class="setting-label">{{ t('点击区域提示') }}</span>
+              <span class="setting-hint">{{ t('每次进入阅读时显示可点击区域') }}</span>
             </div>
             <button
               class="switch"
@@ -630,8 +632,8 @@ onBeforeUnmount(() => {
 
           <div v-if="engineType === 'pdf'" class="setting-row">
             <div>
-              <span class="setting-label">夜间反色</span>
-              <span class="setting-hint">夜读主题下反转 PDF 页面颜色</span>
+              <span class="setting-label">{{ t('夜间反色') }}</span>
+              <span class="setting-hint">{{ t('夜读主题下反转 PDF 页面颜色') }}</span>
             </div>
             <button
               class="switch"
@@ -647,24 +649,20 @@ onBeforeUnmount(() => {
 
           <div v-if="engineType === 'comic'" class="setting-row">
             <div>
-              <span class="setting-label">翻页方式</span>
-              <span class="setting-hint">宽屏时双页并排阅读</span>
+              <span class="setting-label">{{ t('翻页方式') }}</span>
+              <span class="setting-hint">{{ t('宽屏时双页并排阅读') }}</span>
             </div>
             <div class="segmented">
               <button
                 type="button"
                 :class="{ 'is-active': !preferences.prefs.comicSpread }"
                 @click="preferences.prefs.comicSpread = false"
-              >
-                单页
-              </button>
+              >{{ t('单页') }}</button>
               <button
                 type="button"
                 :class="{ 'is-active': preferences.prefs.comicSpread }"
                 @click="preferences.prefs.comicSpread = true"
-              >
-                双页
-              </button>
+              >{{ t('双页') }}</button>
             </div>
           </div>
 
@@ -678,36 +676,30 @@ onBeforeUnmount(() => {
                   lineHeight: preferences.prefs.lineHeight,
                   maxWidth: previewWidth,
                 }"
-              >
-                行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。
-              </p>
-              <span class="preview-caption">实时预览</span>
+              >{{ t('行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。') }}</p>
+              <span class="preview-caption">{{ t('实时预览') }}</span>
             </div>
 
             <div class="setting-row">
-              <span class="setting-label">字体</span>
+              <span class="setting-label">{{ t('字体') }}</span>
               <div class="segmented">
                 <button
                   type="button"
                   :class="{ 'is-active': preferences.prefs.fontKind === 'serif' }"
                   @click="preferences.prefs.fontKind = 'serif'"
-                >
-                  宋体
-                </button>
+                >{{ t('宋体') }}</button>
                 <button
                   type="button"
                   :class="{ 'is-active': preferences.prefs.fontKind === 'sans' }"
                   @click="preferences.prefs.fontKind = 'sans'"
-                >
-                  黑体
-                </button>
+                >{{ t('黑体') }}</button>
               </div>
             </div>
 
             <div class="setting-row">
-              <span class="setting-label">字号</span>
+              <span class="setting-label">{{ t('字号') }}</span>
               <div class="range-control">
-                <button class="range-step" type="button" aria-label="减小字号" @click="preferences.prefs.fontSize = Math.max(14, preferences.prefs.fontSize - 1)">
+                <button class="range-step" type="button" :aria-label="t('减小字号')" @click="preferences.prefs.fontSize = Math.max(14, preferences.prefs.fontSize - 1)">
                   A−
                 </button>
                 <input
@@ -717,7 +709,7 @@ onBeforeUnmount(() => {
                   max="32"
                   step="1"
                 />
-                <button class="range-step" type="button" aria-label="增大字号" @click="preferences.prefs.fontSize = Math.min(32, preferences.prefs.fontSize + 1)">
+                <button class="range-step" type="button" :aria-label="t('增大字号')" @click="preferences.prefs.fontSize = Math.min(32, preferences.prefs.fontSize + 1)">
                   A+
                 </button>
                 <span class="range-value">{{ preferences.prefs.fontSize }}</span>
@@ -725,12 +717,12 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="setting-row">
-              <span class="setting-label">行距</span>
+              <span class="setting-label">{{ t('行距') }}</span>
               <div class="range-control">
                 <button
                   class="range-step"
                   type="button"
-                  aria-label="减小行距"
+                  :aria-label="t('减小行距')"
                   @click="preferences.prefs.lineHeight = Number(Math.max(1.5, preferences.prefs.lineHeight - 0.05).toFixed(2))"
                 >
                   −
@@ -745,7 +737,7 @@ onBeforeUnmount(() => {
                 <button
                   class="range-step"
                   type="button"
-                  aria-label="增大行距"
+                  :aria-label="t('增大行距')"
                   @click="preferences.prefs.lineHeight = Number(Math.min(2.6, preferences.prefs.lineHeight + 0.05).toFixed(2))"
                 >
                   +
@@ -755,7 +747,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="supportWidthSetting" class="setting-row">
-              <span class="setting-label">版心宽度</span>
+              <span class="setting-label">{{ t('版心宽度') }}</span>
               <div class="range-control">
                 <input
                   v-model.number="preferences.prefs.contentWidth"

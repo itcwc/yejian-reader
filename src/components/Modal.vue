@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 import Icon from './Icon.vue'
 
@@ -50,7 +51,7 @@ onBeforeUnmount(() => {
                 <h2 class="modal-title">{{ title }}</h2>
               </slot>
             </div>
-            <button v-if="showClose" class="icon-btn" type="button" aria-label="关闭" @click="close">
+            <button v-if="showClose" class="icon-btn" type="button" :aria-label="t('关闭')" @click="close">
               <Icon name="x" :size="18" />
             </button>
           </header>

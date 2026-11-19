@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { computed, ref, watch } from 'vue'
 import type { Book } from '@/types'
 import { formatLabel } from '@/core/formats'
@@ -61,7 +62,7 @@ const hasImage = computed(() => Boolean(props.url) && !imageFailed.value)
     <img
       v-if="hasImage"
       :src="url || ''"
-      :alt="`${book.title} 封面`"
+      :alt="t('{0} 封面', [book.title])"
       loading="lazy"
       @error="imageFailed = true"
     />
@@ -74,7 +75,7 @@ const hasImage = computed(() => Boolean(props.url) && !imageFailed.value)
         <span class="cover-format">{{ formatLabel(book.format) }}</span>
         <span class="cover-rule" aria-hidden="true"></span>
         <span class="cover-title">{{ book.title }}</span>
-        <span class="cover-author">{{ book.author || '未知作者' }}</span>
+        <span class="cover-author">{{ book.author || t('未知作者') }}</span>
       </div>
     </template>
 

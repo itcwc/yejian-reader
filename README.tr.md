@@ -6,7 +6,15 @@
 
 Yejian, kitaplığınızı cihazınızda saklayan ücretsiz ve açık kaynaklı bir okuyucudur. Hesap açmadan çevrimdışı okuyabilir, kitapları ve okuma ilerlemesini kendi WebDAV sunucunuzla eşitleyebilirsiniz.
 
-![Yejian okuma ekranı](docs/screenshots/reader-paper.png)
+## Ekran görüntüleri
+
+Android uygulamasını ilk açtığınızda dilinizi seçin. Daha sonra **Ayarlar → Uygulama dili** bölümünden değiştirebilirsiniz.
+
+<p align="center">
+  <img src="docs/screenshots/tr/library.webp" width="30%" alt="Kitaplık">
+  <img src="docs/screenshots/tr/reader.webp" width="30%" alt="Okuma menüsü">
+  <img src="docs/screenshots/tr/settings.webp" width="30%" alt="Ayarlar">
+</p>
 
 ## Özellikler
 

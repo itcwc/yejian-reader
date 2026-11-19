@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { useRoute } from 'vue-router'
 import Icon from './Icon.vue'
 
@@ -18,14 +19,14 @@ function isActive(to: string) {
 
 <template>
   <aside class="rail">
-    <RouterLink to="/" class="brand" aria-label="页间书架">
+    <RouterLink to="/" class="brand" :aria-label="t('页间书架')">
       <span class="brand-seal">
         <span class="seal-char">页</span>
       </span>
       <span class="brand-name">页间</span>
     </RouterLink>
 
-    <nav class="rail-nav" aria-label="主导航">
+    <nav class="rail-nav" :aria-label="t('主导航')">
       <RouterLink
         v-for="item in nav"
         :key="item.to"
@@ -35,7 +36,7 @@ function isActive(to: string) {
       >
         <span class="rail-indicator" aria-hidden="true"></span>
         <Icon :name="item.icon" :size="20" />
-        <span class="rail-label">{{ item.label }}</span>
+        <span class="rail-label">{{ t(item.label) }}</span>
       </RouterLink>
     </nav>
 
@@ -47,7 +48,7 @@ function isActive(to: string) {
       >
         <span class="rail-indicator" aria-hidden="true"></span>
         <Icon name="settings" :size="20" />
-        <span class="rail-label">设置</span>
+        <span class="rail-label">{{ t('设置') }}</span>
       </RouterLink>
       <span class="rail-version">v{{ appVersion }}</span>
     </div>

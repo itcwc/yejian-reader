@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isLocale, LANGUAGES, locale, setLocale, t } from '@/core/i18n'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import Icon from '@/components/Icon.vue'
 import FormatMatrix from '@/components/FormatMatrix.vue'
@@ -16,6 +17,11 @@ const library = useLibraryStore()
 const sync = useSyncStore()
 const toast = useToastStore()
 
+function changeLanguage(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  if (isLocale(value)) setLocale(value)
+}
+
 const appVersion = __APP_VERSION__
 const updates = window.yejian?.updates
 const androidUpdate = window.YeJianUpdate
@@ -31,15 +37,15 @@ const LATEST_RELEASE_API = 'https://api.github.com/repos/itcwc/yejian-reader/rel
 
 const updateHint = computed(() => {
   if (updates) {
-    return '启动时自动检查 GitHub Releases；发现新版本后可直接在这里下载，重启即可完成安装。'
+    return t('启动时自动检查 GitHub Releases；发现新版本后可直接在这里下载，重启即可完成安装。')
   }
   if (androidUpdate) {
-    return '启动时自动检查新版本，也可随时在这里手动检查；发现新版会在应用内下载并调起安装。'
+    return t('启动时自动检查新版本，也可随时在这里手动检查；发现新版会在应用内下载并调起安装。')
   }
   if (sync.device.platform === 'android') {
-    return '启动时会自动检查新版本，也可在这里手动检查。'
+    return t('启动时会自动检查新版本，也可在这里手动检查。')
   }
-  return '可随时向 GitHub Releases 查询新版本；浏览器版请前往下载页获取安装包。'
+  return t('可随时向 GitHub Releases 查询新版本；浏览器版请前往下载页获取安装包。')
 })
 
 // 排版预览：字号/行距/字体/版心宽度实时映射到预览文字
@@ -69,12 +75,12 @@ async function fetchLatestVersion(): Promise<string> {
     cache: 'no-store',
     headers: { Accept: 'application/vnd.github+json' },
   })
-  if (response.status === 403) throw new Error('查询过于频繁，请稍后再试')
-  if (response.status === 404) throw new Error('尚未发布正式版本')
+  if (response.status === 403) throw new Error(t('查询过于频繁，请稍后再试'))
+  if (response.status === 404) throw new Error(t('尚未发布正式版本'))
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const data = (await response.json()) as { tag_name?: string; name?: string }
   const version = (data.tag_name || data.name || '').replace(/^v/i, '')
-  if (!version) throw new Error('返回数据缺少版本号')
+  if (!version) throw new Error(t('返回数据缺少版本号'))
   return version
 }
 
@@ -86,21 +92,21 @@ async function checkUpdate() {
     // 安卓壳：交给原生更新流程，检查结果与应用内下载都在系统弹窗里完成。
     if (androidUpdate?.check) {
       androidUpdate.check()
-      updateMessage.value = '正在检查新版本，如有更新会在应用内提示下载。'
+      updateMessage.value = t('正在检查新版本，如有更新会在应用内提示下载。')
       return
     }
 
     if (updates) {
       const result = await updates.check()
       if (!result.supported) {
-        toast.push('当前环境不支持应用内更新')
+        toast.push(t('当前环境不支持应用内更新'))
       } else if (result.error) {
-        updateMessage.value = `检查失败：${result.error}`
+        updateMessage.value = t('检查失败：{0}', [result.error])
       } else if (result.version && compareVersions(result.version, appVersion) > 0) {
         availableVersion.value = result.version
-        updateMessage.value = `发现新版本 v${result.version}，可直接在应用内下载。`
+        updateMessage.value = t('发现新版本 v{0}，可直接在应用内下载。', [result.version])
       } else {
-        updateMessage.value = '已是最新版本'
+        updateMessage.value = t('已是最新版本')
       }
       return
     }
@@ -108,10 +114,10 @@ async function checkUpdate() {
     const version = await fetchLatestVersion()
     updateMessage.value =
       compareVersions(version, appVersion) > 0
-        ? `发现新版本 v${version}，可点击「前往下载」获取安装包。`
-        : '已是最新版本'
+        ? t('发现新版本 v{0}，可点击「前往下载」获取安装包。', [version])
+        : t('已是最新版本')
   } catch (error) {
-    updateMessage.value = `检查更新失败：${error instanceof Error ? error.message : String(error)}`
+    updateMessage.value = t('检查更新失败：{0}', [error instanceof Error ? error.message : String(error)])
   } finally {
     checkingUpdate.value = false
   }
@@ -120,10 +126,10 @@ async function checkUpdate() {
 async function downloadUpdate() {
   if (!updates || downloadBusy.value || updateReady.value) return
   downloadBusy.value = true
-  updateMessage.value = '正在准备下载更新…'
+  updateMessage.value = t('正在准备下载更新…')
   try {
     const result = await updates.download()
-    if (!result.ok) updateMessage.value = '下载失败，请稍后重试。'
+    if (!result.ok) updateMessage.value = t('下载失败，请稍后重试。')
   } finally {
     downloadBusy.value = false
   }
@@ -143,9 +149,9 @@ async function exportBackup() {
   backupBusy.value = 'export'
   try {
     const { blob, count } = await exportLibraryBackup()
-    if (await saveLibraryBackup(blob)) toast.push(`已导出 ${count} 本书及其阅读进度`, 'success')
+    if (await saveLibraryBackup(blob)) toast.push(t('已导出 {0} 本书及其阅读进度', [count]), 'success')
   } catch (error) {
-    toast.push(`导出失败：${error instanceof Error ? error.message : '请重试'}`, 'error')
+    toast.push(t('导出失败：{0}', [error instanceof Error ? error.message : '请重试']), 'error')
   } finally {
     backupBusy.value = null
   }
@@ -160,9 +166,9 @@ async function importBackup(event: Event) {
   try {
     const { added, progressUpdated } = await importLibraryBackup(file)
     await library.refresh()
-    toast.push(`导入完成：新增 ${added} 本书，更新 ${progressUpdated} 条阅读进度`, 'success')
+    toast.push(t('导入完成：新增 {0} 本书，更新 {1} 条阅读进度', [added, progressUpdated]), 'success')
   } catch (error) {
-    toast.push(`导入失败：${error instanceof Error ? error.message : '请重试'}`, 'error')
+    toast.push(t('导入失败：{0}', [error instanceof Error ? error.message : '请重试']), 'error')
   } finally {
     backupBusy.value = null
   }
@@ -180,9 +186,9 @@ const themes = (Object.keys(THEME_META) as ThemeId[]).map((id) => ({
 
 const platformLabel = computed(() => {
   const platform = sync.device.platform
-  if (platform === 'pc') return '桌面应用（Electron）'
-  if (platform === 'android') return '安卓（uniapp 容器）'
-  return '浏览器（Web / PWA）'
+  if (platform === 'pc') return t('桌面应用（Electron）')
+  if (platform === 'android') return t('安卓（uniapp 容器）')
+  return t('浏览器（Web / PWA）')
 })
 
 const usagePercent = computed(() => {
@@ -192,25 +198,25 @@ const usagePercent = computed(() => {
 
 onMounted(async () => {
   unsubscribeUpdate = updates?.onStatus((state) => {
-    if (state.state === 'checking') updateMessage.value = '正在检查新版本…'
+    if (state.state === 'checking') updateMessage.value = t('正在检查新版本…')
     else if (state.state === 'none') {
       availableVersion.value = ''
       updateReady.value = false
-      updateMessage.value = '已是最新版本'
+      updateMessage.value = t('已是最新版本')
     } else if (state.state === 'available') {
       availableVersion.value = state.version || ''
       updateReady.value = false
-      updateMessage.value = `发现新版本 v${state.version}，可直接在应用内下载。`
+      updateMessage.value = t('发现新版本 v{0}，可直接在应用内下载。', [state.version])
     } else if (state.state === 'downloading') {
       downloadBusy.value = true
-      updateMessage.value = `正在下载 ${state.percent ?? 0}%`
+      updateMessage.value = t('正在下载 {0}%', [state.percent ?? 0])
     } else if (state.state === 'downloaded') {
       downloadBusy.value = false
       updateReady.value = true
-      updateMessage.value = `v${state.version} 已下载，可直接重启安装`
+      updateMessage.value = t('v{0} 已下载，可直接重启安装', [state.version])
     } else {
       downloadBusy.value = false
-      updateMessage.value = state.message || '检查更新失败'
+      updateMessage.value = state.message || t('检查更新失败')
     }
   })
 
@@ -233,20 +239,31 @@ onBeforeUnmount(() => {
 <template>
   <div class="settings-page">
     <header class="page-head">
-      <p class="eyebrow">SETTINGS · 页间</p>
-      <h1 class="display page-title">让阅读更像自己<span class="dot">。</span></h1>
-      <p class="page-lede">
-        调整外观与默认排版。设置会保存在本机，并作用于之后打开的每一本书。
-      </p>
+      <p class="eyebrow">{{ t('SETTINGS · 页间') }}</p>
+      <h1 class="display page-title">{{ t('让阅读更像自己') }}<span class="dot">{{ t('。') }}</span></h1>
+      <p class="page-lede">{{ t('调整外观与默认排版。设置会保存在本机，并作用于之后打开的每一本书。') }}</p>
     </header>
+
+    <section class="panel">
+      <div class="setting-row">
+        <label class="setting-meta" for="app-language">
+          <span class="setting-label">{{ t('界面语言') }}</span>
+          <span class="setting-hint">{{ t('更改书架和阅读菜单的显示语言。') }}</span>
+        </label>
+        <select id="app-language" class="language-select" :value="locale" @change="changeLanguage">
+          <option v-for="language in LANGUAGES" :key="language.code" :value="language.code" :lang="language.code">
+            {{ language.name }}
+          </option>
+        </select>
+      </div>
+    </section>
 
     <section class="panel">
       <header class="panel-head">
         <div>
-          <p class="eyebrow">APPEARANCE</p>
-          <h2 class="panel-title">外观主题</h2>
+          <h2 class="panel-title">{{ t('外观主题') }}</h2>
         </div>
-        <span class="panel-note">应用界面（不含阅读页）</span>
+        <span class="panel-note">{{ t('应用界面（不含阅读页）') }}</span>
       </header>
 
       <div class="theme-grid">
@@ -266,8 +283,8 @@ onBeforeUnmount(() => {
             <span class="preview-line" :style="{ background: theme.preview.line }"></span>
           </span>
           <span class="theme-info">
-            <span class="theme-label">{{ theme.label }}</span>
-            <span class="theme-caption">{{ theme.caption }}</span>
+            <span class="theme-label">{{ t(theme.label) }}</span>
+            <span class="theme-caption">{{ t(theme.caption) }}</span>
           </span>
           <span v-if="preferences.prefs.theme === theme.id" class="theme-check">
             <Icon name="check" :size="13" />
@@ -278,8 +295,8 @@ onBeforeUnmount(() => {
       <div class="theme-sub">
         <div class="theme-sub-head">
           <div>
-            <span class="setting-label">阅读主题</span>
-            <span class="setting-hint">只影响阅读页的纸面颜色，与应用主题互不干扰</span>
+            <span class="setting-label">{{ t('阅读主题') }}</span>
+            <span class="setting-hint">{{ t('只影响阅读页的纸面颜色，与应用主题互不干扰') }}</span>
           </div>
         </div>
         <div class="reader-theme-row">
@@ -297,7 +314,7 @@ onBeforeUnmount(() => {
             >
               <span class="chip-swatch-line" :style="{ background: theme.preview.accent }"></span>
             </span>
-            <span class="chip-label">{{ theme.label }}</span>
+            <span class="chip-label">{{ t(theme.label) }}</span>
           </button>
         </div>
       </div>
@@ -306,70 +323,59 @@ onBeforeUnmount(() => {
     <section class="panel">
       <header class="panel-head">
         <div>
-          <p class="eyebrow">TYPOGRAPHY</p>
-          <h2 class="panel-title">阅读排版</h2>
+          <h2 class="panel-title">{{ t('阅读排版') }}</h2>
         </div>
-        <span class="panel-note">实时保存</span>
+        <span class="panel-note">{{ t('实时保存') }}</span>
       </header>
 
       <div class="setting-list">
         <div class="typo-preview">
-          <p class="typo-preview-text" :style="typoPreviewStyle">
-            行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。
-          </p>
-          <span class="typo-preview-caption">实时预览</span>
+          <p class="typo-preview-text" :style="typoPreviewStyle">{{ t('行到水穷处，坐看云起时。每一次翻页，都是为了看见更好的自己。') }}</p>
+          <span class="typo-preview-caption">{{ t('实时预览') }}</span>
         </div>
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">正文字体</span>
-            <span class="setting-hint">宋体更适合长文，黑体更清晰</span>
+            <span class="setting-label">{{ t('正文字体') }}</span>
+            <span class="setting-hint">{{ t('宋体更适合长文，黑体更清晰') }}</span>
           </div>
           <div class="segmented">
             <button
               type="button"
               :class="{ 'is-active': preferences.prefs.fontKind === 'serif' }"
               @click="preferences.prefs.fontKind = 'serif'"
-            >
-              宋体
-            </button>
+            >{{ t('宋体') }}</button>
             <button
               type="button"
               :class="{ 'is-active': preferences.prefs.fontKind === 'sans' }"
               @click="preferences.prefs.fontKind = 'sans'"
-            >
-              黑体
-            </button>
+            >{{ t('黑体') }}</button>
           </div>
         </div>
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">默认阅读方式</span>
-            <span class="setting-hint">翻页逐屏阅读，滚动连续阅读</span>
+            <span class="setting-label">{{ t('默认阅读方式') }}</span>
+            <span class="setting-hint">{{ t('翻页逐屏阅读，滚动连续阅读') }}</span>
           </div>
           <div class="segmented">
             <button
               type="button"
               :class="{ 'is-active': preferences.prefs.readingMode === 'paged' }"
               @click="preferences.prefs.readingMode = 'paged'"
-            >
-              翻页
-            </button>
+            >{{ t('翻页') }}</button>
             <button
               type="button"
               :class="{ 'is-active': preferences.prefs.readingMode === 'scroll' }"
               @click="preferences.prefs.readingMode = 'scroll'"
-            >
-              滚动
-            </button>
+            >{{ t('滚动') }}</button>
           </div>
         </div>
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">点击区域提示</span>
-            <span class="setting-hint">每次进入阅读时显示可点击区域，关闭后不再弹出</span>
+            <span class="setting-label">{{ t('点击区域提示') }}</span>
+            <span class="setting-hint">{{ t('每次进入阅读时显示可点击区域，关闭后不再弹出') }}</span>
           </div>
           <button
             class="switch"
@@ -385,7 +391,7 @@ onBeforeUnmount(() => {
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">默认字号</span>
+            <span class="setting-label">{{ t('默认字号') }}</span>
             <span class="setting-hint">14 – 32 px</span>
           </div>
           <div class="range-control">
@@ -396,8 +402,8 @@ onBeforeUnmount(() => {
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">默认行距</span>
-            <span class="setting-hint">更宽松的行距适合夜间与长时间阅读</span>
+            <span class="setting-label">{{ t('默认行距') }}</span>
+            <span class="setting-hint">{{ t('更宽松的行距适合夜间与长时间阅读') }}</span>
           </div>
           <div class="range-control">
             <input v-model.number="preferences.prefs.lineHeight" type="range" min="1.5" max="2.6" step="0.05" />
@@ -407,8 +413,8 @@ onBeforeUnmount(() => {
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">版心宽度</span>
-            <span class="setting-hint">流式文本每行的最大宽度</span>
+            <span class="setting-label">{{ t('版心宽度') }}</span>
+            <span class="setting-hint">{{ t('流式文本每行的最大宽度') }}</span>
           </div>
           <div class="range-control">
             <input v-model.number="preferences.prefs.contentWidth" type="range" min="560" max="980" step="20" />
@@ -418,8 +424,8 @@ onBeforeUnmount(() => {
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">PDF 夜间反色</span>
-            <span class="setting-hint">在夜读主题下反转 PDF 页面</span>
+            <span class="setting-label">{{ t('PDF 夜间反色') }}</span>
+            <span class="setting-hint">{{ t('在夜读主题下反转 PDF 页面') }}</span>
           </div>
           <button
             class="switch"
@@ -435,8 +441,8 @@ onBeforeUnmount(() => {
 
         <div class="setting-row">
           <div>
-            <span class="setting-label">漫画双页</span>
-            <span class="setting-hint">宽屏设备上并排显示两页</span>
+            <span class="setting-label">{{ t('漫画双页') }}</span>
+            <span class="setting-hint">{{ t('宽屏设备上并排显示两页') }}</span>
           </div>
           <button
             class="switch"
@@ -456,8 +462,7 @@ onBeforeUnmount(() => {
       <section class="panel">
         <header class="panel-head">
           <div>
-            <p class="eyebrow">STORAGE</p>
-            <h2 class="panel-title">本地存储</h2>
+            <h2 class="panel-title">{{ t('本地存储') }}</h2>
           </div>
           <Icon name="folder" :size="18" />
         </header>
@@ -465,21 +470,21 @@ onBeforeUnmount(() => {
         <div class="storage-figures">
           <div class="figure">
             <span class="figure-value">{{ library.stats.total }}</span>
-            <span class="figure-label">本书</span>
+            <span class="figure-label">{{ t('本书') }}</span>
           </div>
           <div class="figure">
             <span class="figure-value">{{ formatBytes(library.totalBytes) }}</span>
-            <span class="figure-label">书籍文件</span>
+            <span class="figure-label">{{ t('书籍文件') }}</span>
           </div>
           <div class="figure">
             <span class="figure-value">{{ formatBytes(usage) }}</span>
-            <span class="figure-label">浏览器已用</span>
+            <span class="figure-label">{{ t('浏览器已用') }}</span>
           </div>
         </div>
 
         <div v-if="quota" class="quota">
           <div class="quota-head">
-            <span>存储配额</span>
+            <span>{{ t('存储配额') }}</span>
             <span>{{ formatBytes(quota) }}</span>
           </div>
           <div class="quota-track">
@@ -487,72 +492,62 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <p class="storage-note">
-          书籍与阅读进度保存在本机 IndexedDB 中，不会自动上传。
-          清理应用数据会删除本机书架，请先导出备份或使用 WebDAV 同步。
-        </p>
+        <p class="storage-note">{{ t('书籍与阅读进度保存在本机 IndexedDB 中，不会自动上传。 清理应用数据会删除本机书架，请先导出备份或使用 WebDAV 同步。') }}</p>
       </section>
 
       <section class="panel">
         <header class="panel-head">
           <div>
-            <p class="eyebrow">ABOUT</p>
-            <h2 class="panel-title">关于页间</h2>
+            <h2 class="panel-title">{{ t('关于页间') }}</h2>
           </div>
-          <span class="panel-note">本地优先 · 不上传</span>
+          <span class="panel-note">{{ t('本地优先 · 不上传') }}</span>
         </header>
 
         <div class="about-mark">
           <span class="about-seal">页</span>
           <div>
             <h3 class="about-name">页间</h3>
-            <p class="about-tagline">多设备阅读器 · 本地优先</p>
+            <p class="about-tagline">{{ t('多设备阅读器 · 本地优先') }}</p>
           </div>
         </div>
 
         <dl class="about-list">
           <div>
-            <dt>运行平台</dt>
+            <dt>{{ t('运行平台') }}</dt>
             <dd>{{ platformLabel }}</dd>
           </div>
           <div>
-            <dt>设备名称</dt>
+            <dt>{{ t('设备名称') }}</dt>
             <dd>{{ sync.device.name }}</dd>
           </div>
           <div>
-            <dt>数据存储</dt>
+            <dt>{{ t('数据存储') }}</dt>
             <dd>IndexedDB + Blob</dd>
           </div>
           <div>
-            <dt>同步方式</dt>
-            <dd>{{ sync.configured ? 'WebDAV 已配置' : 'WebDAV 未配置' }}</dd>
+            <dt>{{ t('同步方式') }}</dt>
+            <dd>{{ sync.configured ? t('WebDAV 已配置') : t('WebDAV 未配置') }}</dd>
           </div>
         </dl>
 
-        <p class="about-note">
-          页间不提供账号，也不托管你的文件。阅读记录在你自己的设备与 WebDAV 空间之间流转。
-        </p>
+        <p class="about-note">{{ t('页间不提供账号，也不托管你的文件。阅读记录在你自己的设备与 WebDAV 空间之间流转。') }}</p>
       </section>
     </div>
 
     <section class="panel">
       <header class="panel-head">
         <div>
-          <p class="eyebrow">BACKUP</p>
-          <h2 class="panel-title">书库与进度备份</h2>
+          <h2 class="panel-title">{{ t('书库与进度备份') }}</h2>
         </div>
         <Icon name="folder" :size="18" />
       </header>
-      <p class="storage-note">
-        将书籍文件、封面和阅读进度导出为一个备份文件，可离线转移到另一台设备。
-        导入会合并到当前书库，同一本书保留最近更新的进度。
-      </p>
+      <p class="storage-note">{{ t('将书籍文件、封面和阅读进度导出为一个备份文件，可离线转移到另一台设备。 导入会合并到当前书库，同一本书保留最近更新的进度。') }}</p>
       <div class="backup-actions">
         <button class="check-update" :disabled="!!backupBusy" @click="exportBackup">
-          {{ backupBusy === 'export' ? '导出中…' : '导出备份' }}
+          {{ backupBusy === 'export' ? t('导出中…') : t('导出备份') }}
         </button>
         <button class="check-update" :disabled="!!backupBusy" @click="backupInput?.click()">
-          {{ backupBusy === 'import' ? '导入中…' : '导入备份' }}
+          {{ backupBusy === 'import' ? t('导入中…') : t('导入备份') }}
         </button>
         <input ref="backupInput" type="file" hidden @change="importBackup" />
       </div>
@@ -561,20 +556,19 @@ onBeforeUnmount(() => {
     <section class="panel">
       <header class="panel-head">
         <div>
-          <p class="eyebrow">UPDATE</p>
-          <h2 class="panel-title">版本更新</h2>
+          <h2 class="panel-title">{{ t('版本更新') }}</h2>
         </div>
         <span class="panel-note">GitHub Releases</span>
       </header>
 
       <div class="update-row">
         <div class="update-version">
-          <span class="update-label">当前版本</span>
+          <span class="update-label">{{ t('当前版本') }}</span>
           <span class="update-value">v{{ appVersion }}</span>
         </div>
         <div class="update-actions">
           <button class="check-update" :disabled="checkingUpdate || downloadBusy" @click="checkUpdate">
-            {{ checkingUpdate ? '检查中…' : '检查更新' }}
+            {{ checkingUpdate ? t('检查中…') : t('检查更新') }}
           </button>
           <button
             v-if="updates && availableVersion && !updateReady"
@@ -582,20 +576,16 @@ onBeforeUnmount(() => {
             :disabled="downloadBusy"
             @click="downloadUpdate"
           >
-            {{ downloadBusy ? '下载中…' : '下载更新' }}
+            {{ downloadBusy ? t('下载中…') : t('下载更新') }}
           </button>
-          <button v-if="updates && updateReady" class="check-update" @click="installUpdate">
-            重启安装
-          </button>
+          <button v-if="updates && updateReady" class="check-update" @click="installUpdate">{{ t('重启安装') }}</button>
           <a
             v-if="!updates && !androidUpdate"
             class="check-update"
             :href="RELEASES_URL"
             target="_blank"
             rel="noreferrer"
-          >
-            前往下载
-          </a>
+          >{{ t('前往下载') }}</a>
         </div>
       </div>
 
@@ -606,21 +596,28 @@ onBeforeUnmount(() => {
     <section class="panel">
       <header class="panel-head">
         <div>
-          <p class="eyebrow">FORMATS</p>
-          <h2 class="panel-title">格式支持</h2>
+          <h2 class="panel-title">{{ t('格式支持') }}</h2>
         </div>
-        <span class="panel-note">本地解析 · 不上传</span>
+        <span class="panel-note">{{ t('本地解析 · 不上传') }}</span>
       </header>
-      <p class="formats-intro">
-        标为「直接阅读」的格式打开即读；「需转换」的格式会给出具体转换方式，
-        转换后重新导入即可。
-      </p>
+      <p class="formats-intro">{{ t('标为「直接阅读」的格式打开即读；「需转换」的格式会给出具体转换方式， 转换后重新导入即可。') }}</p>
       <FormatMatrix />
     </section>
   </div>
 </template>
 
 <style scoped>
+.language-select {
+  max-width: 100%;
+  min-height: 40px;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--ink);
+  font: inherit;
+}
+
 .backup-actions {
   display: flex;
   flex-wrap: wrap;

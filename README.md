@@ -17,28 +17,13 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 
 ## Screenshots
 
-### Desktop
+On Android, choose a language on first launch. You can change it later in **Settings → App language**.
 
 <p align="center">
-  <img src="docs/screenshots/library.png" width="49%" alt="Library">
-  <img src="docs/screenshots/reader-paper.png" width="49%" alt="Paper theme reader">
+  <img src="docs/screenshots/en/library.webp" width="30%" alt="Library">
+  <img src="docs/screenshots/en/reader.webp" width="30%" alt="Reading menu">
+  <img src="docs/screenshots/en/settings.webp" width="30%" alt="Settings">
 </p>
-<p align="center">
-  <img src="docs/screenshots/reader-night.png" width="49%" alt="Night theme and typography settings">
-  <img src="docs/screenshots/sync.png" width="49%" alt="WebDAV sync">
-</p>
-<p align="center">
-  <img src="docs/screenshots/settings.png" width="72%" alt="Settings and themes">
-</p>
-
-### Mobile
-
-<p align="center">
-  <img src="docs/screenshots/mobile-library.png" width="26%" alt="Mobile library">
-  <img src="docs/screenshots/mobile-guide.png" width="26%" alt="Tap-zone guide">
-</p>
-
-> Screenshots use demo books and placeholder credentials; no real books or secrets are included.
 
 ## Features
 

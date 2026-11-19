@@ -6,7 +6,15 @@
 
 Yejian adalah aplikasi baca gratis dan bersumber terbuka yang menyimpan pustaka di perangkat. Baca secara luring tanpa akun, atau gunakan server WebDAV sendiri untuk menyinkronkan buku dan progres membaca.
 
-![Tampilan baca Yejian](docs/screenshots/reader-paper.png)
+## Tangkapan layar
+
+Saat pertama membuka aplikasi Android, pilih bahasa. Anda dapat mengubahnya di **Pengaturan → Bahasa aplikasi**.
+
+<p align="center">
+  <img src="docs/screenshots/id/library.webp" width="30%" alt="Pustaka">
+  <img src="docs/screenshots/id/reader.webp" width="30%" alt="Menu baca">
+  <img src="docs/screenshots/id/settings.webp" width="30%" alt="Pengaturan">
+</p>
 
 ## Fitur
 

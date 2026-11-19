@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { useRoute } from 'vue-router'
 import Icon from './Icon.vue'
 
@@ -16,7 +17,7 @@ function isActive(to: string) {
 </script>
 
 <template>
-  <nav class="mobile-nav" aria-label="移动端导航">
+  <nav class="mobile-nav" :aria-label="t('移动端导航')">
     <RouterLink
       v-for="item in items"
       :key="item.to"
@@ -25,7 +26,7 @@ function isActive(to: string) {
       :class="{ 'is-active': isActive(item.to) }"
     >
       <Icon :name="item.icon" :size="20" />
-      <span>{{ item.label }}</span>
+      <span>{{ t(item.label) }}</span>
     </RouterLink>
     <RouterLink
       to="/settings"
@@ -33,7 +34,7 @@ function isActive(to: string) {
       :class="{ 'is-active': isActive('/settings') }"
     >
       <Icon name="settings" :size="20" />
-      <span>设置</span>
+      <span>{{ t('设置') }}</span>
     </RouterLink>
   </nav>
 </template>

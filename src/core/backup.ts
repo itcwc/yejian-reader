@@ -1,3 +1,4 @@
+import { t } from '@/core/i18n'
 import type { Book, ReadingProgress } from '@/types'
 import { readBackupBooks, restoreBackupBooks, type BackupBook } from './db'
 import { isNativeFormat } from './formats'
@@ -21,7 +22,7 @@ interface BackupManifest {
 
 export async function exportLibraryBackup(): Promise<{ blob: Blob; count: number }> {
   const books = await readBackupBooks()
-  if (!books.length) throw new Error('书架为空，没有可导出的书籍')
+  if (!books.length) throw new Error(t('书架为空，没有可导出的书籍'))
   const manifest: BackupManifest = {
     version: 1,
     entries: books.map(({ book, cover, progress }) => ({
@@ -31,7 +32,7 @@ export async function exportLibraryBackup(): Promise<{ blob: Blob; count: number
     })),
   }
   const json = encoder.encode(JSON.stringify(manifest))
-  if (json.byteLength > MAX_MANIFEST_BYTES) throw new Error('书库清单太大，无法导出')
+  if (json.byteLength > MAX_MANIFEST_BYTES) throw new Error(t('书库清单太大，无法导出'))
   const header = new Uint8Array(headerSize)
   header.set(encoder.encode(MAGIC))
   new DataView(header.buffer).setUint32(MAGIC.length, json.byteLength)
@@ -73,7 +74,7 @@ function validProgress(progress: ReadingProgress, id: string): boolean {
 }
 
 export async function importLibraryBackup(blob: Blob) {
-  const invalid = () => new Error('备份文件无效或不完整')
+  const invalid = () => new Error(t('备份文件无效或不完整'))
   if (blob.size < headerSize) throw invalid()
   const header = await blob.slice(0, headerSize).arrayBuffer()
   if (new TextDecoder().decode(header.slice(0, MAGIC.length)) !== MAGIC) throw invalid()
@@ -124,16 +125,16 @@ export async function saveLibraryBackup(blob: Blob): Promise<boolean> {
       try { native.choose(name) } catch (error) { reject(error) }
     }).finally(() => { delete window.__yejianBackupChosen })
     if (status === 'cancelled') return false
-    if (status !== 'ready') throw new Error('无法打开保存位置')
+    if (status !== 'ready') throw new Error(t('无法打开保存位置'))
     let saved = false
     try {
       const chunkSize = 256 * 1024
       for (let offset = 0; offset < blob.size; offset += chunkSize) {
         const chunk = new Uint8Array(await blob.slice(offset, offset + chunkSize).arrayBuffer())
-        if (!native.write(bytesToBase64(chunk))) throw new Error('无法写入备份文件')
+        if (!native.write(bytesToBase64(chunk))) throw new Error(t('无法写入备份文件'))
       }
       saved = native.finish()
-      if (!saved) throw new Error('无法保存备份文件')
+      if (!saved) throw new Error(t('无法保存备份文件'))
     } finally {
       if (!saved) native.cancel()
     }

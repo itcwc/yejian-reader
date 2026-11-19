@@ -100,11 +100,18 @@ export function formatBytes(bytes: number): string {
   return `${value >= 100 || i === 0 ? Math.round(value) : value.toFixed(1)} ${units[i]}`
 }
 
-export function formatDate(timestamp: number): string {
+export function formatDate(timestamp: number, locale = 'zh-CN'): string {
   if (!timestamp) return '—'
   const d = new Date(timestamp)
   const now = new Date()
   const sameYear = d.getFullYear() === now.getFullYear()
+  if (locale !== 'zh-CN') {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      day: 'numeric',
+      year: sameYear ? undefined : 'numeric',
+    }).format(d)
+  }
   const md = `${d.getMonth() + 1} 月 ${d.getDate()} 日`
   return sameYear ? md : `${d.getFullYear()} 年 ${md}`
 }

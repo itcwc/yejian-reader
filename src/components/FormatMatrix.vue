@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { FORMAT_GROUPS, FORMAT_MAP, supportLabel } from '@/core/formats'
 
 withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
@@ -13,18 +14,18 @@ const groups = FORMAT_GROUPS.map((group) => ({
   <div class="format-matrix" :class="{ compact }">
     <section v-for="entry in groups" :key="entry.group" class="matrix-group">
       <h3 class="matrix-group-title">
-        <span class="group-index">{{ entry.group.slice(0, 1) }}</span>
-        {{ entry.group }}
+        <span class="group-index">{{ t(entry.group).slice(0, 1) }}</span>
+        {{ t(entry.group) }}
       </h3>
       <ul class="matrix-list">
         <li v-for="format in entry.items" :key="format.id" class="matrix-item">
           <div class="matrix-head">
             <span class="matrix-label">{{ format.label }}</span>
             <span class="matrix-badge" :class="`level-${format.level}`">
-              {{ supportLabel(format.level) }}
+              {{ t(supportLabel(format.level)) }}
             </span>
           </div>
-          <p v-if="format.level === 'convert' && !compact" class="matrix-hint">{{ format.hint }}</p>
+          <p v-if="format.level === 'convert' && !compact" class="matrix-hint">{{ t(format.hint ?? '') }}</p>
         </li>
       </ul>
     </section>

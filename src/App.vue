@@ -6,17 +6,24 @@ import MobileNav from '@/components/MobileNav.vue'
 import TitleBar from '@/components/TitleBar.vue'
 import ToastHost from '@/components/ToastHost.vue'
 import UpdateBanner from '@/components/UpdateBanner.vue'
+import LanguageWelcome from '@/components/LanguageWelcome.vue'
 import { useSyncStore } from '@/stores/sync'
 import { useLibraryStore } from '@/stores/library'
 import { usePreferencesStore } from '@/stores/preferences'
 import { THEME_META } from '@/core/preferences'
+import { hasSelectedLocale, locale, t } from '@/core/i18n'
 
 const route = useRoute()
 const immersive = computed(() => route.meta.immersive === true)
 const customTitleBar = window.yejian?.os === 'win32'
 
 const shell = window.YeJianShell
+const needsLanguage = computed(() => !hasSelectedLocale.value && (!!shell || /Android.*\bwv\b/i.test(navigator.userAgent)))
 const preferences = usePreferencesStore()
+watch(locale, (value) => {
+  document.documentElement.lang = value
+  if (!immersive.value) document.title = t('页间 · 跨设备阅读')
+}, { immediate: true })
 watch(
   [immersive, () => preferences.prefs.readerTheme, () => preferences.prefs.theme],
   ([isImmersive]) => {
@@ -71,7 +78,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', handleVis
 </script>
 
 <template>
-  <div class="app" :class="{ 'has-titlebar': customTitleBar }">
+  <LanguageWelcome v-if="needsLanguage" />
+  <div v-else class="app" :class="{ 'has-titlebar': customTitleBar }">
     <TitleBar v-if="customTitleBar" />
     <AppRail v-if="!immersive" />
 

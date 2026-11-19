@@ -6,7 +6,15 @@
 
 O Yejian é um leitor gratuito e de código aberto que guarda a biblioteca no dispositivo. Pode ler offline sem criar conta e sincronizar livros e progresso através do seu próprio servidor WebDAV.
 
-![Ecrã de leitura do Yejian](docs/screenshots/reader-paper.png)
+## Capturas de ecrã
+
+Ao abrir a aplicação Android pela primeira vez, escolha o idioma. Para o alterar mais tarde, abra **Definições → Idioma da aplicação**.
+
+<p align="center">
+  <img src="docs/screenshots/pt/library.webp" width="30%" alt="Biblioteca">
+  <img src="docs/screenshots/pt/reader.webp" width="30%" alt="Menu de leitura">
+  <img src="docs/screenshots/pt/settings.webp" width="30%" alt="Definições">
+</p>
 
 ## Funcionalidades
 

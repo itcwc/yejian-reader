@@ -21,6 +21,8 @@ jobs:
   release:
     name: Create release
     runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.prepare.outputs.build }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +33,7 @@ jobs:
           node-version: 20
 
       - name: Create GitHub release if missing
+        id: prepare
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -40,9 +43,14 @@ jobs:
           notes=".github/release-notes/${tag}.md"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release ${tag} already exists."
+            if [ "$(gh release view "$tag" --json isDraft --jq .isDraft)" = false ] && [ "$GITHUB_EVENT_NAME" != workflow_dispatch ]; then
+              echo "build=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             if [ -f "$notes" ]; then
               gh release edit "$tag" --notes-file "$notes"
             fi
+            echo "build=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           args=(--draft --target "$GITHUB_SHA" --title "页间 ${tag}")
@@ -52,10 +60,12 @@ jobs:
             args+=(--generate-notes)
           fi
           gh release create "$tag" "${args[@]}"
+          echo "build=true" >> "$GITHUB_OUTPUT"
 
   windows:
     name: Windows installer
     needs: release
+    if: needs.release.outputs.build == 'true'
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -87,6 +97,7 @@ jobs:
   android:
     name: Android APK
     needs: release
+    if: needs.release.outputs.build == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

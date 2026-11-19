@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { locale, t } from '@/core/i18n'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/Icon.vue'
@@ -85,10 +86,10 @@ const reportSummary = computed(() => {
   const report = importReport.value
   if (!report) return ''
   const parts: string[] = []
-  if (report.added.length) parts.push(`新增 ${report.added.length} 本`)
-  if (report.duplicates) parts.push(`重复 ${report.duplicates} 个`)
-  if (report.unsupported.length) parts.push(`待转换 ${report.unsupported.length} 个`)
-  if (report.failed.length) parts.push(`失败 ${report.failed.length} 个`)
+  if (report.added.length) parts.push(t('新增 {0} 本', [report.added.length]))
+  if (report.duplicates) parts.push(t('重复 {0} 个', [report.duplicates]))
+  if (report.unsupported.length) parts.push(t('待转换 {0} 个', [report.unsupported.length]))
+  if (report.failed.length) parts.push(t('失败 {0} 个', [report.failed.length]))
   return parts.join(' · ')
 })
 
@@ -104,12 +105,12 @@ function relativeTime(timestamp: number): string {
   const minute = 60 * 1000
   const hour = 60 * minute
   const day = 24 * hour
-  if (diff < minute) return '刚刚'
-  if (diff < hour) return `${Math.floor(diff / minute)} 分钟前`
-  if (diff < day) return `${Math.floor(diff / hour)} 小时前`
-  if (diff < 2 * day) return '昨天'
-  if (diff < 7 * day) return `${Math.floor(diff / day)} 天前`
-  return formatDate(timestamp)
+  if (diff < minute) return t('刚刚')
+  if (diff < hour) return t('{0} 分钟前', [Math.floor(diff / minute)])
+  if (diff < day) return t('{0} 小时前', [Math.floor(diff / hour)])
+  if (diff < 2 * day) return t('昨天')
+  if (diff < 7 * day) return t('{0} 天前', [Math.floor(diff / day)])
+  return formatDate(timestamp, locale.value)
 }
 
 function openBook(book: Book) {
@@ -133,12 +134,12 @@ async function handleImport(files: File[]) {
   const report = await library.importBooks(files)
   importReport.value = report
   if (report.added.length) {
-    toast.push(`已加入书架：${report.added.length} 本`, 'success')
+    toast.push(t('已加入书架：{0} 本', [report.added.length]), 'success')
   }
   if (report.duplicates || report.unsupported.length || report.failed.length) {
     reportOpen.value = true
   } else if (!report.added.length) {
-    toast.push('没有可导入的书', 'error')
+    toast.push(t('没有可导入的书'), 'error')
   }
 }
 
@@ -186,9 +187,9 @@ async function confirmDelete() {
   try {
     await library.remove(book.id)
     if (detailsBook.value?.id === book.id) detailsBook.value = null
-    toast.push(`已移除《${book.title}》`, 'success')
+    toast.push(t('已移除《{0}》', [book.title]), 'success')
   } catch {
-    toast.push('删除失败，请重试', 'error')
+    toast.push(t('删除失败，请重试'), 'error')
   } finally {
     pendingDelete.value = null
   }
@@ -227,15 +228,10 @@ onBeforeUnmount(() => {
     <header class="lib-head">
       <div class="head-copy">
         <p class="eyebrow">
-          LIBRARY · {{ library.stats.total }} VOLUMES
-          <span class="eyebrow-line" aria-hidden="true"></span>
-          {{ library.stats.reading }} 在读
-        </p>
-        <h1 class="display head-title">我的书架<span class="title-dot">。</span></h1>
-        <p class="head-lede">
-          把书放进这里，读到哪里都能接着读。支持 EPUB、PDF、纯文本与漫画，
-          通过 WebDAV 在手机、平板和桌面之间同步进度。
-        </p>
+          {{ t('书籍总数：{0}', [library.stats.total]) }}
+          <span class="eyebrow-line" aria-hidden="true"></span>{{ t('{0} 在读', [library.stats.reading]) }}</p>
+        <h1 class="display head-title">{{ t('我的书架') }}<span class="title-dot">{{ t('。') }}</span></h1>
+        <p class="head-lede">{{ t('把书放进这里，读到哪里都能接着读。支持 EPUB、PDF、纯文本与漫画， 通过 WebDAV 在手机、平板和桌面之间同步进度。') }}</p>
       </div>
 
       <div class="head-actions">
@@ -245,19 +241,17 @@ onBeforeUnmount(() => {
             ref="searchInput"
             v-model="search"
             type="search"
-            placeholder="搜索书名、作者或文件名"
-            aria-label="搜索书架"
+            :placeholder="t('搜索书名、作者或文件名')"
+            :aria-label="t('搜索书架')"
           />
-          <button v-if="search" class="search-clear" type="button" aria-label="清除搜索" @click="search = ''">
+          <button v-if="search" class="search-clear" type="button" :aria-label="t('清除搜索')" @click="search = ''">
             <Icon name="x" :size="14" />
           </button>
           <kbd v-else>/</kbd>
         </label>
 
         <button class="btn btn-primary import-btn" type="button" @click="triggerImport">
-          <Icon name="plus" :size="17" />
-          导入书籍
-        </button>
+          <Icon name="plus" :size="17" />{{ t('导入书籍') }}</button>
       </div>
     </header>
 
@@ -271,10 +265,10 @@ onBeforeUnmount(() => {
         />
       </div>
       <div class="hero-text">
-        <p class="eyebrow">继续阅读 · {{ relativeTime(heroBook.lastOpenedAt) }}</p>
+        <p class="eyebrow">{{ t('继续阅读 · {0}', [relativeTime(heroBook.lastOpenedAt)]) }}</p>
         <h2 class="display hero-title">{{ heroBook.title }}</h2>
         <p class="hero-author">
-          {{ heroBook.author || '未知作者' }}
+          {{ heroBook.author || t('未知作者') }}
           <span class="dot-sep">·</span>
           {{ formatLabel(heroBook.format) }}
         </p>
@@ -285,7 +279,7 @@ onBeforeUnmount(() => {
           <span class="hero-pct">{{ heroPercent }}%</span>
         </div>
       </div>
-      <button class="hero-cta" type="button" aria-label="继续阅读">
+      <button class="hero-cta" type="button" :aria-label="t('继续阅读')">
         <Icon name="arrow-right" :size="22" />
       </button>
     </section>
@@ -294,10 +288,10 @@ onBeforeUnmount(() => {
       <div class="filters">
         <button
           v-for="item in [
-            { key: 'all', label: '全部' },
-            { key: 'reading', label: '在读' },
-            { key: 'unread', label: '未读' },
-            { key: 'finished', label: '已读完' },
+            { key: 'all', label: t('全部') },
+            { key: 'reading', label: t('在读') },
+            { key: 'unread', label: t('未读') },
+            { key: 'finished', label: t('已读完') },
           ]"
           :key="item.key"
           type="button"
@@ -311,17 +305,17 @@ onBeforeUnmount(() => {
 
         <span class="toolbar-sep" aria-hidden="true"></span>
 
-        <select v-model="formatFilter" class="mini-select" aria-label="按格式筛选">
-          <option value="all">全部格式</option>
+        <select v-model="formatFilter" class="mini-select" :aria-label="t('按格式筛选')">
+          <option value="all">{{ t('全部格式') }}</option>
           <option v-for="[value, label] in availableFormats" :key="value" :value="value">
             {{ label }}
           </option>
         </select>
 
-        <select v-model="library.sortMode" class="mini-select" aria-label="排序方式">
-          <option value="recent">最近阅读</option>
-          <option value="added">最近加入</option>
-          <option value="title">书名排序</option>
+        <select v-model="library.sortMode" class="mini-select" :aria-label="t('排序方式')">
+          <option value="recent">{{ t('最近阅读') }}</option>
+          <option value="added">{{ t('最近加入') }}</option>
+          <option value="title">{{ t('书名排序') }}</option>
         </select>
       </div>
 
@@ -330,7 +324,7 @@ onBeforeUnmount(() => {
           type="button"
           class="view-btn"
           :class="{ 'is-active': viewMode === 'grid' }"
-          aria-label="网格视图"
+          :aria-label="t('网格视图')"
           @click="viewMode = 'grid'"
         >
           <Icon name="grid" :size="17" />
@@ -339,7 +333,7 @@ onBeforeUnmount(() => {
           type="button"
           class="view-btn"
           :class="{ 'is-active': viewMode === 'list' }"
-          aria-label="列表视图"
+          :aria-label="t('列表视图')"
           @click="viewMode = 'list'"
         >
           <Icon name="list" :size="17" />
@@ -370,14 +364,14 @@ onBeforeUnmount(() => {
           <button
             class="card-more"
             type="button"
-            aria-label="查看详情"
+            :aria-label="t('查看详情')"
             @click.stop="detailsBook = book"
           >
             <Icon name="more" :size="16" />
           </button>
           <div class="card-meta">
             <h3 class="card-title">{{ book.title }}</h3>
-            <p class="card-author">{{ book.author || '未知作者' }}</p>
+            <p class="card-author">{{ book.author || t('未知作者') }}</p>
             <div class="card-foot">
               <span class="card-format">{{ formatLabel(book.format) }}</span>
               <span class="card-percent">{{ Math.round(book.percent) }}%</span>
@@ -398,7 +392,7 @@ onBeforeUnmount(() => {
           <div class="row-main">
             <h3 class="row-title">{{ book.title }}</h3>
             <p class="row-meta">
-              {{ book.author || '未知作者' }}
+              {{ book.author || t('未知作者') }}
               <span class="dot-sep">·</span>
               {{ formatLabel(book.format) }}
               <span class="dot-sep">·</span>
@@ -409,12 +403,12 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <span class="row-status" :class="`status-${statusOf(book)}`">
-            {{ statusOf(book) === 'finished' ? '已读完' : statusOf(book) === 'reading' ? `${Math.round(book.percent)}%` : '未读' }}
+            {{ statusOf(book) === 'finished' ? t('已读完') : statusOf(book) === 'reading' ? `${Math.round(book.percent)}%` : t('未读') }}
           </span>
           <button
             class="icon-btn row-more"
             type="button"
-            aria-label="查看详情"
+            :aria-label="t('查看详情')"
             @click.stop="detailsBook = book"
           >
             <Icon name="more" :size="16" />
@@ -429,32 +423,26 @@ onBeforeUnmount(() => {
         <span class="empty-book mid"></span>
         <span class="empty-book front"><Icon name="book-open" :size="34" /></span>
       </div>
-      <h2 class="display empty-title">书架还是空的<span class="title-dot">。</span></h2>
-      <p class="empty-copy">
-        把 EPUB、PDF、TXT 或漫画文件拖进窗口，或点击导入。所有书籍与进度都保存在本机。
-      </p>
+      <h2 class="display empty-title">{{ t('书架还是空的') }}<span class="title-dot">{{ t('。') }}</span></h2>
+      <p class="empty-copy">{{ t('把 EPUB、PDF、TXT 或漫画文件拖进窗口，或点击导入。所有书籍与进度都保存在本机。') }}</p>
       <div class="empty-actions">
         <button class="btn btn-primary" type="button" @click="triggerImport">
-          <Icon name="plus" :size="16" />
-          选择文件导入
-        </button>
-        <button class="btn btn-ghost" type="button" @click="guideOpen = true">
-          查看支持格式
-        </button>
+          <Icon name="plus" :size="16" />{{ t('选择文件导入') }}</button>
+        <button class="btn btn-ghost" type="button" @click="guideOpen = true">{{ t('查看支持格式') }}</button>
       </div>
     </div>
 
     <div v-else class="empty-state">
-      <h2 class="display empty-title">没有符合条件的书</h2>
-      <p class="empty-copy">换个关键词，或清除筛选看看整个书架。</p>
-      <button class="btn btn-ghost" type="button" @click="clearFilters">清除筛选</button>
+      <h2 class="display empty-title">{{ t('没有符合条件的书') }}</h2>
+      <p class="empty-copy">{{ t('换个关键词，或清除筛选看看整个书架。') }}</p>
+      <button class="btn btn-ghost" type="button" @click="clearFilters">{{ t('清除筛选') }}</button>
     </div>
 
     <footer class="lib-foot">
-      <span>页间 · 本地优先</span>
+      <span>{{ t('页间 · 本地优先') }}</span>
       <span class="dot-sep">·</span>
-      <span>{{ formatBytes(library.totalBytes) }} 已占用</span>
-      <button class="foot-link" type="button" @click="guideOpen = true">格式支持</button>
+      <span>{{ t('{0} 已占用', [formatBytes(library.totalBytes)]) }}</span>
+      <button class="foot-link" type="button" @click="guideOpen = true">{{ t('格式支持') }}</button>
     </footer>
 
     <!-- 拖拽导入 -->
@@ -462,8 +450,8 @@ onBeforeUnmount(() => {
       <div v-if="dragging" class="drop-overlay">
         <div class="drop-panel">
           <Icon name="download" :size="34" />
-          <h2 class="display">松手，把书放上书架</h2>
-          <p>支持 EPUB、PDF、TXT、MD、DOCX、CBZ、FB2 等格式</p>
+          <h2 class="display">{{ t('松手，把书放上书架') }}</h2>
+          <p>{{ t('支持 EPUB、PDF、TXT、MD、DOCX、CBZ、FB2 等格式') }}</p>
         </div>
       </div>
     </Transition>
@@ -473,7 +461,7 @@ onBeforeUnmount(() => {
       <div v-if="library.importing" class="import-progress">
         <div class="import-progress-head">
           <span class="spinner"></span>
-          <span>正在导入 {{ library.importDone }} / {{ library.importTotal }}</span>
+          <span>{{ t('正在导入 {0} / {1}', [library.importDone, library.importTotal]) }}</span>
         </div>
         <div class="import-bar">
           <span :style="{ width: `${(library.importDone / Math.max(1, library.importTotal)) * 100}%` }"></span>
@@ -482,72 +470,59 @@ onBeforeUnmount(() => {
     </Transition>
 
     <!-- 导入报告 -->
-    <Modal v-model:open="reportOpen" title="导入结果" subtitle="IMPORT REPORT" width="560px">
+    <Modal v-model:open="reportOpen" :title="t('导入结果')" width="560px">
       <p class="report-summary">{{ reportSummary }}</p>
 
       <div v-if="importReport?.unsupported.length" class="report-section">
         <h3 class="report-title">
-          <Icon name="alert" :size="15" />
-          需要先转换的格式
-        </h3>
+          <Icon name="alert" :size="15" />{{ t('需要先转换的格式') }}</h3>
         <ul class="issue-list">
           <li v-for="issue in importReport.unsupported" :key="issue.name" class="issue">
             <div class="issue-head">
               <span class="issue-name">{{ issue.name }}</span>
               <span class="badge">{{ issue.format }}</span>
             </div>
-            <p class="issue-reason">{{ issue.reason }}</p>
+            <p class="issue-reason">{{ t(issue.reason) }}</p>
           </li>
         </ul>
-        <p class="report-note">
-          转换完成后重新导入即可。页间坚持本地解析，不上传你的文件。
-        </p>
+        <p class="report-note">{{ t('转换完成后重新导入即可。页间坚持本地解析，不上传你的文件。') }}</p>
       </div>
 
       <div v-if="importReport?.failed.length" class="report-section">
         <h3 class="report-title">
-          <Icon name="alert" :size="15" />
-          导入失败
-        </h3>
+          <Icon name="alert" :size="15" />{{ t('导入失败') }}</h3>
         <ul class="issue-list">
           <li v-for="issue in importReport.failed" :key="issue.name" class="issue">
             <div class="issue-head">
               <span class="issue-name">{{ issue.name }}</span>
             </div>
-            <p class="issue-reason">{{ issue.reason }}</p>
+            <p class="issue-reason">{{ t(issue.reason) }}</p>
           </li>
         </ul>
       </div>
 
       <p v-if="importReport?.duplicates" class="duplicate-note">
-        {{ importReport.duplicates }} 个文件已在书架中，已自动跳过。
-      </p>
+        {{ t('{0} 个文件已在书架中，已自动跳过。', [importReport.duplicates]) }}</p>
 
       <template #footer>
-        <button class="btn btn-ghost" type="button" @click="reportOpen = false; guideOpen = true">
-          查看支持格式
-        </button>
-        <button class="btn btn-primary" type="button" @click="reportOpen = false">完成</button>
+        <button class="btn btn-ghost" type="button" @click="reportOpen = false; guideOpen = true">{{ t('查看支持格式') }}</button>
+        <button class="btn btn-primary" type="button" @click="reportOpen = false">{{ t('完成') }}</button>
       </template>
     </Modal>
 
     <!-- 格式支持 -->
-    <Modal v-model:open="guideOpen" title="格式支持" subtitle="FORMAT SUPPORT" width="720px">
-      <p class="guide-intro">
-        页间在本地解析主流阅读格式。部分私有或版式格式需要先用桌面工具转换，
-        点击下方「需转换」可获得具体做法。
-      </p>
+    <Modal v-model:open="guideOpen" :title="t('格式支持')" width="720px">
+      <p class="guide-intro">{{ t('页间在本地解析主流阅读格式。部分私有或版式格式需要先用桌面工具转换， 点击下方「需转换」可获得具体做法。') }}</p>
       <FormatMatrix />
       <template #footer>
-        <button class="btn btn-primary" type="button" @click="guideOpen = false">知道了</button>
+        <button class="btn btn-primary" type="button" @click="guideOpen = false">{{ t('知道了') }}</button>
       </template>
     </Modal>
 
     <!-- 书籍详情 -->
     <Modal
       :open="Boolean(detailsBook)"
-      title="书籍详情"
-      subtitle="VOLUME"
+      :title="t('书籍详情')"
       width="600px"
       @close="detailsBook = null"
     >
@@ -561,46 +536,44 @@ onBeforeUnmount(() => {
           />
           <div class="detail-copy">
             <h2 class="display detail-title">{{ detailsBook.title }}</h2>
-            <p class="detail-author">{{ detailsBook.author || '未知作者' }}</p>
+            <p class="detail-author">{{ detailsBook.author || t('未知作者') }}</p>
             <div class="detail-tags">
               <span class="badge">{{ formatLabel(detailsBook.format) }}</span>
-              <span v-if="detailsBook.percent >= 99" class="badge badge-done">已读完</span>
-              <span v-else-if="detailsBook.percent > 0" class="badge badge-reading">
-                读至 {{ Math.round(detailsBook.percent) }}%
-              </span>
-              <span v-else class="badge">未开始</span>
+              <span v-if="detailsBook.percent >= 99" class="badge badge-done">{{ t('已读完') }}</span>
+              <span v-else-if="detailsBook.percent > 0" class="badge badge-reading">{{ t('读至 {0}%', [Math.round(detailsBook.percent)]) }}</span>
+              <span v-else class="badge">{{ t('未开始') }}</span>
             </div>
-            <p class="detail-desc">{{ detailsBook.meta.description || '这本书还没有简介。' }}</p>
+            <p class="detail-desc">{{ detailsBook.meta.description || t('这本书还没有简介。') }}</p>
           </div>
         </div>
 
         <dl class="detail-grid">
           <div>
-            <dt>文件大小</dt>
+            <dt>{{ t('文件大小') }}</dt>
             <dd>{{ formatBytes(detailsBook.size) }}</dd>
           </div>
           <div v-if="detailsBook.meta.pageCount">
-            <dt>页数</dt>
-            <dd>{{ detailsBook.meta.pageCount }} 页</dd>
+            <dt>{{ t('页数') }}</dt>
+            <dd>{{ t('{0} 页', [detailsBook.meta.pageCount]) }}</dd>
           </div>
           <div v-if="detailsBook.meta.chapterCount">
-            <dt>章节</dt>
-            <dd>{{ detailsBook.meta.chapterCount }} 章</dd>
+            <dt>{{ t('章节') }}</dt>
+            <dd>{{ t('{0} 章', [detailsBook.meta.chapterCount]) }}</dd>
           </div>
           <div v-if="detailsBook.meta.publisher">
-            <dt>出版社</dt>
+            <dt>{{ t('出版社') }}</dt>
             <dd>{{ detailsBook.meta.publisher }}</dd>
           </div>
           <div>
-            <dt>加入时间</dt>
+            <dt>{{ t('加入时间') }}</dt>
             <dd>{{ formatDate(detailsBook.addedAt) }}</dd>
           </div>
           <div>
-            <dt>最近阅读</dt>
-            <dd>{{ detailsBook.lastOpenedAt ? formatDateTime(detailsBook.lastOpenedAt) : '尚未阅读' }}</dd>
+            <dt>{{ t('最近阅读') }}</dt>
+            <dd>{{ detailsBook.lastOpenedAt ? formatDateTime(detailsBook.lastOpenedAt) : t('尚未阅读') }}</dd>
           </div>
           <div class="detail-grid-wide">
-            <dt>文件名</dt>
+            <dt>{{ t('文件名') }}</dt>
             <dd class="file-name">{{ detailsBook.fileName }}</dd>
           </div>
         </dl>
@@ -620,13 +593,11 @@ onBeforeUnmount(() => {
           type="button"
           @click="pendingDelete = detailsBook; detailsBook = null"
         >
-          <Icon name="trash" :size="15" />
-          移除
-        </button>
+          <Icon name="trash" :size="15" />{{ t('移除') }}</button>
         <span class="foot-spacer"></span>
-        <button class="btn btn-ghost" type="button" @click="detailsBook = null">关闭</button>
+        <button class="btn btn-ghost" type="button" @click="detailsBook = null">{{ t('关闭') }}</button>
         <button v-if="detailsBook" class="btn btn-primary" type="button" @click="openBook(detailsBook)">
-          {{ detailsBook.percent > 0 ? '继续阅读' : '开始阅读' }}
+          {{ detailsBook.percent > 0 ? t('继续阅读') : t('开始阅读') }}
           <Icon name="arrow-right" :size="15" />
         </button>
       </template>
@@ -635,20 +606,14 @@ onBeforeUnmount(() => {
     <!-- 删除确认 -->
     <Modal
       :open="Boolean(pendingDelete)"
-      title="移除这本书？"
-      subtitle="REMOVE"
+      :title="t('移除这本书？')"
       width="420px"
       @close="pendingDelete = null"
     >
-      <p class="confirm-copy">
-        将从本机书架删除《{{ pendingDelete?.title }}》及其阅读进度，此操作无法撤销。
-        云端副本（如已同步）不会被删除。
-      </p>
+      <p class="confirm-copy">{{ t('将从本机书架删除《{0}》及其阅读进度，此操作无法撤销。 云端副本（如已同步）不会被删除。', [pendingDelete?.title]) }}</p>
       <template #footer>
-        <button class="btn btn-ghost" type="button" @click="pendingDelete = null">取消</button>
-        <button class="btn btn-primary confirm-delete" type="button" @click="confirmDelete">
-          确认移除
-        </button>
+        <button class="btn btn-ghost" type="button" @click="pendingDelete = null">{{ t('取消') }}</button>
+        <button class="btn btn-primary confirm-delete" type="button" @click="confirmDelete">{{ t('确认移除') }}</button>
       </template>
     </Modal>
   </div>

@@ -1,28 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="paper">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An open-source reader for Android and Windows, with offline reading and optional WebDAV sync.">
-  <meta name="theme-color" content="#f5f2e9">
+  <meta name="description" content="An open-source reader for browsers, Android and Windows, with offline reading and optional WebDAV sync.">
+  <meta name="theme-color" content="#f2efe6">
   <link rel="canonical" href="https://itcwc.github.io/yejian-reader/">
   <meta property="og:title" content="Yejian Reader · Open-source local reader">
-  <meta property="og:description" content="Read EPUB, PDF, TXT and more on Windows and Android, and sync using your own WebDAV server.">
-  <meta property="og:image" content="https://itcwc.github.io/yejian-reader/screenshots/reader-paper.png">
+  <meta property="og:description" content="Read EPUB, PDF, TXT and more in your browser, on Windows and Android, and sync using your own WebDAV server.">
+  <meta property="og:image" content="https://itcwc.github.io/yejian-reader/screenshots/web/paper.webp">
   <title>Yejian Reader · Open-source local reader</title>
-  <style>
-    :root{color-scheme:light;--paper:#f5f2e9;--ink:#202822;--muted:#4e5a50;--line:#d9ded2;--green:#285443;--serif:"Noto Serif SC","Songti SC",SimSun,serif;font-family:system-ui,sans-serif}
-    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);line-height:1.7}img{display:block;max-width:100%;height:auto}a{color:var(--green);text-underline-offset:.24em}a:focus-visible,button:focus-visible{outline:3px solid #a76a30;outline-offset:4px}
-    .wrap{width:min(1120px,calc(100% - 2.5rem));margin-inline:auto}header{border-bottom:1px solid var(--line)}.nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:1rem}.brand{font-family:var(--serif);font-size:1.35rem;font-weight:700;text-decoration:none;color:var(--ink)}nav{display:flex;gap:1.3rem}nav a{text-decoration:none;font-size:.95rem}
-    .hero{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(1.8rem,5vw,5rem);padding-block:clamp(3.25rem,8vw,7rem)}
-    h1,h2,h3{margin:0;line-height:1.23}h1,h2{font-family:var(--serif);letter-spacing:-.035em}h1{font-size:clamp(2.75rem,6.4vw,5.1rem)}h2{font-size:clamp(2rem,4vw,3rem)}h3{font-size:1.15rem}p{margin:.8rem 0 0;color:var(--muted)}.hero p{max-width:30rem;font-size:1.05rem}
-    .actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.6rem}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:.55rem 1.15rem;border:1px solid var(--green);border-radius:.4rem;text-decoration:none;font-weight:650}.primary{background:var(--green);color:#fff}.secondary{background:transparent}.button:hover{box-shadow:0 0 0 2px #28544330}.preview{margin:0}.preview img{width:100%;aspect-ratio:16/10;object-fit:contain;background:#e4e8dc;border:1px solid #cbd4c5;border-radius:.6rem;box-shadow:0 18px 48px #2a382427}
-    .switcher{display:flex;justify-content:center;gap:.5rem;margin-top:1.15rem}.switcher button{border:1px solid #adbbae;border-radius:1.5rem;background:transparent;color:var(--ink);font:inherit;font-size:.9rem;padding:.25rem .85rem;cursor:pointer}.switcher button[aria-pressed="true"]{background:#dce7db;border-color:var(--green);color:#183e2f}
-    .features{background:#e5ece0;padding-block:clamp(2.6rem,6vw,5rem)}.feature-list{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:1.7rem}.feature-list article{border-top:1px solid #aebdab;padding-top:1rem}.downloads{padding-block:clamp(2.6rem,6vw,5rem)}.platforms{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.5rem}.platform{padding:1.2rem 1.35rem;border:1px solid var(--line);background:#fbf9f2;border-radius:.5rem}.platform p{margin-top:.45rem}.platform a{display:inline-block;margin-top:.65rem;font-weight:650}
-    footer{border-top:1px solid var(--line);padding-block:1.25rem;color:var(--muted)}footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-    .languages{flex-wrap:wrap;column-gap:1.15rem;row-gap:.4rem;padding-bottom:.9rem}.languages a[aria-current="page"]{font-weight:700;text-decoration:underline}.hero h1{overflow-wrap:break-word}
-    @media(max-width:760px){.hero,.feature-list{grid-template-columns:1fr}.hero{padding-block:3rem 2.5rem}.feature-list{gap:1.2rem}}@media(max-width:520px){.platforms{grid-template-columns:1fr}.wrap{width:calc(100% - 2rem)}nav{gap:.85rem}}
-  </style>
+  <link rel="stylesheet" href="./theme-tokens.css">
+  <link rel="stylesheet" href="./site.css">
 </head>
 <body>
   <header>
@@ -43,17 +32,19 @@
     <section class="wrap hero">
       <div>
         <h1 data-copy="title">Your books. Your own shelf.</h1>
-        <p data-copy="intro">Yejian is an open-source, local-first reader for Windows and Android. Read EPUB, PDF, TXT and more, and sync your books and reading progress through your own WebDAV server.</p>
+        <p data-copy="intro">Yejian is an open-source, local-first reader for web, Windows and Android. Read EPUB, PDF, TXT and more, and sync your books and reading progress through your own WebDAV server.</p>
         <div class="actions">
-          <a class="button primary" href="#download" data-copy="install">Get Yejian</a>
-          <a class="button secondary" href="https://github.com/itcwc/yejian-reader" data-copy="source">View source</a>
+          <a class="button primary" href="./app/?lang=en" data-reader-link data-copy="openReader">Open web reader</a>
+          <a class="button secondary" href="#download" data-copy="downloadApps">Download the app</a>
         </div>
+        <p class="web-note" data-copy="webNote">Open your own books in the browser. Your library and reading progress are saved on this device.</p>
       </div>
       <figure class="preview">
-        <img id="reader-preview" src="screenshots/reader-paper.png" alt="Yejian Reader in the paper theme">
-        <figcaption class="switcher">
-          <button type="button" aria-pressed="true" data-image="reader-paper.png" data-theme="paper" data-copy="paper">Paper</button>
-          <button type="button" aria-pressed="false" data-image="reader-night.png" data-theme="night" data-copy="night">Night</button>
+        <img id="reader-preview" src="screenshots/web/paper.webp" width="1208" height="782" alt="Yejian Reader in the paper theme">
+        <figcaption class="switcher" data-theme-picker aria-label="Appearance">
+          <button type="button" aria-pressed="true" data-theme-choice="paper" data-copy="paper">Paper</button>
+          <button type="button" aria-pressed="false" data-theme-choice="green" data-copy="green">Soft green</button>
+          <button type="button" aria-pressed="false" data-theme-choice="night" data-copy="night">Night</button>
         </figcaption>
       </figure>
     </section>

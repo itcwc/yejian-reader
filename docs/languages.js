@@ -8,7 +8,7 @@ const keys = [
 const translations = {
   'zh-CN': [
     '功能', '下载', '你的书，在自己的书架。',
-    '页间是一款开源的本地阅读器。在 Windows 和 Android 上阅读 EPUB、PDF、TXT 等格式，可用自己的 WebDAV 空间同步书籍和阅读进度。',
+    '页间是一款开源的本地阅读器。在浏览器、Windows 和 Android 上阅读 EPUB、PDF、TXT 等格式，可用自己的 WebDAV 空间同步书籍和阅读进度。',
     '下载安装', '查看源码', '白纸', '夜读', '按你的习惯阅读',
     '打开手边的书', '直接打开 EPUB、PDF、TXT、Markdown、DOCX 和 CBZ 漫画等常见格式，离线也能阅读。',
     '调出舒服的排版', '可选白纸、护眼和夜读主题，自由调整字号、行距和版心宽度，也可以在翻页和连续滚动间切换。',
@@ -19,7 +19,7 @@ const translations = {
   ],
   hi: [
     'सुविधाएँ', 'डाउनलोड', 'आपकी किताबें। आपकी अपनी लाइब्रेरी।',
-    'येजियान Windows और Android के लिए एक ओपन-सोर्स रीडर है। EPUB, PDF, TXT और अन्य फ़ॉर्मैट स्थानीय रूप से पढ़ें और अपने WebDAV सर्वर से किताबें और प्रगति सिंक करें।',
+    'येजियान ब्राउज़र, Windows और Android के लिए एक ओपन-सोर्स रीडर है। EPUB, PDF, TXT और अन्य फ़ॉर्मैट स्थानीय रूप से पढ़ें और अपने WebDAV सर्वर से किताबें और प्रगति सिंक करें।',
     'येजियान डाउनलोड करें', 'सोर्स कोड देखें', 'पेपर', 'नाइट', 'अपने तरीके से पढ़ें',
     'अपनी किताबें खोलें', 'EPUB, PDF, TXT, Markdown, DOCX और CBZ कॉमिक्स सीधे खोलें। ऑफ़लाइन भी पढ़ें।',
     'आराम से पढ़ें', 'पेपर, हल्का हरा या नाइट थीम चुनें। फ़ॉन्ट का आकार, लाइन स्पेसिंग और टेक्स्ट की चौड़ाई बदलें। पन्ने पलटें या लगातार स्क्रॉल करें।',
@@ -30,7 +30,7 @@ const translations = {
   ],
   pt: [
     'Funcionalidades', 'Transferir', 'Os seus livros na sua própria estante.',
-    'O Yejian é um leitor de código aberto que funciona localmente no Windows e no Android. Leia EPUB, PDF, TXT e outros formatos e sincronize livros e progresso através do seu servidor WebDAV.',
+    'O Yejian é um leitor de código aberto que funciona localmente no navegador, no Windows e no Android. Leia EPUB, PDF, TXT e outros formatos e sincronize livros e progresso através do seu servidor WebDAV.',
     'Obter o Yejian', 'Ver código-fonte', 'Papel', 'Noturno', 'Leia à sua maneira',
     'Abra os seus livros', 'Abra diretamente EPUB, PDF, TXT, Markdown, DOCX e banda desenhada em CBZ. Continue a ler offline.',
     'Ajuste a leitura ao seu gosto', 'Escolha entre papel, verde suave e modo noturno. Ajuste o tamanho de letra, o espaçamento e a largura do texto. Leia página a página ou com deslocamento contínuo.',
@@ -41,7 +41,7 @@ const translations = {
   ],
   id: [
     'Fitur', 'Unduh', 'Buku Anda. Rak Anda sendiri.',
-    'Yejian adalah aplikasi baca bersumber terbuka untuk Windows dan Android yang mengutamakan penyimpanan lokal. Baca EPUB, PDF, TXT, dan lainnya, lalu sinkronkan buku dan progres lewat server WebDAV Anda sendiri.',
+    'Yejian adalah aplikasi baca bersumber terbuka untuk browser, Windows, dan Android yang mengutamakan penyimpanan lokal. Baca EPUB, PDF, TXT, dan lainnya, lalu sinkronkan buku dan progres lewat server WebDAV Anda sendiri.',
     'Unduh Yejian', 'Lihat kode sumber', 'Kertas', 'Malam', 'Baca sesuai kebiasaan Anda',
     'Buka buku Anda', 'Buka langsung EPUB, PDF, TXT, Markdown, DOCX, dan komik CBZ. Tetap baca saat luring.',
     'Sesuaikan tampilan baca', 'Pilih tema kertas, hijau lembut, atau malam. Atur ukuran huruf, spasi baris, dan lebar teks. Baca per halaman atau gulir terus-menerus.',
@@ -52,7 +52,7 @@ const translations = {
   ],
   tr: [
     'Özellikler', 'İndir', 'Kitaplarınız kendi kitaplığınızda.',
-    'Yejian, Windows ve Android için açık kaynaklı, yerel öncelikli bir okuyucudur. EPUB, PDF, TXT ve diğer biçimleri okuyun. Kitaplarınızı ve okuma ilerlemenizi kendi WebDAV sunucunuzla eşitleyin.',
+    'Yejian, web tarayıcıları, Windows ve Android için açık kaynaklı, yerel öncelikli bir okuyucudur. EPUB, PDF, TXT ve diğer biçimleri okuyun. Kitaplarınızı ve okuma ilerlemenizi kendi WebDAV sunucunuzla eşitleyin.',
     'Yejian’ı indir', 'Kaynak kodunu görüntüle', 'Kâğıt', 'Gece', 'Dilediğiniz gibi okuyun',
     'Kitaplarınızı açın', 'EPUB, PDF, TXT, Markdown, DOCX ve CBZ çizgi romanlarını doğrudan açın. Çevrimdışı okumaya devam edin.',
     'Okuma görünümünü ayarlayın', 'Kâğıt, açık yeşil veya gece temasını seçin. Yazı boyutunu, satır aralığını ve metin genişliğini ayarlayın. Sayfa çevirerek veya kaydırarak okuyun.',
@@ -63,23 +63,35 @@ const translations = {
   ],
 }
 
+const webCopy = {
+  'zh-CN': ['打开网页版', '下载安装', '直接在浏览器打开自己的书。书架和阅读进度保存在当前设备上。', '护眼', '页间阅读器的护眼主题', '外观主题'],
+  hi: ['वेब रीडर खोलें', 'ऐप डाउनलोड करें', 'अपनी किताबें सीधे ब्राउज़र में खोलें। आपकी लाइब्रेरी और पढ़ने की प्रगति इस डिवाइस पर सहेजी जाती है।', 'हल्का हरा', 'हल्की हरी थीम में येजियान रीडर', 'दिखावट'],
+  pt: ['Abrir o leitor web', 'Transferir a aplicação', 'Abra os seus livros no navegador. A biblioteca e o progresso de leitura ficam guardados neste dispositivo.', 'Verde suave', 'Yejian Reader com o tema verde suave', 'Aparência'],
+  id: ['Buka pembaca web', 'Unduh aplikasi', 'Buka buku Anda langsung di browser. Pustaka dan progres membaca disimpan di perangkat ini.', 'Hijau lembut', 'Yejian Reader dengan tema hijau lembut', 'Tampilan'],
+  tr: ['Web okuyucuyu aç', 'Uygulamayı indir', 'Kitaplarınızı doğrudan tarayıcıda açın. Kitaplığınız ve okuma ilerlemeniz bu cihazda saklanır.', 'Açık yeşil', 'Açık yeşil temada Yejian Reader', 'Görünüm'],
+}
+
 const mainNavigation = document.querySelector('.nav nav')
 const languageNavigation = document.querySelector('.languages')
 const homeLink = document.querySelector('[data-home]')
 const preview = document.querySelector('#reader-preview')
 const themeButtons = document.querySelectorAll('.switcher button')
-const language = new URLSearchParams(location.search).get('lang')
-const strings = Object.hasOwn(translations, language) ? translations[language] : null
+const params = new URLSearchParams(location.search)
+const requestedLanguage = params.get('lang')
+const language = Object.hasOwn(translations, requestedLanguage) ? requestedLanguage : 'en'
+const strings = translations[language]
 const copy = strings ? Object.fromEntries(keys.map((key, index) => [key, strings[index]])) : null
 
 if (copy) {
+  const [openReader, downloadApps, webNote, green, greenAlt, appearanceLabel] = webCopy[language]
+  Object.assign(copy, { openReader, downloadApps, webNote, green, greenAlt })
   document.documentElement.lang = language
   document.title = copy.pageTitle
   document.querySelector('meta[name="description"]').content = copy.intro
   mainNavigation.setAttribute('aria-label', copy.navigationLabel)
   languageNavigation.setAttribute('aria-label', copy.languageLabel)
   homeLink.textContent = copy.brand
-  homeLink.href = '?lang=' + encodeURIComponent(language)
+  document.querySelector('[data-theme-picker]').setAttribute('aria-label', appearanceLabel)
   for (const element of document.querySelectorAll('[data-copy]')) {
     element.textContent = copy[element.dataset.copy]
   }
@@ -91,13 +103,41 @@ if (copy) {
 
 const alt = {
   paper: copy?.paperAlt ?? 'Yejian Reader in the paper theme',
+  green: copy?.greenAlt ?? 'Yejian Reader in the soft green theme',
   night: copy?.nightAlt ?? 'Yejian Reader in the night theme',
 }
-preview.alt = alt.paper
+const colors = { paper: '#f2efe6', green: '#dbe8d4', night: '#101311' }
+const readerLink = document.querySelector('[data-reader-link]')
+const themeColor = document.querySelector('meta[name="theme-color"]')
+const languageLinks = languageNavigation.querySelectorAll('a')
+
+function applyTheme(preference) {
+  const theme = preference ?? 'paper'
+  document.documentElement.dataset.theme = theme
+  themeColor.content = colors[theme]
+  preview.src = 'screenshots/web/' + theme + '.webp'
+  preview.alt = alt[theme]
+  const query = new URLSearchParams({ lang: language })
+  if (preference) query.set('theme', preference)
+  readerLink.href = './app/?' + query.toString()
+  homeLink.href = '?' + query.toString()
+  for (const link of languageLinks) {
+    const linkQuery = new URLSearchParams(query)
+    linkQuery.set('lang', link.lang)
+    link.href = '?' + linkQuery.toString()
+  }
+  for (const option of themeButtons) {
+    option.setAttribute('aria-pressed', String(option.dataset.themeChoice === theme))
+  }
+}
+
+const requestedTheme = params.get('theme')
+applyTheme(Object.hasOwn(colors, requestedTheme) ? requestedTheme : null)
 for (const button of themeButtons) {
   button.addEventListener('click', () => {
-    preview.src = 'screenshots/' + button.dataset.image
-    preview.alt = alt[button.dataset.theme]
-    for (const option of themeButtons) option.setAttribute('aria-pressed', String(option === button))
+    const theme = button.dataset.themeChoice
+    params.set('theme', theme)
+    history.replaceState(history.state, '', '?' + params.toString() + location.hash)
+    applyTheme(theme)
   })
 }

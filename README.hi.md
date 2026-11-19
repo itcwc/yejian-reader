@@ -6,7 +6,15 @@
 
 येजियान एक मुफ़्त, ओपन-सोर्स रीडर है जो स्थानीय फ़ाइलों के साथ काम करता है। आप बिना खाता बनाए ऑफ़लाइन पढ़ सकते हैं और चाहें तो अपने WebDAV सर्वर से किताबें और पढ़ने की प्रगति सिंक कर सकते हैं।
 
-![येजियान का रीडिंग व्यू](docs/screenshots/reader-paper.png)
+## स्क्रीनशॉट
+
+Android ऐप पहली बार खोलने पर भाषा चुनें। बाद में इसे **सेटिंग्स → ऐप की भाषा** में बदल सकते हैं।
+
+<p align="center">
+  <img src="docs/screenshots/hi/library.webp" width="30%" alt="लाइब्रेरी">
+  <img src="docs/screenshots/hi/reader.webp" width="30%" alt="रीडर मेनू">
+  <img src="docs/screenshots/hi/settings.webp" width="30%" alt="सेटिंग्स">
+</p>
 
 ## सुविधाएँ
 

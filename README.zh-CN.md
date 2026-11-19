@@ -17,28 +17,13 @@
 
 ## 界面预览
 
-### 桌面
+安卓首次打开时选择语言，之后可在 **设置 → 界面语言** 中切换。
 
 <p align="center">
-  <img src="docs/screenshots/library.png" width="49%" alt="书架">
-  <img src="docs/screenshots/reader-paper.png" width="49%" alt="白纸主题阅读器">
+  <img src="docs/screenshots/zh-CN/library.webp" width="30%" alt="书架">
+  <img src="docs/screenshots/zh-CN/reader.webp" width="30%" alt="阅读菜单">
+  <img src="docs/screenshots/zh-CN/settings.webp" width="30%" alt="设置">
 </p>
-<p align="center">
-  <img src="docs/screenshots/reader-night.png" width="49%" alt="夜读主题与排版设置">
-  <img src="docs/screenshots/sync.png" width="49%" alt="WebDAV 同步">
-</p>
-<p align="center">
-  <img src="docs/screenshots/settings.png" width="72%" alt="设置与主题">
-</p>
-
-### 移动端
-
-<p align="center">
-  <img src="docs/screenshots/mobile-library.png" width="26%" alt="移动端书架">
-  <img src="docs/screenshots/mobile-guide.png" width="26%" alt="点击区域引导">
-</p>
-
-> 截图使用演示书籍与占位账号，未包含真实书籍或凭据。
 
 ## 特性
 
