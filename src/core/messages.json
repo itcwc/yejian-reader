@@ -1,4 +1,6 @@
 {
+  "書": {"en": "Books", "hi": "किताब", "pt": "Livros", "id": "Buku", "tr": "Kitap"},
+  "續": {"en": "Read on", "hi": "पढ़ें", "pt": "Ler", "id": "Baca", "tr": "Oku"},
   "新增 {0} 本": {"en": "Added: {0}", "hi": "जोड़ा गया: {0}", "pt": "Adicionado: {0}", "id": "Added: {0}", "tr": "Eklenme: {0}"},
   "重复 {0} 个": {"en": "Duplicates: {0}", "hi": "डुप्लिकेट: {0}", "pt": "Duplicados: {0}", "id": "Duplicatees: {0}", "tr": "Duplicates: {0}"},
   "待转换 {0} 个": {"en": "Need conversion: {0}", "hi": "रूपांतरण की आवश्यकता: {0}", "pt": "Conversão de necessidades: {0}", "id": "Perlu konversi : {0}", "tr": "dönüştürmeye gerek: {0}"},

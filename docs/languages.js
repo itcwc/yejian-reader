@@ -81,10 +81,11 @@ const requestedLanguage = params.get('lang')
 const language = Object.hasOwn(translations, requestedLanguage) ? requestedLanguage : 'en'
 const strings = translations[language]
 const copy = strings ? Object.fromEntries(keys.map((key, index) => [key, strings[index]])) : null
+const bookMotifs = { 'zh-CN': '書', hi: 'किताब', pt: 'Livros', id: 'Buku', en: 'Books', tr: 'Kitap' }
 
 if (copy) {
   const [openReader, downloadApps, webNote, green, greenAlt, appearanceLabel] = webCopy[language]
-  Object.assign(copy, { openReader, downloadApps, webNote, green, greenAlt })
+  Object.assign(copy, { openReader, downloadApps, webNote, green, greenAlt, bookMotif: bookMotifs[language] })
   document.documentElement.lang = language
   document.title = copy.pageTitle
   document.querySelector('meta[name="description"]').content = copy.intro

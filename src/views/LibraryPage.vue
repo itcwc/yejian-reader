@@ -214,7 +214,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="library">
-    <span class="watermark" aria-hidden="true">書</span>
+    <span class="watermark" aria-hidden="true">{{ t('書') }}</span>
 
     <input
       ref="fileInput"
@@ -256,7 +256,7 @@ onBeforeUnmount(() => {
     </header>
 
     <section v-if="heroBook" class="hero" @click="openBook(heroBook)">
-      <span class="hero-ghost" aria-hidden="true">續</span>
+      <span class="hero-ghost" aria-hidden="true">{{ t('續') }}</span>
       <div class="hero-cover">
         <BookCover
           :book="heroBook"
@@ -636,12 +636,17 @@ onBeforeUnmount(() => {
   top: 24px;
   right: 4vw;
   font-family: var(--font-serif);
-  font-size: clamp(180px, 26vw, 360px);
-  line-height: 1;
+  font-size: clamp(84px, 17vw, 240px);
+  line-height: 1.15;
+  white-space: nowrap;
   color: var(--ink);
   opacity: 0.035;
   pointer-events: none;
   user-select: none;
+}
+
+.watermark:lang(zh-CN) {
+  font-size: clamp(180px, 26vw, 360px);
 }
 
 .lib-head {
@@ -790,11 +795,16 @@ onBeforeUnmount(() => {
   top: 50%;
   transform: translateY(-50%);
   font-family: var(--font-serif);
-  font-size: clamp(120px, 15vw, 200px);
+  font-size: clamp(64px, 10vw, 144px);
+  white-space: nowrap;
   line-height: 1;
   color: var(--accent);
   opacity: 0.06;
   pointer-events: none;
+}
+
+.hero-ghost:lang(zh-CN) {
+  font-size: clamp(120px, 15vw, 200px);
 }
 
 .hero-cover {
@@ -1681,8 +1691,11 @@ onBeforeUnmount(() => {
   }
 
   .watermark {
-    font-size: 220px;
     opacity: 0.025;
+  }
+
+  .watermark:lang(zh-CN) {
+    font-size: 220px;
   }
 }
 </style>
