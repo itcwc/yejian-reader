@@ -23,6 +23,19 @@ Ao abrir a aplicação Android pela primeira vez, escolha o idioma. Para o alter
 - Escolha entre os temas papel, noturno ou verde suave. O leitor guarda a sua posição no livro.
 - Exporte uma cópia local dos livros, capas e progresso ou sincronize via WebDAV.
 
+## Formatos suportados
+
+| Categoria | Abertura direta | Conversão necessária |
+| --- | --- | --- |
+| Livros eletrónicos | EPUB, PDF, FB2 | MOBI, AZW, AZW3 → EPUB |
+| Texto simples | TXT, Markdown, RTF | — |
+| Web | HTML, HTM, XHTML, XML, MHTML, MHT | CHM → EPUB / HTML |
+| Banda desenhada | CBZ, CBT | CBR, CB7 → CBZ |
+| Documentos | DOCX | DOC, PPT, PPTX, XPS, OXPS, DjVu, DJV, OFD → PDF / DOCX |
+| Académico | — | CAJ → PDF (instruções apresentadas durante a importação) |
+
+Para converter ficheiros, pode utilizar Calibre, 7-Zip, DjVuLibre, CAJViewer ou WPS/Office. (Calibre (MOBI/AZW3/CHM), 7-Zip (CBR/CB7/CHM), DjVuLibre, CAJViewer, WPS/Office).
+
 ## Transferência e instalação
 
 Na [versão mais recente](https://github.com/itcwc/yejian-reader/releases/latest), transfira o ficheiro correspondente ao seu dispositivo.
@@ -31,6 +44,10 @@ Na [versão mais recente](https://github.com/itcwc/yejian-reader/releases/latest
 - **Android** — `.apk` assinado para Android 7.0 ou posterior. O instalador do sistema utiliza o idioma do telemóvel.
 
 Ao migrar de um APK de depuração, abra **Definições → Cópia de segurança da biblioteca e do progresso → Exportar** (设置 → 书库与进度备份 → 导出备份) na aplicação antiga. Guarde o ficheiro `.yejianbackup` em Transferências ou na nuvem. Desinstale a aplicação antiga, instale o APK atual e importe o ficheiro no mesmo painel. Configure novamente as preferências e o WebDAV. [Instruções de migração](.github/release-notes/v0.1.21.md)
+
+### Atualizações na aplicação
+
+As aplicações Windows e Android verificam atualizações ao iniciar. Transfira as atualizações disponíveis na aplicação. No Windows, reinicie para instalar. No Android, a aplicação verifica o SHA-256 do APK e abre o instalador do sistema.
 
 ## Executar a versão web
 
@@ -73,8 +90,51 @@ Este comando compila a versão web e copia os ficheiros para os dois projetos An
 
 Em **Sincronizar**, preencha o URL do servidor, o nome de utilizador, a palavra-passe da aplicação e o nome do dispositivo. Teste a ligação antes de sincronizar. Ative a sincronização de ficheiros para transferir os livros juntamente com os metadados e o progresso. Para acesso no navegador, o servidor WebDAV deve permitir `PROPFIND`, `MKCOL` e `PUT`.
 
-## Licença
+Estrutura no servidor: `yejian/books.json`, `yejian/progress.json`, `yejian/books/<id>.<ext>`.
 
-Alguns formatos exigem conversão e os ficheiros protegidos por DRM não são suportados. Consulte a [documentação em inglês](README.md).
+### Exemplo de WebDAV no Nginx
+
+Para alojar o WebDAV no seu servidor Nginx, use este exemplo.
+
+```nginx
+location ^~ /dav/ {
+    alias /www/wwwroot/your-site/dav/;
+    dav_methods PUT DELETE MKCOL COPY MOVE;
+    dav_ext_methods PROPFIND OPTIONS;
+    create_full_put_path on;
+    dav_access user:rw group:rw all:r;
+    client_max_body_size 0;
+}
+```
+
+Mantenha a barra final em ambos os caminhos. `PROPFIND` precisa de `nginx-dav-ext-module`. Dê permissões de escrita no diretório ao utilizador do Nginx. O exemplo configura o armazenamento WebDAV. Se o leitor web estiver noutra origem, configure também o CORS.
+
+## Transferir a biblioteca e o progresso offline
+
+No dispositivo antigo, abra **Definições → Cópia da biblioteca e do progresso → Exportar**. Copie o ficheiro `.yejianbackup` para o novo dispositivo e importe-o no mesmo painel. A cópia inclui os livros originais, as capas e a posição de leitura. A importação adiciona os livros em falta e conserva a posição mais recente de cada livro.
+
+## Atalhos de teclado
+
+| Tecla | Ação |
+| --- | --- |
+| `←` / `→` / `↑` / `↓` | Página anterior ou seguinte (deslocamento no modo contínuo) |
+| `PageUp` / `PageDown` / `Space` | Mudar de página |
+| `T` | Mostrar ou ocultar o índice |
+| `S` | Mostrar ou ocultar as definições de tipografia |
+| `Esc` | Fechar painéis |
+
+## Estrutura do projeto
+
+`src` contém a interface web e os leitores. `electron` contém a aplicação de computador. `android-webview` gera o APK oficial e `android-uniapp` destina-se ao HBuilderX. Os dados ficam no IndexedDB. A sincronização WebDAV transfere primeiro os livros em falta e depois combina as posições de leitura mais recentes.
+
+## Limitações
+
+Alguns formatos precisam de conversão. Exporte CAJ como PDF no CAJViewer. PDFs e ficheiros de banda desenhada grandes podem demorar a abrir pela primeira vez. EPUB e PDF protegidos por DRM não são suportados.
+
+## Contribuir
+
+São bem-vindos relatórios de problemas e pedidos de integração. Execute `npm run build` e indique os passos para reproduzir o problema e o formato do ficheiro.
+
+## Licença
 
 [Licença MIT](LICENSE) · [Comunicar um problema](https://github.com/itcwc/yejian-reader/issues)

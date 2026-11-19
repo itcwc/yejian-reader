@@ -23,6 +23,19 @@ Saat pertama membuka aplikasi Android, pilih bahasa. Anda dapat mengubahnya di *
 - Pilih tema kertas, malam, atau hijau lembut. Posisi baca terakhir tersimpan di perangkat.
 - Ekspor cadangan buku, sampul, dan progres, atau sinkronkan melalui WebDAV.
 
+## Format yang didukung
+
+| Kategori | Dibuka langsung | Perlu dikonversi |
+| --- | --- | --- |
+| Buku elektronik | EPUB, PDF, FB2 | MOBI, AZW, AZW3 → EPUB |
+| Teks biasa | TXT, Markdown, RTF | — |
+| Web | HTML, HTM, XHTML, XML, MHTML, MHT | CHM → EPUB / HTML |
+| Komik | CBZ, CBT | CBR, CB7 → CBZ |
+| Dokumen | DOCX | DOC, PPT, PPTX, XPS, OXPS, DjVu, DJV, OFD → PDF / DOCX |
+| Akademik | — | CAJ → PDF (panduan ditampilkan saat impor) |
+
+Gunakan Calibre, 7-Zip, DjVuLibre, CAJViewer, atau WPS/Office untuk mengonversi berkas. (Calibre (MOBI/AZW3/CHM), 7-Zip (CBR/CB7/CHM), DjVuLibre, CAJViewer, WPS/Office).
+
 ## Unduh dan pasang
 
 Pilih berkas perangkat Anda di halaman [rilis terbaru](https://github.com/itcwc/yejian-reader/releases/latest).
@@ -31,6 +44,10 @@ Pilih berkas perangkat Anda di halaman [rilis terbaru](https://github.com/itcwc/
 - **Android** — `.apk` bertanda tangan untuk Android 7.0 atau yang lebih baru. Layar pemasangan mengikuti bahasa sistem ponsel.
 
 Untuk beralih dari APK debug, buka **Pengaturan → Cadangan pustaka dan progres → Ekspor** (设置 → 书库与进度备份 → 导出备份) di aplikasi lama. Simpan berkas `.yejianbackup` di folder Unduhan atau penyimpanan awan. Hapus aplikasi lama, pasang APK baru, lalu impor cadangan dari panel yang sama. Atur ulang preferensi aplikasi dan WebDAV. [Panduan migrasi](.github/release-notes/v0.1.21.md)
+
+### Pembaruan dalam aplikasi
+
+Aplikasi Windows dan Android memeriksa pembaruan saat dibuka. Unduh pembaruan yang tersedia dari aplikasi. Di Windows, mulai ulang untuk memasang. Di Android, aplikasi memeriksa SHA-256 APK lalu membuka pemasang sistem.
 
 ## Jalankan versi web
 
@@ -73,8 +90,51 @@ Perintah ini membangun versi web dan menyalin aset ke kedua proyek Android. Untu
 
 Pada halaman **Sinkronisasi**, isi URL server, nama pengguna, kata sandi aplikasi, dan nama perangkat. Uji koneksi sebelum menyinkronkan. Aktifkan sinkronisasi berkas buku jika Anda ingin menyinkronkan buku bersama metadata dan progres. Untuk akses dari peramban, server WebDAV harus mengizinkan `PROPFIND`, `MKCOL`, dan `PUT`.
 
-## Lisensi
+Struktur di server: `yejian/books.json`, `yejian/progress.json`, `yejian/books/<id>.<ext>`.
 
-Beberapa format memerlukan konversi dan berkas berpelindung DRM tidak didukung. Lihat [dokumentasi bahasa Inggris](README.md) untuk detailnya.
+### Contoh WebDAV di Nginx
+
+Gunakan contoh ini untuk menjalankan WebDAV di server Nginx sendiri.
+
+```nginx
+location ^~ /dav/ {
+    alias /www/wwwroot/your-site/dav/;
+    dav_methods PUT DELETE MKCOL COPY MOVE;
+    dav_ext_methods PROPFIND OPTIONS;
+    create_full_put_path on;
+    dav_access user:rw group:rw all:r;
+    client_max_body_size 0;
+}
+```
+
+Pertahankan garis miring di akhir kedua jalur. `PROPFIND` memerlukan `nginx-dav-ext-module`. Berikan izin tulis pada direktori kepada pengguna yang menjalankan Nginx. Contoh ini mengatur penyimpanan WebDAV. Jika pembaca web diakses dari origin lain, atur juga CORS.
+
+## Pindahkan pustaka dan progres secara luring
+
+Di perangkat lama, buka **Pengaturan → Cadangan pustaka dan progres → Ekspor**. Salin berkas `.yejianbackup` ke perangkat baru dan impor dari panel yang sama. Cadangan memuat buku asli, sampul, dan posisi baca. Saat impor, buku yang belum ada ditambahkan dan posisi baca terbaru untuk setiap buku dipertahankan.
+
+## Pintasan papan ketik
+
+| Tombol | Tindakan |
+| --- | --- |
+| `←` / `→` / `↑` / `↓` | Halaman sebelumnya atau berikutnya (gulir dalam mode berkelanjutan) |
+| `PageUp` / `PageDown` / `Space` | Balik halaman |
+| `T` | Tampilkan atau sembunyikan daftar isi |
+| `S` | Tampilkan atau sembunyikan pengaturan tipografi |
+| `Esc` | Tutup panel |
+
+## Struktur proyek
+
+`src` berisi antarmuka web dan mesin baca. `electron` berisi aplikasi desktop. `android-webview` digunakan untuk APK resmi dan `android-uniapp` untuk HBuilderX. Data disimpan di IndexedDB. Sinkronisasi WebDAV mengunduh buku yang belum ada sebelum menggabungkan posisi baca terbaru.
+
+## Keterbatasan
+
+Beberapa format memerlukan konversi. Ekspor CAJ ke PDF dengan CAJViewer. PDF dan komik berukuran besar mungkin membutuhkan waktu saat pertama dibuka. EPUB dan PDF yang dilindungi DRM tidak didukung.
+
+## Berkontribusi
+
+Laporan masalah dan pull request dipersilakan. Jalankan `npm run build` dan sertakan langkah untuk mengulangi masalah serta format berkasnya.
+
+## Lisensi
 
 [Lisensi MIT](LICENSE) · [Laporkan masalah](https://github.com/itcwc/yejian-reader/issues)

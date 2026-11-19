@@ -1,3 +1,4 @@
+import { t } from '@/core/i18n'
 import type { Book, RemoteBookMeta, RemoteManifest, RemoteProgressFile, SyncConfig, SyncSummary } from '@/types'
 import { getDeviceInfo } from './device'
 import { getBookBundle, syncRemoteBook } from './library'
@@ -79,7 +80,7 @@ function parseProgress(text: string | null): RemoteProgressFile | null {
 function friendlyError(error: unknown): string {
   if (error instanceof WebdavError) return error.message
   if (error instanceof Error) return error.message
-  return '同步过程中发生未知错误'
+  return t('同步过程中发生未知错误')
 }
 
 /** 执行一次完整同步：合并阅读进度、按需同步书籍文件 */
@@ -99,17 +100,17 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
   const device = getDeviceInfo()
 
   try {
-    if (!config.url.trim()) throw new WebdavError('config', '请先填写 WebDAV 服务器地址')
+    if (!config.url.trim()) throw new WebdavError('config', t('请先填写 WebDAV 服务器地址'))
 
     const client = new WebdavClient(config)
-    callbacks.onStage?.('连接服务器')
+    callbacks.onStage?.(t('连接服务器'))
     await client.test()
-    callbacks.onStage?.('准备同步目录')
+    callbacks.onStage?.(t('准备同步目录'))
     await client.ensureCollection(BASE_DIR)
     await client.ensureCollection(BOOKS_DIR)
     await client.ensureCollection(COVERS_DIR)
 
-    callbacks.onStage?.('读取云端记录')
+    callbacks.onStage?.(t('读取云端记录'))
     const [manifestText, progressText] = await Promise.all([
       client.getText(MANIFEST_FILE),
       client.getText(PROGRESS_FILE),
@@ -123,7 +124,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     const localProgress = await listProgress()
 
     /* ---------- 书目清单 ---------- */
-    callbacks.onStage?.('合并书目')
+    callbacks.onStage?.(t('合并书目'))
     const mergedBooks = new Map<string, RemoteBookMeta>()
     for (const book of remoteManifest?.books || []) {
       if (book?.id) mergedBooks.set(book.id, book)
@@ -143,7 +144,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     let pendingRemoteBooks = 0
 
     if (config.syncBooks) {
-      callbacks.onStage?.('下载云端书籍')
+      callbacks.onStage?.(t('下载云端书籍'))
       const remoteFiles = new Map((remoteManifest?.books || []).map((book) => [book.id, book]))
       for (const meta of mergedBooks.values()) {
         if (localBookIds.has(meta.id)) continue
@@ -159,7 +160,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
         }
       }
 
-      callbacks.onStage?.('上传本地书籍')
+      callbacks.onStage?.(t('上传本地书籍'))
       for (const book of localBooks) {
         const remote = remoteFiles.get(book.id)
         if (remote) continue
@@ -174,7 +175,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
       }
 
       /* ---------- 封面（单独存储，随书籍一起同步） ---------- */
-      callbacks.onStage?.('同步书籍封面')
+      callbacks.onStage?.(t('同步书籍封面'))
       const booksAfterDownload = await listBooks()
 
       for (const book of booksAfterDownload) {
@@ -202,7 +203,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     }
 
     /* ---------- 阅读进度（在书籍下载后合并，确保新设备也能落到书架上） ---------- */
-    callbacks.onStage?.('合并阅读进度')
+    callbacks.onStage?.(t('合并阅读进度'))
     const remoteItems = remoteProgress?.items ? { ...remoteProgress.items } : {}
     let progressPushed = 0
     let progressPulled = 0
@@ -232,7 +233,7 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     }
 
     /* ---------- 写回云端 ---------- */
-    callbacks.onStage?.('写入云端记录')
+    callbacks.onStage?.(t('写入云端记录'))
     const now = Date.now()
     const manifest: RemoteManifest = {
       version: 1,
@@ -252,12 +253,12 @@ export async function runSync(config: SyncConfig, callbacks: SyncCallbacks = {})
     ])
 
     const parts: string[] = []
-    if (booksDownloaded) parts.push(`下载 ${booksDownloaded} 本`)
-    if (booksUploaded) parts.push(`上传 ${booksUploaded} 本`)
-    if (progressPulled) parts.push(`拉取 ${progressPulled} 条进度`)
-    if (progressPushed) parts.push(`推送 ${progressPushed} 条进度`)
-    if (pendingRemoteBooks) parts.push(`云端还有 ${pendingRemoteBooks} 本未下载（请开启「同步书籍文件」）`)
-    if (!parts.length) parts.push('云端与本地已一致')
+    if (booksDownloaded) parts.push(t('下载 {0} 本', [booksDownloaded]))
+    if (booksUploaded) parts.push(t('上传 {0} 本', [booksUploaded]))
+    if (progressPulled) parts.push(t('拉取 {0} 条进度', [progressPulled]))
+    if (progressPushed) parts.push(t('推送 {0} 条进度', [progressPushed]))
+    if (pendingRemoteBooks) parts.push(t('云端还有 {0} 本未下载（请开启「同步书籍文件」）', [pendingRemoteBooks]))
+    if (!parts.length) parts.push(t('云端与本地已一致'))
 
     return {
       ...baseSummary,

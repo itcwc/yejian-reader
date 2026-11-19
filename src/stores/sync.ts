@@ -1,3 +1,4 @@
+import { t } from '@/core/i18n'
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, watch } from 'vue'
 import type { SyncConfig, SyncSummary } from '@/types'
@@ -73,14 +74,14 @@ export const useSyncStore = defineStore('sync', () => {
 
   async function testConnection(): Promise<{ ok: boolean; message: string }> {
     try {
-      if (!config.url.trim()) return { ok: false, message: '请先填写 WebDAV 服务器地址' }
+      if (!config.url.trim()) return { ok: false, message: t('请先填写 WebDAV 服务器地址') }
       const client = new WebdavClient(config)
       await client.test()
       await client.ensureCollection('yejian')
       await client.ensureCollection('yejian/books')
-      return { ok: true, message: '连接成功，同步目录可写' }
+      return { ok: true, message: t('连接成功，同步目录可写') }
     } catch (error) {
-      const message = error instanceof WebdavError ? error.message : '连接失败，请检查配置'
+      const message = error instanceof WebdavError ? error.message : t('连接失败，请检查配置')
       return { ok: false, message }
     }
   }
@@ -88,12 +89,12 @@ export const useSyncStore = defineStore('sync', () => {
   async function syncNow(silent = false): Promise<SyncSummary | null> {
     if (syncing.value) return null
     if (!configured.value) {
-      if (!silent) toast.push('请先在同步设置中填写 WebDAV 地址', 'error')
+      if (!silent) toast.push(t('请先在同步设置中填写 WebDAV 地址'), 'error')
       return null
     }
     syncing.value = true
     logs.value = []
-    log('开始同步')
+    log(t('开始同步'))
     try {
       const result = await runSync(config, {
         onStage: (stage) => log(stage),
@@ -107,7 +108,7 @@ export const useSyncStore = defineStore('sync', () => {
       }
       log(result.message, result.ok ? 'success' : 'error')
       if (!silent) {
-        toast.push(result.ok ? `同步完成：${result.message}` : `同步失败：${result.message}`, result.ok ? 'success' : 'error', 4200)
+        toast.push(result.ok ? t('同步完成：{0}', [result.message]) : t('同步失败：{0}', [result.message]), result.ok ? 'success' : 'error', 4200)
       }
       return result
     } finally {

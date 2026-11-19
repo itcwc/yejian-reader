@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/core/i18n'
 import { computed, ref } from 'vue'
 import Icon from '@/components/Icon.vue'
 import { useSyncStore } from '@/stores/sync'
@@ -17,16 +18,16 @@ const hostLabel = computed(() => {
   try {
     return new URL(sync.config.url).host || sync.config.url
   } catch {
-    return sync.config.url || '尚未配置'
+    return sync.config.url || t('尚未配置')
   }
 })
 
 const statusTitle = computed(() => {
-  if (sync.syncing) return '正在与云端对齐…'
-  if (!sync.configured) return '尚未连接云端'
+  if (sync.syncing) return t('正在与云端对齐…')
+  if (!sync.configured) return t('尚未连接云端')
   if (sync.lastResult?.ok) return sync.lastResult.message
-  if (sync.lastResult) return '上次同步没有完成'
-  return '连接已就绪，等待第一次同步'
+  if (sync.lastResult) return t('上次同步没有完成')
+  return t('连接已就绪，等待第一次同步')
 })
 
 const totalProgress = computed(() => {
@@ -56,23 +57,19 @@ function saveDeviceName() {
   }
   sync.updateDeviceName(name)
   deviceName.value = sync.device.name
-  toast.push('设备名称已更新', 'success')
+  toast.push(t('设备名称已更新'), 'success')
 }
 </script>
 
 <template>
   <div class="sync-page">
     <header class="page-head">
-      <p class="eyebrow">SYNC · WEBDAV</p>
-      <h1 class="display page-title">跨设备同步<span class="dot">。</span></h1>
-      <p class="page-lede">
-        进度、书目与书籍文件通过你自己的 WebDAV 空间流转。没有账号体系，
-        没有中间服务器，换一台设备登录同一个空间即可接着读。
-      </p>
+      <h1 class="display page-title">{{ t('跨设备同步') }}<span class="dot">{{ t('。') }}</span></h1>
+      <p class="page-lede">{{ t('进度、书目与书籍文件通过你自己的 WebDAV 空间流转。没有账号体系， 没有中间服务器，换一台设备登录同一个空间即可接着读。') }}</p>
     </header>
 
     <section class="status-card" :class="{ 'is-syncing': sync.syncing, 'is-error': sync.lastResult && !sync.lastResult.ok }">
-      <span class="status-ghost" aria-hidden="true">雲</span>
+      <span class="status-ghost" aria-hidden="true">{{ '雲' }}</span>
       <div class="status-icon" :class="{ spinning: sync.syncing }">
         <Icon name="cloud" :size="30" />
       </div>
@@ -85,19 +82,14 @@ function saveDeviceName() {
         </div>
         <h2 class="status-title">{{ statusTitle }}</h2>
         <p class="status-sub">
-          <template v-if="sync.lastResult">
-            拉取 {{ sync.lastResult.progressPulled }} 条 · 推送 {{ sync.lastResult.progressPushed }} 条 ·
-            下载 {{ sync.lastResult.booksDownloaded }} 本 · 上传 {{ sync.lastResult.booksUploaded }} 本
-          </template>
-          <template v-else>
-            配置服务器后，页间会先合并阅读进度，再按需同步书籍文件。
-          </template>
+          <template v-if="sync.lastResult">{{ t('拉取 {0} 条 · 推送 {1} 条 · 下载 {2} 本 · 上传 {3} 本', [sync.lastResult.progressPulled, sync.lastResult.progressPushed, sync.lastResult.booksDownloaded, sync.lastResult.booksUploaded]) }}</template>
+          <template v-else>{{ t('配置服务器后，页间会先合并阅读进度，再按需同步书籍文件。') }}</template>
         </p>
       </div>
       <button class="btn btn-primary sync-btn" type="button" :disabled="sync.syncing || !sync.configured" @click="syncNow">
         <span v-if="sync.syncing" class="spinner spinner-light"></span>
         <Icon v-else name="refresh" :size="16" />
-        {{ sync.syncing ? '同步中' : '立即同步' }}
+        {{ sync.syncing ? t('同步中') : t('立即同步') }}
       </button>
     </section>
 
@@ -105,18 +97,15 @@ function saveDeviceName() {
       <section class="card config-card">
         <header class="card-head">
           <div>
-            <p class="eyebrow">CONNECTION</p>
-            <h2 class="card-title">WebDAV 连接</h2>
+            <h2 class="card-title">{{ t('WebDAV 连接') }}</h2>
           </div>
-          <span class="badge">{{ sync.configured ? '已配置' : '未配置' }}</span>
+          <span class="badge">{{ sync.configured ? t('已配置') : t('未配置') }}</span>
         </header>
 
         <div class="form">
           <label class="form-field">
             <span class="form-label">
-              <Icon name="server" :size="14" />
-              服务器地址
-            </span>
+              <Icon name="server" :size="14" />{{ t('服务器地址') }}</span>
             <input
               v-model="sync.config.url"
               class="field"
@@ -125,20 +114,18 @@ function saveDeviceName() {
               spellcheck="false"
               autocomplete="off"
             />
-            <span class="form-hint">需要以 http:// 或 https:// 开头，建议填写 WebDAV 根路径。</span>
+            <span class="form-hint">{{ t('需要以 http:// 或 https:// 开头，建议填写 WebDAV 根路径。') }}</span>
           </label>
 
           <div class="form-row">
             <label class="form-field">
               <span class="form-label">
-                <Icon name="key" :size="14" />
-                账号
-              </span>
+                <Icon name="key" :size="14" />{{ t('账号') }}</span>
               <input
                 v-model="sync.config.username"
                 class="field"
                 type="text"
-                placeholder="WebDAV 用户名"
+                :placeholder="t('WebDAV 用户名')"
                 autocomplete="username"
                 spellcheck="false"
               />
@@ -146,18 +133,16 @@ function saveDeviceName() {
 
             <label class="form-field">
               <span class="form-label">
-                <Icon name="key" :size="14" />
-                密码
-              </span>
+                <Icon name="key" :size="14" />{{ t('密码') }}</span>
               <span class="password-wrap">
                 <input
                   v-model="sync.config.password"
                   class="field"
                   :type="showPassword ? 'text' : 'password'"
-                  placeholder="建议使用应用专用密码"
+                  :placeholder="t('建议使用应用专用密码')"
                   autocomplete="current-password"
                 />
-                <button class="password-toggle" type="button" :aria-label="showPassword ? '隐藏密码' : '显示密码'" @click="showPassword = !showPassword">
+                <button class="password-toggle" type="button" :aria-label="showPassword ? t('隐藏密码') : t('显示密码')" @click="showPassword = !showPassword">
                   <Icon :name="showPassword ? 'minimize' : 'eye'" :size="15" />
                 </button>
               </span>
@@ -166,26 +151,24 @@ function saveDeviceName() {
 
           <label class="form-field">
             <span class="form-label">
-              <Icon name="book-open" :size="14" />
-              设备名称
-            </span>
+              <Icon name="book-open" :size="14" />{{ t('设备名称') }}</span>
             <input
               v-model="deviceName"
               class="field"
               type="text"
-              placeholder="例如：书房桌面"
+              :placeholder="t('例如：书房桌面')"
               maxlength="24"
               @blur="saveDeviceName"
               @keydown.enter="saveDeviceName"
             />
-            <span class="form-hint">用于标记进度来源，方便识别是哪台设备读到的位置。</span>
+            <span class="form-hint">{{ t('用于标记进度来源，方便识别是哪台设备读到的位置。') }}</span>
           </label>
 
           <div class="toggle-list">
             <div class="toggle-row">
               <div>
-                <span class="form-label">自动同步</span>
-                <span class="form-hint">打开应用与合上书本时自动合并进度。</span>
+                <span class="form-label">{{ t('自动同步') }}</span>
+                <span class="form-hint">{{ t('打开应用与合上书本时自动合并进度。') }}</span>
               </div>
               <button
                 class="switch"
@@ -201,8 +184,8 @@ function saveDeviceName() {
 
             <div class="toggle-row">
               <div>
-                <span class="form-label">同步书籍文件</span>
-                <span class="form-hint">把书籍本体也上传到云端，其他设备可直接下载。会占用流量与空间。</span>
+                <span class="form-label">{{ t('同步书籍文件') }}</span>
+                <span class="form-hint">{{ t('把书籍本体也上传到云端，其他设备可直接下载。会占用流量与空间。') }}</span>
               </div>
               <button
                 class="switch"
@@ -225,13 +208,9 @@ function saveDeviceName() {
           <div class="form-actions">
             <button class="btn btn-ghost" type="button" :disabled="testing || sync.syncing" @click="testConnection">
               <span v-if="testing" class="spinner"></span>
-              <Icon v-else name="wifi" :size="16" />
-              测试连接
-            </button>
+              <Icon v-else name="wifi" :size="16" />{{ t('测试连接') }}</button>
             <button class="btn btn-primary" type="button" :disabled="sync.syncing || !sync.configured" @click="syncNow">
-              <Icon name="sync" :size="16" />
-              同步全部
-            </button>
+              <Icon name="sync" :size="16" />{{ t('同步全部') }}</button>
           </div>
         </div>
       </section>
@@ -240,11 +219,10 @@ function saveDeviceName() {
         <section class="card result-card">
           <header class="card-head">
             <div>
-              <p class="eyebrow">LAST RUN</p>
-              <h2 class="card-title">本次同步</h2>
+              <h2 class="card-title">{{ t('本次同步') }}</h2>
             </div>
             <span v-if="sync.lastResult" class="badge" :class="{ 'badge-ok': sync.lastResult.ok }">
-              {{ sync.lastResult.ok ? '完成' : '失败' }}
+              {{ sync.lastResult.ok ? t('完成') : t('失败') }}
             </span>
           </header>
 
@@ -253,33 +231,32 @@ function saveDeviceName() {
             <div class="result-stats">
               <div class="stat">
                 <span class="stat-value">{{ totalProgress }}</span>
-                <span class="stat-label">进度记录</span>
+                <span class="stat-label">{{ t('进度记录') }}</span>
               </div>
               <div class="stat">
                 <span class="stat-value">{{ sync.lastResult.booksDownloaded }}</span>
-                <span class="stat-label">下载书籍</span>
+                <span class="stat-label">{{ t('下载书籍') }}</span>
               </div>
               <div class="stat">
                 <span class="stat-value">{{ sync.lastResult.booksUploaded }}</span>
-                <span class="stat-label">上传书籍</span>
+                <span class="stat-label">{{ t('上传书籍') }}</span>
               </div>
               <div class="stat">
                 <span class="stat-value">{{ formatBytes(sync.lastResult.bytes) }}</span>
-                <span class="stat-label">传输数据</span>
+                <span class="stat-label">{{ t('传输数据') }}</span>
               </div>
             </div>
           </div>
           <div v-else class="result-empty">
             <Icon name="cloud" :size="26" />
-            <p>还没有同步记录。配置好服务器后点一次「立即同步」。</p>
+            <p>{{ t('还没有同步记录。配置好服务器后点一次「立即同步」。') }}</p>
           </div>
         </section>
 
         <section class="card log-card">
           <header class="card-head">
             <div>
-              <p class="eyebrow">ACTIVITY</p>
-              <h2 class="card-title">同步日志</h2>
+              <h2 class="card-title">{{ t('同步日志') }}</h2>
             </div>
           </header>
           <ul v-if="sync.logs.length" class="log-list">
@@ -288,7 +265,7 @@ function saveDeviceName() {
               <span class="log-text">{{ entry.text }}</span>
             </li>
           </ul>
-          <p v-else class="log-empty">日志会记录连接、合并与传输的每一步。</p>
+          <p v-else class="log-empty">{{ t('日志会记录连接、合并与传输的每一步。') }}</p>
         </section>
       </div>
     </div>
@@ -296,18 +273,18 @@ function saveDeviceName() {
     <section class="notes">
       <article class="note">
         <span class="note-index">01</span>
-        <h3>进度如何合并</h3>
-        <p>以每条记录的时间戳为准，保留较新的阅读位置；不同书互不影响，不会互相覆盖。</p>
+        <h3>{{ t('进度如何合并') }}</h3>
+        <p>{{ t('以每条记录的时间戳为准，保留较新的阅读位置；不同书互不影响，不会互相覆盖。') }}</p>
       </article>
       <article class="note">
         <span class="note-index">02</span>
-        <h3>浏览器才需要 CORS</h3>
-        <p>桌面端与安卓应用通过原生网络栈请求 WebDAV，不需要服务端开启跨域；只有网页版直连时才要求允许 CORS 并暴露 PROPFIND 等方法。坚果云可填写 dav.jianguoyun.com 并使用应用密码。</p>
+        <h3>{{ t('浏览器才需要 CORS') }}</h3>
+        <p>{{ t('桌面端与安卓应用通过原生网络栈请求 WebDAV，不需要服务端开启跨域；只有网页版直连时才要求允许 CORS 并暴露 PROPFIND 等方法。坚果云可填写 dav.jianguoyun.com 并使用应用密码。') }}</p>
       </article>
       <article class="note">
         <span class="note-index">03</span>
-        <h3>书籍文件可选</h3>
-        <p>关闭「同步书籍文件」时只同步进度与书目，最省流量；打开后新设备可直接拉取原始文件。</p>
+        <h3>{{ t('书籍文件可选') }}</h3>
+        <p>{{ t('关闭「同步书籍文件」时只同步进度与书目，最省流量；打开后新设备可直接拉取原始文件。') }}</p>
       </article>
     </section>
   </div>

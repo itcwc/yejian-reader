@@ -1,3 +1,4 @@
+import { t } from '@/core/i18n'
 import { bytesToBase64, davBridge, toResponse } from './nativeDav'
 
 export type WebdavErrorKind = 'config' | 'auth' | 'cors' | 'http' | 'notfound'
@@ -30,7 +31,7 @@ function base64Utf8(value: string): string {
 function normalizeBase(url: string): string {
   const trimmed = url.trim()
   if (!/^https?:\/\//i.test(trimmed)) {
-    throw new WebdavError('config', '服务器地址需要以 http:// 或 https:// 开头')
+    throw new WebdavError('config', t('服务器地址需要以 http:// 或 https:// 开头'))
   }
   return trimmed.endsWith('/') ? trimmed : `${trimmed}/`
 }
@@ -82,7 +83,7 @@ export class WebdavClient {
 
   private guard(response: Response): Response {
     if (response.status === 401 || response.status === 403) {
-      throw new WebdavError('auth', '认证失败，请检查账号与密码（部分服务需要使用应用专用密码）。', response.status)
+      throw new WebdavError('auth', t('认证失败，请检查账号与密码（部分服务需要使用应用专用密码）。'), response.status)
     }
     return response
   }
@@ -109,7 +110,7 @@ export class WebdavClient {
       }
       const result = await native({ method, url: target, headers: plainHeaders, bodyBase64 })
       if (result.error) {
-        throw new WebdavError('cors', `无法连接服务器：${result.error}。请检查地址、网络与证书。`)
+        throw new WebdavError('cors', t('无法连接服务器：{0}。请检查地址、网络与证书。', [result.error]))
       }
       return this.guard(toResponse(result))
     }
@@ -125,13 +126,13 @@ export class WebdavClient {
           credentials: 'omit',
         })
       } catch {
-        throw new WebdavError('cors', '本地代理请求失败，请确认开发服务器仍在运行后重试。')
+        throw new WebdavError('cors', t('本地代理请求失败，请确认开发服务器仍在运行后重试。'))
       }
       if (response.status === 502) {
         const detail = (await response.text().catch(() => '')).trim()
         throw new WebdavError(
           'cors',
-          `代理无法连接 WebDAV 服务器：${detail || '网络不可达'}。请检查地址、端口与证书是否可访问。`,
+          t('代理无法连接 WebDAV 服务器：{0}。请检查地址、端口与证书是否可访问。', [detail || t('网络不可达')]),
           502,
         )
       }
@@ -151,7 +152,7 @@ export class WebdavClient {
     } catch {
       throw new WebdavError(
         'cors',
-        '无法连接服务器：请检查地址、网络与证书；浏览器直连 WebDAV 还要求服务端允许跨域（CORS）。用 npm run dev 启动时内置代理可自动绕过该限制。',
+        t('无法连接服务器：请检查地址、网络与证书；浏览器直连 WebDAV 还要求服务端允许跨域（CORS）。用 npm run dev 启动时内置代理可自动绕过该限制。'),
       )
     }
     return this.guard(response)
@@ -163,7 +164,7 @@ export class WebdavClient {
       body: PROPFIND_BODY,
     })
     if (!(response.ok || response.status === 207 || response.status === 301 || response.status === 302)) {
-      throw new WebdavError('http', `服务器返回 ${response.status}，请确认 WebDAV 地址是否正确。`, response.status)
+      throw new WebdavError('http', t('服务器返回 {0}，请确认 WebDAV 地址是否正确。', [response.status]), response.status)
     }
   }
 
@@ -180,14 +181,14 @@ export class WebdavClient {
     if (response.status === 409) {
       throw new WebdavError(
         'http',
-        `目录创建失败（409）：${this.url(`${clean}/`)} 的上级目录不存在或 WebDAV 账号无写入权限。请确认站点里该目录真实存在，并给运行用户（如 www）写权限。`,
+        t('目录创建失败（409）：{0} 的上级目录不存在或 WebDAV 账号无写入权限。请确认站点里该目录真实存在，并给运行用户（如 www）写权限。', [this.url(`${clean}/`)]),
         409,
       )
     }
     if (response.status === 403) {
-      throw new WebdavError('auth', '没有写入权限，请检查 WebDAV 账号权限。', 403)
+      throw new WebdavError('auth', t('没有写入权限，请检查 WebDAV 账号权限。'), 403)
     }
-    throw new WebdavError('http', `创建目录失败（${response.status}）。`, response.status)
+    throw new WebdavError('http', t('创建目录失败（{0}）。', [response.status]), response.status)
   }
 
   async put(path: string, data: Blob | string): Promise<void> {
@@ -198,7 +199,7 @@ export class WebdavClient {
         : new Uint8Array(await data.arrayBuffer())
     const response = await this.request('PUT', path, { body: bytes })
     if (!response.ok) {
-      throw new WebdavError('http', `上传失败（${response.status} ${response.statusText}）。`, response.status)
+      throw new WebdavError('http', t('上传失败（{0} {1}）。', [response.status, response.statusText]), response.status)
     }
   }
 
@@ -206,7 +207,7 @@ export class WebdavClient {
     const response = await this.request('GET', path)
     if (response.status === 404) return null
     if (!response.ok) {
-      throw new WebdavError('http', `读取失败（${response.status}）。`, response.status)
+      throw new WebdavError('http', t('读取失败（{0}）。', [response.status]), response.status)
     }
     return response.text()
   }
@@ -215,7 +216,7 @@ export class WebdavClient {
     const response = await this.request('GET', path)
     if (response.status === 404) return null
     if (!response.ok) {
-      throw new WebdavError('http', `下载失败（${response.status}）。`, response.status)
+      throw new WebdavError('http', t('下载失败（{0}）。', [response.status]), response.status)
     }
     return response.blob()
   }
@@ -223,7 +224,7 @@ export class WebdavClient {
   async remove(path: string): Promise<void> {
     const response = await this.request('DELETE', path)
     if (!response.ok && response.status !== 404) {
-      throw new WebdavError('http', `删除失败（${response.status}）。`, response.status)
+      throw new WebdavError('http', t('删除失败（{0}）。', [response.status]), response.status)
     }
   }
 }

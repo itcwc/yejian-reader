@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { locale, t } from '@/core/i18n'
 import { computed, onMounted } from 'vue'
 import Icon from '@/components/Icon.vue'
 import { useLibraryStore } from '@/stores/library'
@@ -25,13 +26,14 @@ const DAY = 86_400_000
 const days = computed(() => {
   const start = new Date()
   start.setHours(0, 0, 0, 0)
+  const dateFormat = new Intl.DateTimeFormat(locale.value, { month: 'short', day: 'numeric' })
   const list: { key: number; label: string; count: number }[] = []
   for (let i = 29; i >= 0; i -= 1) {
     const from = start.getTime() - i * DAY
     const to = from + DAY
     const count = books.value.filter((book) => book.lastOpenedAt >= from && book.lastOpenedAt < to).length
     const date = new Date(from)
-    list.push({ key: from, label: `${date.getMonth() + 1}/${date.getDate()}`, count })
+    list.push({ key: from, label: dateFormat.format(date), count })
   }
   return list
 })
@@ -73,18 +75,15 @@ function barHeight(count: number) {
 <template>
   <div class="stats-page">
     <header class="page-head">
-      <p class="eyebrow">STATISTICS · 页间</p>
-      <h1 class="display page-title">读过的都算数<span class="dot">。</span></h1>
-      <p class="page-lede">
-        统计只在本机计算，依据每本书的阅读进度与最近打开时间，不会上传到任何服务器。
-      </p>
+      <h1 class="display page-title">{{ t('读过的都算数') }}<span class="dot">{{ t('。') }}</span></h1>
+      <p class="page-lede">{{ t('统计只在本机计算，依据每本书的阅读进度与最近打开时间，不会上传到任何服务器。') }}</p>
     </header>
 
     <section v-if="!books.length" class="panel empty">
       <Icon name="chart" :size="26" />
-      <h2 class="empty-title">还没有可统计的书</h2>
-      <p class="empty-text">导入几本书开始阅读，这里会记录你的进度与阅读偏好。</p>
-      <RouterLink to="/" class="empty-link">去书架导入</RouterLink>
+      <h2 class="empty-title">{{ t('还没有可统计的书') }}</h2>
+      <p class="empty-text">{{ t('导入几本书开始阅读，这里会记录你的进度与阅读偏好。') }}</p>
+      <RouterLink to="/" class="empty-link">{{ t('去书架导入') }}</RouterLink>
     </section>
 
     <template v-else>
@@ -92,23 +91,23 @@ function barHeight(count: number) {
         <div class="figure-grid">
           <div class="figure">
             <span class="figure-value">{{ stats.total }}</span>
-            <span class="figure-label">藏书总数</span>
+            <span class="figure-label">{{ t('藏书总数') }}</span>
           </div>
           <div class="figure">
             <span class="figure-value">{{ stats.reading }}</span>
-            <span class="figure-label">正在读</span>
+            <span class="figure-label">{{ t('正在读') }}</span>
           </div>
           <div class="figure">
             <span class="figure-value">{{ stats.finished }}</span>
-            <span class="figure-label">已读完</span>
+            <span class="figure-label">{{ t('已读完') }}</span>
           </div>
           <div class="figure">
             <span class="figure-value">{{ stats.unread }}</span>
-            <span class="figure-label">未开始</span>
+            <span class="figure-label">{{ t('未开始') }}</span>
           </div>
           <div class="figure">
             <span class="figure-value">{{ avgPercent }}<em>%</em></span>
-            <span class="figure-label">平均进度</span>
+            <span class="figure-label">{{ t('平均进度') }}</span>
           </div>
         </div>
       </section>
@@ -116,10 +115,9 @@ function barHeight(count: number) {
       <section class="panel">
         <header class="panel-head">
           <div>
-            <p class="eyebrow">RHYTHM</p>
-            <h2 class="panel-title">阅读节奏</h2>
+            <h2 class="panel-title">{{ t('阅读节奏') }}</h2>
           </div>
-          <span class="panel-note">最近 30 天</span>
+          <span class="panel-note">{{ t('最近 30 天') }}</span>
         </header>
 
         <div class="rhythm">
@@ -128,17 +126,17 @@ function barHeight(count: number) {
               v-for="day in days"
               :key="day.key"
               class="rhythm-col"
-              :title="`${day.label} · ${day.count} 本`"
+              :title="t('{0} · {1} 本', [day.label, day.count])"
             >
               <span class="rhythm-bar" :class="{ 'has-value': day.count > 0 }" :style="{ height: barHeight(day.count) }"></span>
             </div>
           </div>
           <div class="rhythm-foot">
-            <span>30 天前</span>
-            <span class="rhythm-summary">近 7 天打开过 {{ weekActive }} 本</span>
-            <span>今天</span>
+            <span>{{ t('30 天前') }}</span>
+            <span class="rhythm-summary">{{ t('近 7 天打开过 {0} 本', [weekActive]) }}</span>
+            <span>{{ t('今天') }}</span>
           </div>
-          <p class="rhythm-note">按每本书最近一次打开的时间统计，同一天读多本书会累计。</p>
+          <p class="rhythm-note">{{ t('按每本书最近一次打开的时间统计，同一天读多本书会累计。') }}</p>
         </div>
       </section>
 
@@ -146,17 +144,16 @@ function barHeight(count: number) {
         <section class="panel">
           <header class="panel-head">
             <div>
-              <p class="eyebrow">FORMATS</p>
-              <h2 class="panel-title">格式分布</h2>
+              <h2 class="panel-title">{{ t('格式分布') }}</h2>
             </div>
-            <span class="panel-note">{{ formats.length }} 种格式</span>
+            <span class="panel-note">{{ t('{0} 种格式', [formats.length]) }}</span>
           </header>
 
           <ul class="format-rows">
             <li v-for="row in formats" :key="row.label" class="format-row">
               <div class="format-line">
                 <span class="format-label">{{ row.label }}</span>
-                <span class="format-meta">{{ row.count }} 本 · {{ formatBytes(row.bytes) }}</span>
+                <span class="format-meta">{{ t('{0} 本 · {1}', [row.count, formatBytes(row.bytes)]) }}</span>
               </div>
               <div class="format-track">
                 <span :style="{ width: `${row.share}%` }"></span>
@@ -168,10 +165,9 @@ function barHeight(count: number) {
         <section class="panel">
           <header class="panel-head">
             <div>
-              <p class="eyebrow">CONTINUE</p>
-              <h2 class="panel-title">继续阅读</h2>
+              <h2 class="panel-title">{{ t('继续阅读') }}</h2>
             </div>
-            <span class="panel-note">按最近打开排序</span>
+            <span class="panel-note">{{ t('按最近打开排序') }}</span>
           </header>
 
           <ul v-if="inProgress.length" class="continue-list">
@@ -188,7 +184,7 @@ function barHeight(count: number) {
               </RouterLink>
             </li>
           </ul>
-          <p v-else class="continue-empty">暂时没有在读的书，去书架挑一本开始。</p>
+          <p v-else class="continue-empty">{{ t('暂时没有在读的书，去书架挑一本开始。') }}</p>
         </section>
       </div>
     </template>
