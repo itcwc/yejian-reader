@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.21] - 2026-11-19
+
+### Changed
+
+- Android 改用正式签名的通用 Release APK。调试签名版用户需先备份书库，再卸载旧版并安装正式版。
+- Windows x64 安装器在安装向导前显示六种语言的选择窗口。
+
 ## [0.1.20] - 2026-11-19
 
 ### Fixed

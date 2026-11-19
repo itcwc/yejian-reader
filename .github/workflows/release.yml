@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Create release
@@ -37,11 +41,13 @@ jobs:
             fi
             exit 0
           fi
+          args=(--draft --target "$GITHUB_SHA" --title "页间 ${tag}")
           if [ -f "$notes" ]; then
-            gh release create "$tag" --title "页间 ${tag}" --notes-file "$notes" --latest
+            args+=(--notes-file "$notes")
           else
-            gh release create "$tag" --title "页间 ${tag}" --generate-notes --latest
+            args+=(--generate-notes)
           fi
+          gh release create "$tag" "${args[@]}"
 
   windows:
     name: Windows installer
@@ -70,9 +76,9 @@ jobs:
         run: |
           $version = node -p "require('./package.json').version"
           $tag = "v$version"
-          Get-ChildItem release -File |
-            Where-Object { $_.Extension -in '.exe', '.blockmap' -or $_.Name -eq 'latest.yml' } |
-            ForEach-Object { gh release upload $tag $_.FullName --clobber }
+          $installer = "yejian-v${version}-windows-x64.exe"
+          gh release upload $tag "release/$installer" "release/$installer.blockmap" "release/latest.yml" --clobber
+          exit $LASTEXITCODE
 
   android:
     name: Android APK
@@ -124,8 +130,22 @@ jobs:
       - name: Show Gradle version
         run: gradle -v
 
-      - name: Build debug APK
-        run: gradle -p android-webview assembleDebug --no-daemon
+      - name: Build and verify signed release APK
+        env:
+          YEJIAN_ANDROID_KEYSTORE_BASE64: ${{ secrets.YEJIAN_ANDROID_KEYSTORE_BASE64 }}
+          YEJIAN_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.YEJIAN_ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${YEJIAN_ANDROID_KEYSTORE_BASE64:?Missing Android release keystore secret}"
+          : "${YEJIAN_ANDROID_KEYSTORE_PASSWORD:?Missing Android release keystore password secret}"
+          umask 077
+          export YEJIAN_ANDROID_KEYSTORE="$(mktemp "$RUNNER_TEMP/yejian-release.XXXXXX")"
+          trap 'rm -f -- "$YEJIAN_ANDROID_KEYSTORE"' EXIT
+          printf '%s' "$YEJIAN_ANDROID_KEYSTORE_BASE64" | base64 --decode > "$YEJIAN_ANDROID_KEYSTORE"
+          unset YEJIAN_ANDROID_KEYSTORE_BASE64
+          gradle -p android-webview assembleRelease --no-daemon
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs \
+            android-webview/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload APK to release
         env:
@@ -134,8 +154,8 @@ jobs:
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
           tag="v${version}"
-          apk="yejian-v${version}-android-debug.apk"
-          cp android-webview/app/build/outputs/apk/debug/app-debug.apk "$apk"
+          apk="yejian-v${version}-android.apk"
+          cp android-webview/app/build/outputs/apk/release/app-release.apk "$apk"
           gh release upload "$tag" "$apk" --clobber
 
       - name: Publish update manifest
@@ -145,15 +165,34 @@ jobs:
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
           tag="v${version}"
-          apk="yejian-v${version}-android-debug.apk"
+          apk="yejian-v${version}-android.apk"
           sha="$(sha256sum "$apk" | awk '{print $1}')"
           url="https://github.com/itcwc/yejian-reader/releases/download/${tag}/${apk}"
           VERSION="$version" APK_URL="$url" APK_SHA="$sha" node -e '
             const fs = require("node:fs")
-            fs.writeFileSync("update.json", JSON.stringify({
+            fs.writeFileSync("android-release-update.json", JSON.stringify({
               version: process.env.VERSION,
               publishedAt: new Date().toISOString(),
               android: { url: process.env.APK_URL, sha256: process.env.APK_SHA }
             }, null, 2) + "\n")
           '
-          gh release upload "$tag" update.json --clobber
+          gh release upload "$tag" android-release-update.json --clobber
+
+  publish:
+    name: Publish release
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Publish completed draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="v$(node -p "require('./package.json').version")"
+          if [ "$(gh release view "$tag" --json isDraft --jq .isDraft)" = true ]; then
+            gh release edit "$tag" --draft=false --latest
+          fi

@@ -61,7 +61,7 @@ interface Window {
     setImmersive?: (value: boolean) => void
     setShellColor?: (color: string) => void
   }
-  /** 安卓壳的原生更新入口：检查 update.json，有新版本时在应用内下载并调起安装。 */
+  /** 安卓壳的原生更新入口：检查 android-release-update.json，有新版本时在应用内下载并调起安装。 */
   YeJianUpdate?: {
     check: () => void
   }

@@ -4,7 +4,7 @@ import android.webkit.JavascriptInterface;
 
 /**
  * 供设置页「检查更新」调用的原生桥：
- * 复用启动时的 update.json 检查逻辑，发现新版本后在应用内下载并调起系统安装器。
+ * 复用启动时的 android-release-update.json 检查逻辑，发现新版本后在应用内下载并调起系统安装器。
  */
 public class UpdateBridge {
 

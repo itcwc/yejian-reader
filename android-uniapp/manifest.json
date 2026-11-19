@@ -2,8 +2,8 @@
   "name": "页间阅读",
   "appid": "__UNI__YEJIAN",
   "description": "页间 · 多设备阅读器",
-  "versionName": "0.1.20",
-  "versionCode": "120",
+  "versionName": "0.1.21",
+  "versionCode": "121",
   "transformPx": false,
   "vueVersion": "3",
   "app-plus": {

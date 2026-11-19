@@ -2,6 +2,8 @@
 
 简体中文 | [English](README.en.md)
 
+[项目官网](https://itcwc.github.io/yejian-reader/)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3-42b883?logo=vue.js&logoColor=white)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
@@ -66,17 +68,17 @@
 
 在 [Releases](https://github.com/itcwc/yejian-reader/releases) 获取：
 
-- **Windows**：`yejian-v0.1.20-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
-- **Android**：`yejian-v0.1.20-android-debug.apk`（debug 签名，允许「未知来源」后可直接安装）
+- **Windows**：`yejian-v0.1.21-windows-x64.exe`（NSIS 安装包，安装后应用名为「页间阅读」）
+- **Android**：`yejian-v0.1.21-android.apk`（Release 签名，允许「未知来源」后可直接安装）
 
 APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；需要自定义包名、签名或上架应用商店时，用 HBuilderX 导入 `android-uniapp` 自行打包。
 
 ### 应用内更新
 
 - **Windows**：启动后自动检查 GitHub Releases，发现新版本时右下角弹出提示，可直接下载并在重启后完成安装；也可在「设置 → 关于页间」手动检查。
-- **Android**：启动时读取 `update.json` 比对版本，确认后下载 APK 并校验 SHA-256，再交给系统安装器覆盖安装。
+- **Android**：启动时读取 `android-release-update.json` 比对版本，确认后下载 APK 并校验 SHA-256，再交给系统安装器覆盖安装。
 
-> v0.1.1 之前的 Android 版本使用 CI 临时签名，无法直接覆盖安装，首次升级请先卸载旧版。
+> 从调试签名版迁移到 v0.1.21 时，先导出书库备份，再卸载旧版、安装正式包并导入备份。详见 [迁移说明](.github/release-notes/v0.1.21.md)。
 
 ## 快速开始
 

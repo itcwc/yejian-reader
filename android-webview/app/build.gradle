@@ -2,6 +2,9 @@ plugins {
     id 'com.android.application'
 }
 
+def releaseKeystore = providers.environmentVariable('YEJIAN_ANDROID_KEYSTORE')
+def releasePassword = providers.environmentVariable('YEJIAN_ANDROID_KEYSTORE_PASSWORD')
+
 android {
     namespace 'com.yejian.reader'
     compileSdk 34
@@ -10,8 +13,8 @@ android {
         applicationId 'com.yejian.reader'
         minSdk 24
         targetSdk 34
-        versionCode 21
-        versionName '0.1.20'
+        versionCode 22
+        versionName '0.1.21'
     }
 
     signingConfigs {
@@ -21,6 +24,15 @@ android {
             keyAlias 'yejiandebug'
             keyPassword 'yejian123'
         }
+        release {
+            if (releaseKeystore.isPresent() && releasePassword.isPresent()) {
+                storeFile file(releaseKeystore.get())
+                storeType 'PKCS12'
+                storePassword releasePassword.get()
+                keyAlias 'yejian-release'
+                keyPassword releasePassword.get()
+            }
+        }
     }
 
     buildTypes {
@@ -29,7 +41,7 @@ android {
         }
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 

@@ -50,13 +50,13 @@ import java.util.Map;
 /**
  * 页间安卓壳：通过 WebViewAssetLoader 以 https 源加载本地离线书库，
  * 保证 ES Module、IndexedDB 与 PDF worker 正常工作。
- * 启动后检查 update.json，有新版本时在应用内下载并调起系统安装器。
+ * 启动后检查 android-release-update.json，有新版本时在应用内下载并调起系统安装器。
  */
 public class MainActivity extends Activity {
     private static final String APP_HOST = "appassets.androidplatform.net";
     private static final String APP_URL = "https://" + APP_HOST + "/assets/hybrid/html/index.html";
     private static final String UPDATE_MANIFEST =
-            "https://github.com/itcwc/yejian-reader/releases/latest/download/update.json";
+            "https://github.com/itcwc/yejian-reader/releases/latest/download/android-release-update.json";
     private static final String UPDATE_PREFIX =
             "https://github.com/itcwc/yejian-reader/releases/download/";
     private static final int PICK_WEB_FILE = 4101;

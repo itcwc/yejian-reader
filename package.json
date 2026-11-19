@@ -1,6 +1,6 @@
 {
   "name": "yejian-reader",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "private": true,
   "description": "页间 · 跨设备阅读器（Web / PC / Android）",
   "type": "module",
@@ -10,7 +10,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "pc": "vite build && electron .",
-    "build:pc": "vite build && electron-builder --win --x64 --publish never",
+    "build:pc": "vite build && node scripts/build-windows.mjs",
     "build:android": "vite build && node scripts/sync-hybrid.mjs"
   },
   "dependencies": {
@@ -48,6 +48,8 @@
     },
     "nsis": {
       "oneClick": false,
+      "displayLanguageSelector": true,
+      "installerLanguages": ["zh_CN", "hi_IN", "pt_PT", "id_ID", "en_US", "tr_TR"],
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"

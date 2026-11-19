@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="页间是一款开源的本地阅读器，支持 Android 和 Windows，可阅读 EPUB、PDF、TXT 等格式，并通过自己的 WebDAV 空间同步。">
+  <meta name="theme-color" content="#f5f2e9">
+  <link rel="canonical" href="https://itcwc.github.io/yejian-reader/">
+  <meta property="og:title" content="页间阅读 · 开源本地阅读器">
+  <meta property="og:description" content="在 Windows 和 Android 上阅读 EPUB、PDF、TXT 等格式，用自己的 WebDAV 空间同步。">
+  <meta property="og:image" content="https://itcwc.github.io/yejian-reader/screenshots/reader-paper.png">
+  <title>页间阅读 · 开源本地阅读器</title>
+  <style>
+    :root{color-scheme:light;--paper:#f5f2e9;--ink:#202822;--muted:#4e5a50;--line:#d9ded2;--green:#285443;--serif:"Noto Serif SC","Songti SC",SimSun,serif;font-family:system-ui,sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);line-height:1.7}img{display:block;max-width:100%;height:auto}a{color:var(--green);text-underline-offset:.24em}a:focus-visible,button:focus-visible{outline:3px solid #a76a30;outline-offset:4px}
+    .wrap{width:min(1120px,calc(100% - 2.5rem));margin-inline:auto}header{border-bottom:1px solid var(--line)}.nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:1rem}.brand{font-family:var(--serif);font-size:1.35rem;font-weight:700;text-decoration:none;color:var(--ink)}nav{display:flex;gap:1.3rem}nav a{text-decoration:none;font-size:.95rem}
+    .hero{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(1.8rem,5vw,5rem);padding-block:clamp(3.25rem,8vw,7rem)}
+    h1,h2,h3{margin:0;line-height:1.23}h1,h2{font-family:var(--serif);letter-spacing:-.035em}h1{font-size:clamp(2.75rem,6.4vw,5.1rem)}h2{font-size:clamp(2rem,4vw,3rem)}h3{font-size:1.15rem}p{margin:.8rem 0 0;color:var(--muted)}.hero p{max-width:30rem;font-size:1.05rem}
+    .actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.6rem}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:.55rem 1.15rem;border:1px solid var(--green);border-radius:.4rem;text-decoration:none;font-weight:650}.primary{background:var(--green);color:#fff}.secondary{background:transparent}.button:hover{box-shadow:0 0 0 2px #28544330}.preview{margin:0}.preview img{width:100%;aspect-ratio:16/10;object-fit:contain;background:#e4e8dc;border:1px solid #cbd4c5;border-radius:.6rem;box-shadow:0 18px 48px #2a382427}
+    .switcher{display:flex;justify-content:center;gap:.5rem;margin-top:1.15rem}.switcher button{border:1px solid #adbbae;border-radius:1.5rem;background:transparent;color:var(--ink);font:inherit;font-size:.9rem;padding:.25rem .85rem;cursor:pointer}.switcher button[aria-pressed="true"]{background:#dce7db;border-color:var(--green);color:#183e2f}
+    .features{background:#e5ece0;padding-block:clamp(2.6rem,6vw,5rem)}.feature-list{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:1.7rem}.feature-list article{border-top:1px solid #aebdab;padding-top:1rem}.downloads{padding-block:clamp(2.6rem,6vw,5rem)}.platforms{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.5rem}.platform{padding:1.2rem 1.35rem;border:1px solid var(--line);background:#fbf9f2;border-radius:.5rem}.platform p{margin-top:.45rem}.platform a{display:inline-block;margin-top:.65rem;font-weight:650}
+    footer{border-top:1px solid var(--line);padding-block:1.25rem;color:var(--muted)}footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    @media(max-width:760px){.hero,.feature-list{grid-template-columns:1fr}.hero{padding-block:3rem 2.5rem}.feature-list{gap:1.2rem}}@media(max-width:520px){.platforms{grid-template-columns:1fr}.wrap{width:calc(100% - 2rem)}nav{gap:.85rem}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="./">页间阅读</a>
+      <nav aria-label="主导航"><a href="#features">功能</a><a href="#download">下载</a><a href="https://github.com/itcwc/yejian-reader">GitHub</a></nav>
+    </div>
+  </header>
+  <main>
+    <section class="wrap hero">
+      <div>
+        <h1>你的书，<br>在自己的书架。</h1>
+        <p>页间是一款开源的本地阅读器。在 Windows 和 Android 上阅读 EPUB、PDF、TXT 等格式，可用自己的 WebDAV 空间同步书籍与阅读进度。</p>
+        <div class="actions">
+          <a class="button primary" href="#download">下载安装</a>
+          <a class="button secondary" href="https://github.com/itcwc/yejian-reader">查看源码</a>
+        </div>
+      </div>
+      <figure class="preview">
+        <img id="reader-preview" src="screenshots/reader-paper.png" alt="页间阅读器的白纸主题">
+        <figcaption class="switcher">
+          <button type="button" aria-pressed="true" data-image="reader-paper.png" data-label="白纸">白纸</button>
+          <button type="button" aria-pressed="false" data-image="reader-night.png" data-label="夜读">夜读</button>
+        </figcaption>
+      </figure>
+    </section>
+    <section class="features" id="features">
+      <div class="wrap">
+        <h2>按你的习惯阅读</h2>
+        <div class="feature-list">
+          <article><h3>把书放进来</h3><p>直接打开 EPUB、PDF、TXT、Markdown、DOCX 和 CBZ 漫画等常见格式，离线也可以阅读。</p></article>
+          <article><h3>调到自己舒服为止</h3><p>白纸、护眼、夜读三种主题，支持字号、行距和版心宽度调节。可按习惯选择翻页或连续滚动。</p></article>
+          <article><h3>换台设备接着读</h3><p>阅读位置保存在本机。配置 WebDAV 后可跨设备同步，也可导出书籍、封面和进度的本地备份。</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="downloads wrap" id="download">
+      <h2>下载页间</h2>
+      <div class="platforms">
+        <article class="platform"><h3>Android</h3><p>Android 7.0 及以上。首次从调试版升级到正式版前，请先导出书库备份。</p><a href="https://github.com/itcwc/yejian-reader/releases/latest">获取安卓安装包与迁移说明</a></article>
+        <article class="platform"><h3>Windows</h3><p>适用于 64 位 Windows 的桌面安装包。</p><a href="https://github.com/itcwc/yejian-reader/releases/latest">获取 Windows x64 安装包</a></article>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap"><span>页间阅读 · MIT 开源</span><a href="https://github.com/itcwc/yejian-reader/issues">反馈问题</a></div></footer>
+  <script>
+    const preview = document.querySelector('#reader-preview')
+    const themeButtons = document.querySelectorAll('.switcher button')
+    for (const button of themeButtons) {
+      button.addEventListener('click', () => {
+        preview.src = 'screenshots/' + button.dataset.image
+        preview.alt = '页间阅读器的' + button.dataset.label + '主题'
+        for (const option of themeButtons) option.setAttribute('aria-pressed', String(option === button))
+      })
+    }
+  </script>
+</body>
+</html>
