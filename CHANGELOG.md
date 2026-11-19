@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.20] - 2026-11-19
+
+### Fixed
+
+- Android 阅读窗口背景延伸到挖孔和刘海安全区，顶部随阅读主题着色，正文避开屏幕开孔。
+
 ## [0.1.19] - 2026-11-19
 
 ### Changed

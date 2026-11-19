@@ -10,6 +10,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -23,7 +24,7 @@ public class ImmersiveBridge {
     private final Activity activity;
     private final FrameLayout readerWindow;
     private final WebView webView;
-    private int statusBarHeight;
+    private Insets readerInsets = Insets.NONE;
     private boolean immersive = false;
     private int shellColor = Color.parseColor("#F2EFE6");
 
@@ -32,20 +33,17 @@ public class ImmersiveBridge {
         this.readerWindow = readerWindow;
         this.webView = webView;
         ViewCompat.setOnApplyWindowInsetsListener(readerWindow, (view, insets) -> {
-            WindowInsetsCompat rootInsets = ViewCompat.getRootWindowInsets(view);
-            if (rootInsets != null) {
-                statusBarHeight = rootInsets.getInsetsIgnoringVisibility(
-                        WindowInsetsCompat.Type.statusBars()
-                                | WindowInsetsCompat.Type.displayCutout()).top;
-                updateTopPadding();
-            }
+            Insets cutout = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.displayCutout());
+            int statusTop = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.statusBars()).top;
+            readerInsets = Insets.of(cutout.left, Math.max(statusTop, cutout.top), cutout.right, cutout.bottom);
+            updateContentPadding();
             return insets;
         });
     }
 
-    private void updateTopPadding() {
-        int top = immersive ? statusBarHeight : 0;
-        if (readerWindow.getPaddingTop() != top) readerWindow.setPadding(0, top, 0, 0);
+    private void updateContentPadding() {
+        Insets padding = immersive ? readerInsets : Insets.NONE;
+        readerWindow.setPadding(padding.left, padding.top, padding.right, padding.bottom);
     }
 
     @JavascriptInterface
@@ -95,26 +93,36 @@ public class ImmersiveBridge {
         if (activity.isFinishing() || activity.isDestroyed()) return;
         Window window = activity.getWindow();
 
-        // 关键：始终保持“内容位于系统栏下方”的普通布局，不要进入 edge-to-edge。
-        // 一旦 setDecorFitsSystemWindows(false)，系统会把状态栏改为透明并接管绘制，
-        // window.setStatusBarColor() 不再决定栏的最终颜色；部分 ROM 在沉浸隐藏失败时
-        // 会直接把状态栏画成黑色（首页没进 edge-to-edge，所以颜色一直正常）。
-        WindowCompat.setDecorFitsSystemWindows(window, true);
+        // 阅读时让原生背景覆盖挖孔安全区，正文由容器内边距避开挖孔。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams attributes = window.getAttributes();
+            int cutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
+            if (immersive) {
+                cutoutMode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                        ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                        : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            }
+            if (attributes.layoutInDisplayCutoutMode != cutoutMode) {
+                attributes.layoutInDisplayCutoutMode = cutoutMode;
+                window.setAttributes(attributes);
+            }
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, !immersive);
 
         readerWindow.setBackgroundColor(shellColor);
         webView.setBackgroundColor(shellColor);
-        updateTopPadding();
+        updateContentPadding();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(
                 WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
                         | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         window.setBackgroundDrawable(new ColorDrawable(shellColor));
         window.getDecorView().setBackgroundColor(shellColor);
-        // 系统栏可见时使用当前主题色。
-        window.setStatusBarColor(shellColor);
-        window.setNavigationBarColor(shellColor);
+        int systemBarColor = immersive ? Color.TRANSPARENT : shellColor;
+        window.setStatusBarColor(systemBarColor);
+        window.setNavigationBarColor(systemBarColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.setNavigationBarDividerColor(shellColor);
+            window.setNavigationBarDividerColor(systemBarColor);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.setStatusBarContrastEnforced(false);
@@ -131,7 +139,7 @@ public class ImmersiveBridge {
         } else {
             controller.show(WindowInsetsCompat.Type.systemBars());
         }
-        window.getDecorView().requestApplyInsets();
+        ViewCompat.requestApplyInsets(readerWindow);
     }
 
     private static boolean isLight(int color) {
