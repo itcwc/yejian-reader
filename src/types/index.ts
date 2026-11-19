@@ -170,4 +170,5 @@ export interface RemoteProgressFile {
 export interface DeviceInfo {
   name: string
   platform: 'web' | 'pc' | 'android'
+  customName?: boolean
 }

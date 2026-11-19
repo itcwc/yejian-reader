@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { t } from '@/core/i18n'
+import { deviceDisplayName } from '@/core/device'
 import { computed, ref } from 'vue'
 import Icon from '@/components/Icon.vue'
 import { useSyncStore } from '@/stores/sync'
@@ -12,7 +13,11 @@ const toast = useToastStore()
 const testing = ref(false)
 const testResult = ref<{ ok: boolean; message: string } | null>(null)
 const showPassword = ref(false)
-const deviceName = ref(sync.device.name)
+const deviceNameDraft = ref<string | null>(null)
+const deviceName = computed({
+  get: () => deviceNameDraft.value ?? deviceDisplayName(sync.device),
+  set: (value: string) => { deviceNameDraft.value = value },
+})
 
 const hostLabel = computed(() => {
   try {
@@ -50,13 +55,10 @@ async function syncNow() {
 }
 
 function saveDeviceName() {
-  const name = deviceName.value.trim()
-  if (!name) {
-    deviceName.value = sync.device.name
-    return
-  }
+  const name = deviceNameDraft.value?.trim()
+  deviceNameDraft.value = null
+  if (!name || name === deviceDisplayName(sync.device)) return
   sync.updateDeviceName(name)
-  deviceName.value = sync.device.name
   toast.push(t('设备名称已更新'), 'success')
 }
 </script>

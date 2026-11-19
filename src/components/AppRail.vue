@@ -21,9 +21,9 @@ function isActive(to: string) {
   <aside class="rail">
     <RouterLink to="/" class="brand" :aria-label="t('页间书架')">
       <span class="brand-seal">
-        <span class="seal-char">页</span>
+        <span class="seal-char" aria-hidden="true">{{ t('页') }}</span>
       </span>
-      <span class="brand-name">页间</span>
+      <span class="brand-name">{{ t('页间') }}</span>
     </RouterLink>
 
     <nav class="rail-nav" :aria-label="t('主导航')">

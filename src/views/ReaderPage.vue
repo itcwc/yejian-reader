@@ -425,7 +425,7 @@ onBeforeUnmount(() => {
           <div v-if="book" class="loading-cover">
             <BookCover :book="book" :url="null" variant="mini" :show-progress="false" />
           </div>
-          <div v-else class="loading-mark">页</div>
+          <div v-else class="loading-mark" aria-hidden="true">{{ t('页') }}</div>
 
           <h2 class="loading-title">{{ book ? t('正在展开《{0}》', [book.title]) : t('正在取出这本书') }}</h2>
           <div class="loading-bar"><span></span></div>

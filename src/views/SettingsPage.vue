@@ -8,6 +8,7 @@ import { useLibraryStore } from '@/stores/library'
 import { useSyncStore } from '@/stores/sync'
 import { useToastStore } from '@/stores/toast'
 import { THEME_META } from '@/core/preferences'
+import { deviceDisplayName } from '@/core/device'
 import { exportLibraryBackup, importLibraryBackup, saveLibraryBackup } from '@/core/backup'
 import { formatBytes } from '@/utils/text'
 import type { ThemeId } from '@/types'
@@ -277,7 +278,7 @@ onBeforeUnmount(() => {
         >
           <span class="theme-preview" :style="{ background: theme.preview.bg, color: theme.preview.ink }">
             <span class="preview-top" :style="{ background: theme.preview.accent }"></span>
-            <span class="preview-title">读</span>
+            <span class="preview-title" aria-hidden="true">{{ t('读') }}</span>
             <span class="preview-line" :style="{ background: theme.preview.line }"></span>
             <span class="preview-line short" :style="{ background: theme.preview.line }"></span>
             <span class="preview-line" :style="{ background: theme.preview.line }"></span>
@@ -504,9 +505,9 @@ onBeforeUnmount(() => {
         </header>
 
         <div class="about-mark">
-          <span class="about-seal">页</span>
+          <span class="about-seal" aria-hidden="true">{{ t('页') }}</span>
           <div>
-            <h3 class="about-name">页间</h3>
+            <h3 class="about-name">{{ t('页间') }}</h3>
             <p class="about-tagline">{{ t('多设备阅读器 · 本地优先') }}</p>
           </div>
         </div>
@@ -518,7 +519,7 @@ onBeforeUnmount(() => {
           </div>
           <div>
             <dt>{{ t('设备名称') }}</dt>
-            <dd>{{ sync.device.name }}</dd>
+            <dd>{{ deviceDisplayName(sync.device) }}</dd>
           </div>
           <div>
             <dt>{{ t('数据存储') }}</dt>

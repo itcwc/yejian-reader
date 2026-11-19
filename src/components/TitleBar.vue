@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { t } from '@/core/i18n'
 
 const route = useRoute()
 
@@ -12,15 +13,18 @@ const LABELS: Record<string, string> = {
   reader: '阅读',
 }
 
-const pageLabel = computed(() => LABELS[String(route.name)] || '页间')
+const pageLabel = computed(() => {
+  const label = LABELS[String(route.name)]
+  return label ? t(label) : ''
+})
 </script>
 
 <template>
   <header class="titlebar">
-    <span class="titlebar-seal">页</span>
-    <span class="titlebar-name">页间</span>
-    <span class="titlebar-divider"></span>
-    <span class="titlebar-page">{{ pageLabel }}</span>
+    <span class="titlebar-seal" aria-hidden="true">{{ t('页') }}</span>
+    <span class="titlebar-name">{{ t('页间') }}</span>
+    <span v-if="pageLabel" class="titlebar-divider"></span>
+    <span v-if="pageLabel" class="titlebar-page">{{ pageLabel }}</span>
   </header>
 </template>
 
