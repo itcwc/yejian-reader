@@ -1,10 +1,10 @@
 # 页间 · Yejian
 
-**简体中文** | [हिंदी](README.hi.md) | [Português](README.pt.md) | [Indonesian](README.id.md) | [English](README.md) | [Türkçe](README.tr.md)
+**简体中文** | [हिंदी](README.hi.md) | [Português](README.pt.md) | [Indonesian](README.id.md) | [English](../README.md) | [Türkçe](README.tr.md)
 
 [项目官网](https://itcwc.github.io/yejian-reader/?lang=zh-CN)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3-42b883?logo=vue.js&logoColor=white)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -20,9 +20,8 @@
 安卓首次打开时选择语言，之后可在 **设置 → 界面语言** 中切换。
 
 <p align="center">
-  <img src="docs/screenshots/zh-CN/library.webp" width="30%" alt="书架">
-  <img src="docs/screenshots/zh-CN/reader.webp" width="30%" alt="阅读菜单">
-  <img src="docs/screenshots/zh-CN/settings.webp" width="30%" alt="设置">
+  <img src="../docs/screenshots/zh-CN/home-desktop-paper.webp" width="70%" alt="桌面书架首页">
+  <img src="../docs/screenshots/zh-CN/home-mobile-paper.webp" width="25%" alt="手机网页版书架首页">
 </p>
 
 ## 特性
@@ -63,7 +62,7 @@ APK 由 CI 使用原生 WebView 壳构建，离线书库与阅读功能完整；
 - **Windows**：启动后自动检查 GitHub Releases，发现新版本时右下角弹出提示，可直接下载并在重启后完成安装；也可在「设置 → 关于页间」手动检查。
 - **Android**：启动时读取 `android-release-update.json` 比对版本，确认后下载 APK 并校验 SHA-256，再交给系统安装器覆盖安装。
 
-> 从调试签名版迁移到 v0.1.21 时，先导出书库备份，再卸载旧版、安装正式包并导入备份。详见 [迁移说明](.github/release-notes/v0.1.21.md)。
+> 从调试签名版迁移到 v0.1.21 时，先导出书库备份，再卸载旧版、安装正式包并导入备份。详见 [迁移说明](../.github/release-notes/v0.1.21.md)。
 
 ## 快速开始
 
@@ -81,7 +80,7 @@ npm run preview      # 预览构建产物（含 WebDAV 同源代理）
 
 ### 部署网页版
 
-可直接[打开网页版](https://itcwc.github.io/yejian-reader/app/?lang=zh-CN)，也可运行 `npm run build` 后把 `dist/` 目录中的文件上传到自己的静态网站托管服务。[GitHub Pages 工作流](.github/workflows/pages.yml)会一并发布项目官网和网页版阅读器。在静态站点中使用 WebDAV 时，服务端需允许跨域请求，或通过同源反向代理访问。
+可直接[打开网页版](https://itcwc.github.io/yejian-reader/app/?lang=zh-CN)，也可运行 `npm run build` 后把 `dist/` 目录中的文件上传到自己的静态网站托管服务。[GitHub Pages 工作流](../.github/workflows/pages.yml)会一并发布项目官网和网页版阅读器。在静态站点中使用 WebDAV 时，服务端需允许跨域请求，或通过同源反向代理访问。
 
 ### Windows 桌面端
 
@@ -183,4 +182,4 @@ scripts/         # 构建产物同步到 Android hybrid 目录
 
 ## 许可证
 
-[MIT](LICENSE) © 2026 Yejian Contributors
+[MIT](../LICENSE) © 2026 Yejian Contributors

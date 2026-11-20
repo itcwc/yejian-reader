@@ -74,7 +74,7 @@ const webCopy = {
 const mainNavigation = document.querySelector('.nav nav')
 const languageNavigation = document.querySelector('.languages')
 const homeLink = document.querySelector('[data-home]')
-const preview = document.querySelector('#reader-preview')
+const previews = document.querySelectorAll('[data-preview]')
 const themeButtons = document.querySelectorAll('.switcher button')
 const params = new URLSearchParams(location.search)
 const requestedLanguage = params.get('lang')
@@ -115,6 +115,14 @@ const alt = {
   green: copy?.greenAlt ?? 'Yejian Reader in the soft green theme',
   night: copy?.nightAlt ?? 'Yejian Reader in the night theme',
 }
+const previewLabels = {
+  'zh-CN': { desktop: '桌面书架首页', mobile: '手机网页版书架首页' },
+  hi: { desktop: 'डेस्कटॉप लाइब्रेरी', mobile: 'मोबाइल वेब लाइब्रेरी' },
+  pt: { desktop: 'Biblioteca no computador', mobile: 'Biblioteca web no telemóvel' },
+  id: { desktop: 'Pustaka desktop', mobile: 'Pustaka web seluler' },
+  en: { desktop: 'Desktop library', mobile: 'Mobile web library' },
+  tr: { desktop: 'Masaüstü kitaplığı', mobile: 'Mobil web kitaplığı' },
+}
 const colors = { paper: '#f2efe6', green: '#dbe8d4', night: '#101311' }
 const readerLink = document.querySelector('[data-reader-link]')
 const themeColor = document.querySelector('meta[name="theme-color"]')
@@ -124,8 +132,14 @@ function applyTheme(preference) {
   const theme = preference ?? 'paper'
   document.documentElement.dataset.theme = theme
   themeColor.content = colors[theme]
-  preview.src = 'screenshots/web/' + theme + '.webp'
-  preview.alt = alt[theme]
+  for (const link of previews) {
+    const device = link.dataset.preview
+    const image = link.querySelector('img')
+    const path = 'screenshots/' + language + '/home-' + device + '-' + theme + '.webp'
+    link.href = path
+    image.src = path
+    image.alt = previewLabels[language][device] + ' · ' + alt[theme]
+  }
   const query = new URLSearchParams({ lang: language })
   if (preference) query.set('theme', preference)
   readerLink.href = './app/?' + query.toString()

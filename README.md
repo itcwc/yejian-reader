@@ -1,6 +1,6 @@
 # Yejian (页间)
 
-[简体中文](README.zh-CN.md) | [हिंदी](README.hi.md) | [Português](README.pt.md) | [Indonesian](README.id.md) | **English** | [Türkçe](README.tr.md)
+[简体中文](readme/README.zh-CN.md) | [हिंदी](readme/README.hi.md) | [Português](readme/README.pt.md) | [Indonesian](readme/README.id.md) | **English** | [Türkçe](readme/README.tr.md)
 
 [Project website](https://itcwc.github.io/yejian-reader/)
 
@@ -20,9 +20,8 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 On Android, choose a language on first launch. You can change it later in **Settings → App language**.
 
 <p align="center">
-  <img src="docs/screenshots/en/library.webp" width="30%" alt="Library">
-  <img src="docs/screenshots/en/reader.webp" width="30%" alt="Reading menu">
-  <img src="docs/screenshots/en/settings.webp" width="30%" alt="Settings">
+  <img src="docs/screenshots/en/home-desktop-paper.webp" width="70%" alt="Desktop library">
+  <img src="docs/screenshots/en/home-mobile-paper.webp" width="25%" alt="Mobile web library">
 </p>
 
 ## Features

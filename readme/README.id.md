@@ -1,6 +1,6 @@
 # Yejian (页间)
 
-[简体中文](README.zh-CN.md) | [हिंदी](README.hi.md) | [Português](README.pt.md) | **Indonesian** | [English](README.md) | [Türkçe](README.tr.md)
+[简体中文](README.zh-CN.md) | [हिंदी](README.hi.md) | [Português](README.pt.md) | **Indonesian** | [English](../README.md) | [Türkçe](README.tr.md)
 
 [Situs proyek](https://itcwc.github.io/yejian-reader/?lang=id) · [Rilis terbaru](https://github.com/itcwc/yejian-reader/releases/latest)
 
@@ -11,9 +11,8 @@ Yejian adalah aplikasi baca gratis dan bersumber terbuka yang menyimpan pustaka 
 Saat pertama membuka aplikasi Android, pilih bahasa. Anda dapat mengubahnya di **Pengaturan → Bahasa aplikasi**.
 
 <p align="center">
-  <img src="docs/screenshots/id/library.webp" width="30%" alt="Pustaka">
-  <img src="docs/screenshots/id/reader.webp" width="30%" alt="Menu baca">
-  <img src="docs/screenshots/id/settings.webp" width="30%" alt="Pengaturan">
+  <img src="../docs/screenshots/id/home-desktop-paper.webp" width="70%" alt="Pustaka desktop">
+  <img src="../docs/screenshots/id/home-mobile-paper.webp" width="25%" alt="Pustaka web seluler">
 </p>
 
 ## Fitur
@@ -43,7 +42,7 @@ Pilih berkas perangkat Anda di halaman [rilis terbaru](https://github.com/itcwc/
 - **Windows** — pemasang `.exe` 64-bit. Pilih bahasa Indonesia atau salah satu dari enam bahasa sebelum pemasangan dimulai.
 - **Android** — `.apk` bertanda tangan untuk Android 7.0 atau yang lebih baru. Layar pemasangan mengikuti bahasa sistem ponsel.
 
-Untuk beralih dari APK debug, buka **Pengaturan → Cadangan pustaka dan progres → Ekspor** (设置 → 书库与进度备份 → 导出备份) di aplikasi lama. Simpan berkas `.yejianbackup` di folder Unduhan atau penyimpanan awan. Hapus aplikasi lama, pasang APK baru, lalu impor cadangan dari panel yang sama. Atur ulang preferensi aplikasi dan WebDAV. [Panduan migrasi](.github/release-notes/v0.1.21.md)
+Untuk beralih dari APK debug, buka **Pengaturan → Cadangan pustaka dan progres → Ekspor** (设置 → 书库与进度备份 → 导出备份) di aplikasi lama. Simpan berkas `.yejianbackup` di folder Unduhan atau penyimpanan awan. Hapus aplikasi lama, pasang APK baru, lalu impor cadangan dari panel yang sama. Atur ulang preferensi aplikasi dan WebDAV. [Panduan migrasi](../.github/release-notes/v0.1.21.md)
 
 ### Pembaruan dalam aplikasi
 
@@ -67,7 +66,7 @@ npm run preview
 
 ### Publikasikan versi web
 
-Setelah menjalankan `npm run build`, unggah isi `dist/` ke hosting web statis. Di repositori ini, [alur kerja GitHub Pages](.github/workflows/pages.yml) menerbitkan situs dan pembaca web sekaligus. Untuk sinkronisasi WebDAV di peramban, aktifkan CORS pada server atau gunakan reverse proxy dengan origin yang sama. `npm run dev` dan `npm run preview` menyediakan proxy lokal `/__dav`.
+Setelah menjalankan `npm run build`, unggah isi `dist/` ke hosting web statis. Di repositori ini, [alur kerja GitHub Pages](../.github/workflows/pages.yml) menerbitkan situs dan pembaca web sekaligus. Untuk sinkronisasi WebDAV di peramban, aktifkan CORS pada server atau gunakan reverse proxy dengan origin yang sama. `npm run dev` dan `npm run preview` menyediakan proxy lokal `/__dav`.
 
 ### Buat paket Windows x64
 
@@ -84,7 +83,7 @@ Perintah pertama membuka aplikasi di Electron. Perintah kedua membuat pemasang x
 npm run build:android
 ```
 
-Perintah ini membangun versi web dan menyalin aset ke kedua proyek Android. Untuk paket sendiri, impor `android-uniapp` di HBuilderX, lalu atur nama aplikasi, ID paket, dan tanda tangan. [Alur kerja rilis](.github/workflows/release.yml) menggunakan Android SDK dan Gradle untuk membuat APK bertanda tangan dari `android-webview`.
+Perintah ini membangun versi web dan menyalin aset ke kedua proyek Android. Untuk paket sendiri, impor `android-uniapp` di HBuilderX, lalu atur nama aplikasi, ID paket, dan tanda tangan. [Alur kerja rilis](../.github/workflows/release.yml) menggunakan Android SDK dan Gradle untuk membuat APK bertanda tangan dari `android-webview`.
 
 ### WebDAV
 
@@ -137,4 +136,4 @@ Laporan masalah dan pull request dipersilakan. Jalankan `npm run build` dan sert
 
 ## Lisensi
 
-[Lisensi MIT](LICENSE) · [Laporkan masalah](https://github.com/itcwc/yejian-reader/issues)
+[Lisensi MIT](../LICENSE) · [Laporkan masalah](https://github.com/itcwc/yejian-reader/issues)

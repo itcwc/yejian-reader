@@ -1,6 +1,6 @@
 # येजियान (页间)
 
-[简体中文](README.zh-CN.md) | **हिंदी** | [Português](README.pt.md) | [Indonesian](README.id.md) | [English](README.md) | [Türkçe](README.tr.md)
+[简体中文](README.zh-CN.md) | **हिंदी** | [Português](README.pt.md) | [Indonesian](README.id.md) | [English](../README.md) | [Türkçe](README.tr.md)
 
 [परियोजना की वेबसाइट](https://itcwc.github.io/yejian-reader/?lang=hi) · [नवीनतम रिलीज़](https://github.com/itcwc/yejian-reader/releases/latest)
 
@@ -11,9 +11,8 @@
 Android ऐप पहली बार खोलने पर भाषा चुनें। बाद में इसे **सेटिंग्स → ऐप की भाषा** में बदल सकते हैं।
 
 <p align="center">
-  <img src="docs/screenshots/hi/library.webp" width="30%" alt="लाइब्रेरी">
-  <img src="docs/screenshots/hi/reader.webp" width="30%" alt="रीडर मेनू">
-  <img src="docs/screenshots/hi/settings.webp" width="30%" alt="सेटिंग्स">
+  <img src="../docs/screenshots/hi/home-desktop-paper.webp" width="70%" alt="डेस्कटॉप लाइब्रेरी">
+  <img src="../docs/screenshots/hi/home-mobile-paper.webp" width="25%" alt="मोबाइल वेब लाइब्रेरी">
 </p>
 
 ## सुविधाएँ
@@ -43,7 +42,7 @@ Android ऐप पहली बार खोलने पर भाषा चु
 - **Windows** — 64-बिट `.exe`। इंस्टॉलेशन शुरू होने से पहले हिंदी सहित छह भाषाओं में से चुनें।
 - **Android** — Android 7.0 या बाद के संस्करण के लिए हस्ताक्षरित `.apk`। इंस्टॉलेशन स्क्रीन फ़ोन की सिस्टम भाषा इस्तेमाल करती है।
 
-पुराने डीबग APK से नए हस्ताक्षरित संस्करण पर जाने के लिए, पहले पुराने ऐप में **सेटिंग्स → लाइब्रेरी और पढ़ने की प्रगति का बैकअप → निर्यात** (设置 → 书库与进度备份 → 导出备份) खोलें। `.yejianbackup` फ़ाइल को Downloads या क्लाउड में सुरक्षित करें। फिर पुराना ऐप हटाएँ, नया APK इंस्टॉल करें और उसी पैनल से बैकअप आयात करें। ऐप की सेटिंग्स और WebDAV दोबारा सेट करें। [विस्तृत निर्देश](.github/release-notes/v0.1.21.md)
+पुराने डीबग APK से नए हस्ताक्षरित संस्करण पर जाने के लिए, पहले पुराने ऐप में **सेटिंग्स → लाइब्रेरी और पढ़ने की प्रगति का बैकअप → निर्यात** (设置 → 书库与进度备份 → 导出备份) खोलें। `.yejianbackup` फ़ाइल को Downloads या क्लाउड में सुरक्षित करें। फिर पुराना ऐप हटाएँ, नया APK इंस्टॉल करें और उसी पैनल से बैकअप आयात करें। ऐप की सेटिंग्स और WebDAV दोबारा सेट करें। [विस्तृत निर्देश](../.github/release-notes/v0.1.21.md)
 
 ### ऐप में अपडेट
 
@@ -67,7 +66,7 @@ npm run preview
 
 ### वेब पर डिप्लॉय करें
 
-`npm run build` के बाद `dist/` की सामग्री अपने स्टैटिक वेब होस्ट पर अपलोड करें। इस रिपॉज़िटरी में [GitHub Pages वर्कफ़्लो](.github/workflows/pages.yml) प्रचार पृष्ठ और वेब रीडर को साथ प्रकाशित करता है। ब्राउज़र से WebDAV सिंक करने के लिए सर्वर पर CORS की अनुमति दें या उसी ओरिजिन पर रिवर्स प्रॉक्सी लगाएँ। `npm run dev` और `npm run preview` में स्थानीय `/__dav` प्रॉक्सी शामिल है।
+`npm run build` के बाद `dist/` की सामग्री अपने स्टैटिक वेब होस्ट पर अपलोड करें। इस रिपॉज़िटरी में [GitHub Pages वर्कफ़्लो](../.github/workflows/pages.yml) प्रचार पृष्ठ और वेब रीडर को साथ प्रकाशित करता है। ब्राउज़र से WebDAV सिंक करने के लिए सर्वर पर CORS की अनुमति दें या उसी ओरिजिन पर रिवर्स प्रॉक्सी लगाएँ। `npm run dev` और `npm run preview` में स्थानीय `/__dav` प्रॉक्सी शामिल है।
 
 ### Windows x64 पैकेज
 
@@ -84,7 +83,7 @@ npm run build:pc
 npm run build:android
 ```
 
-यह कमांड वेब बिल्ड को दोनों Android शेल में कॉपी करता है। अपने पैकेज के लिए `android-uniapp` को HBuilderX में आयात करें और ऐप का नाम, पैकेज आईडी और हस्ताक्षर सेट करें। [रिलीज़ वर्कफ़्लो](.github/workflows/release.yml) Android SDK और Gradle से `android-webview` का हस्ताक्षरित APK बनाता है।
+यह कमांड वेब बिल्ड को दोनों Android शेल में कॉपी करता है। अपने पैकेज के लिए `android-uniapp` को HBuilderX में आयात करें और ऐप का नाम, पैकेज आईडी और हस्ताक्षर सेट करें। [रिलीज़ वर्कफ़्लो](../.github/workflows/release.yml) Android SDK और Gradle से `android-webview` का हस्ताक्षरित APK बनाता है।
 
 ### WebDAV
 
@@ -137,4 +136,4 @@ location ^~ /dav/ {
 
 ## लाइसेंस
 
-[MIT लाइसेंस](LICENSE) · [समस्या की रिपोर्ट करें](https://github.com/itcwc/yejian-reader/issues)
+[MIT लाइसेंस](../LICENSE) · [समस्या की रिपोर्ट करें](https://github.com/itcwc/yejian-reader/issues)

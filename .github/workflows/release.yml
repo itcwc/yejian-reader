@@ -6,6 +6,7 @@ on:
     tags: ['v*']
     paths-ignore:
       - 'README*.md'
+      - 'readme/**'
       - 'docs/**'
       - '.github/workflows/release.yml'
   workflow_dispatch:

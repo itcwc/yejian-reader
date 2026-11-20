@@ -1,6 +1,6 @@
 # Yejian (页间)
 
-[简体中文](README.zh-CN.md) | [हिंदी](README.hi.md) | [Português](README.pt.md) | [Indonesian](README.id.md) | [English](README.md) | **Türkçe**
+[简体中文](README.zh-CN.md) | [हिंदी](README.hi.md) | [Português](README.pt.md) | [Indonesian](README.id.md) | [English](../README.md) | **Türkçe**
 
 [Proje sitesi](https://itcwc.github.io/yejian-reader/?lang=tr) · [Son sürüm](https://github.com/itcwc/yejian-reader/releases/latest)
 
@@ -11,9 +11,8 @@ Yejian, kitaplığınızı cihazınızda saklayan ücretsiz ve açık kaynaklı 
 Android uygulamasını ilk açtığınızda dilinizi seçin. Daha sonra **Ayarlar → Uygulama dili** bölümünden değiştirebilirsiniz.
 
 <p align="center">
-  <img src="docs/screenshots/tr/library.webp" width="30%" alt="Kitaplık">
-  <img src="docs/screenshots/tr/reader.webp" width="30%" alt="Okuma menüsü">
-  <img src="docs/screenshots/tr/settings.webp" width="30%" alt="Ayarlar">
+  <img src="../docs/screenshots/tr/home-desktop-paper.webp" width="70%" alt="Masaüstü kitaplığı">
+  <img src="../docs/screenshots/tr/home-mobile-paper.webp" width="25%" alt="Mobil web kitaplığı">
 </p>
 
 ## Özellikler
@@ -43,7 +42,7 @@ Dosyaları dönüştürmek için Calibre, 7-Zip, DjVuLibre, CAJViewer veya WPS/O
 - **Windows** — 64 bit `.exe` yükleyicisi. Kurulum başlamadan önce Türkçe dahil altı dilden birini seçin.
 - **Android** — Android 7.0 ve üzeri için imzalı `.apk`. Kurulum ekranı telefonun sistem dilini kullanır.
 
-Hata ayıklama APK’sından geçiyorsanız eski uygulamada **Ayarlar → Kitaplık ve okuma ilerlemesi yedeği → Dışa aktar** (设置 → 书库与进度备份 → 导出备份) seçeneğini açın. `.yejianbackup` dosyasını İndirilenler klasörüne veya buluta kaydedin. Eski uygulamayı kaldırın, yeni APK’yı kurun ve aynı panelden yedeği içe aktarın. Uygulama tercihlerini ve WebDAV’ı yeniden yapılandırın. [Geçiş adımları](.github/release-notes/v0.1.21.md)
+Hata ayıklama APK’sından geçiyorsanız eski uygulamada **Ayarlar → Kitaplık ve okuma ilerlemesi yedeği → Dışa aktar** (设置 → 书库与进度备份 → 导出备份) seçeneğini açın. `.yejianbackup` dosyasını İndirilenler klasörüne veya buluta kaydedin. Eski uygulamayı kaldırın, yeni APK’yı kurun ve aynı panelden yedeği içe aktarın. Uygulama tercihlerini ve WebDAV’ı yeniden yapılandırın. [Geçiş adımları](../.github/release-notes/v0.1.21.md)
 
 ### Uygulama içi güncellemeler
 
@@ -67,7 +66,7 @@ npm run preview
 
 ### Web sürümünü yayımlama
 
-`npm run build` komutundan sonra `dist/` içeriğini statik web barındırma hizmetinize yükleyin. Bu depodaki [GitHub Pages iş akışı](.github/workflows/pages.yml) tanıtım sitesini ve web okuyucusunu birlikte yayımlar. Tarayıcıda WebDAV eşitlemesi için sunucuda CORS’a izin verin veya aynı kökende bir ters vekil kullanın. `npm run dev` ve `npm run preview`, yerel `/__dav` vekilini içerir.
+`npm run build` komutundan sonra `dist/` içeriğini statik web barındırma hizmetinize yükleyin. Bu depodaki [GitHub Pages iş akışı](../.github/workflows/pages.yml) tanıtım sitesini ve web okuyucusunu birlikte yayımlar. Tarayıcıda WebDAV eşitlemesi için sunucuda CORS’a izin verin veya aynı kökende bir ters vekil kullanın. `npm run dev` ve `npm run preview`, yerel `/__dav` vekilini içerir.
 
 ### Windows x64 paketleme
 
@@ -84,7 +83,7 @@ npm run build:pc
 npm run build:android
 ```
 
-Bu komut web sürümünü derler ve dosyaları iki Android projesine kopyalar. Kendi paketinizi oluşturmak için `android-uniapp` projesini HBuilderX’e aktarın ve uygulama adını, paket kimliğini ve imzasını ayarlayın. [Sürüm iş akışı](.github/workflows/release.yml), Android SDK ve Gradle ile `android-webview` projesinden imzalı APK üretir.
+Bu komut web sürümünü derler ve dosyaları iki Android projesine kopyalar. Kendi paketinizi oluşturmak için `android-uniapp` projesini HBuilderX’e aktarın ve uygulama adını, paket kimliğini ve imzasını ayarlayın. [Sürüm iş akışı](../.github/workflows/release.yml), Android SDK ve Gradle ile `android-webview` projesinden imzalı APK üretir.
 
 ### WebDAV
 
@@ -137,4 +136,4 @@ Sorun bildirimleri ve pull request’ler memnuniyetle karşılanır. `npm run bu
 
 ## Lisans
 
-[MIT lisansı](LICENSE) · [Sorun bildirin](https://github.com/itcwc/yejian-reader/issues)
+[MIT lisansı](../LICENSE) · [Sorun bildirin](https://github.com/itcwc/yejian-reader/issues)

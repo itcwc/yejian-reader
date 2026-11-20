@@ -72,13 +72,18 @@ nav a:hover, nav a[aria-current="page"] { text-decoration: underline; }
 .secondary:hover { background: var(--accent-soft); }
 
 .preview { margin: 0; min-width: 0; }
+.preview-frames {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .31fr);
+  align-items: end;
+  gap: .65rem;
+}
+.preview-frames a { display: block; border-radius: var(--radius-md); }
 .preview img {
   width: 100%;
-  aspect-ratio: 1050 / 680;
-  object-fit: contain;
   background: var(--reader-bg);
   border: 1px solid var(--reader-line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
 }
 .switcher { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; margin-top: 1.1rem; }
