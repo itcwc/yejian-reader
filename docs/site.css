@@ -111,6 +111,22 @@ nav a:hover, nav a[aria-current="page"] { text-decoration: underline; }
 .platform { padding: 1.2rem 1.35rem; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-md); }
 .platform a { display: inline-block; margin-top: .65rem; font-weight: 650; }
 
+.star-invite {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.35rem;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+}
+.star-invite p { margin: 0; }
+.star-invite a { gap: .5rem; }
+.star-invite a:hover { background: var(--surface); }
+
 footer { border-top: 1px solid var(--line); padding-block: 1.25rem; color: var(--ink-soft); }
 footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 

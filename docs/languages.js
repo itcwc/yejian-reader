@@ -82,10 +82,18 @@ const language = Object.hasOwn(translations, requestedLanguage) ? requestedLangu
 const strings = translations[language]
 const copy = strings ? Object.fromEntries(keys.map((key, index) => [key, strings[index]])) : null
 const bookMotifs = { 'zh-CN': '書', hi: 'किताब', pt: 'Livros', id: 'Buku', en: 'Books', tr: 'Kitap' }
+const starCopy = {
+  'zh-CN': ['如果页间对你有帮助，欢迎点个 Star，让更多读者发现它。', '在 GitHub 点 Star'],
+  hi: ['येजियान पसंद आया? GitHub पर स्टार दें ताकि और पाठक इसे खोज सकें।', 'GitHub पर स्टार दें'],
+  pt: ['Gosta do Yejian? Uma estrela ajuda mais leitores a descobrir o projeto.', 'Dar uma estrela no GitHub'],
+  id: ['Suka Yejian? Beri bintang agar lebih banyak pembaca menemukan proyek ini.', 'Beri bintang di GitHub'],
+  tr: ['Yejian’ı beğendiniz mi? Bir yıldız, daha fazla okurun projeyi keşfetmesine yardımcı olur.', 'GitHub’da yıldız ver'],
+}
 
 if (copy) {
   const [openReader, downloadApps, webNote, green, greenAlt, appearanceLabel] = webCopy[language]
-  Object.assign(copy, { openReader, downloadApps, webNote, green, greenAlt, bookMotif: bookMotifs[language] })
+  const [starNote, starAction] = starCopy[language]
+  Object.assign(copy, { openReader, downloadApps, webNote, green, greenAlt, bookMotif: bookMotifs[language], starNote, starAction })
   document.documentElement.lang = language
   document.title = copy.pageTitle
   document.querySelector('meta[name="description"]').content = copy.intro
