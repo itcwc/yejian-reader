@@ -1,0 +1,59 @@
+name: macOS test DMGs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/macos-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x64
+            runner: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build test DMG
+        run: npm run build:mac:test -- --${{ matrix.arch }}
+      - name: Verify DMG and packaged app
+        env:
+          ARCH: ${{ matrix.arch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          dmg="release/yejian-v${version}-macos-test-${ARCH}.dmg"
+          hdiutil verify "$dmg"
+          mount="$(mktemp -d)"
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$dmg"
+          trap 'hdiutil detach "$mount"; rmdir "$mount"' EXIT
+          apps=("$mount"/*.app)
+          test "${#apps[@]}" -eq 1
+          app="${apps[0]}"
+          codesign --verify --deep --strict "$app"
+          executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Contents/Info.plist")"
+          expected="$ARCH"
+          if [[ "$ARCH" == x64 ]]; then expected=x86_64; fi
+          test "$(lipo -archs "$app/Contents/MacOS/$executable")" = "$expected"
+          shasum -a 256 "$dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yejian-macos-test-${{ matrix.arch }}
+          path: release/*-macos-test-${{ matrix.arch }}.dmg
+          if-no-files-found: error

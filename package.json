@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "pc": "vite build && electron .",
     "build:pc": "vite build && node scripts/build-windows.mjs",
+    "build:mac:test": "vite build && electron-builder --mac --publish never",
     "build:android": "vite build && node scripts/sync-hybrid.mjs"
   },
   "dependencies": {
@@ -45,6 +46,14 @@
       "target": "nsis",
       "icon": "build/icon.ico",
       "artifactName": "yejian-v${version}-windows-x64.${ext}"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.png",
+      "artifactName": "yejian-v${version}-macos-test-${arch}.${ext}",
+      "sign": "./scripts/sign-macos-test.cjs",
+      "notarize": false,
+      "hardenedRuntime": false
     },
     "nsis": {
       "oneClick": false,
