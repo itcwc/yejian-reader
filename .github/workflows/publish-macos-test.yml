@@ -1,0 +1,73 @@
+name: Publish macOS test DMGs
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful macOS test DMGs workflow run ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-macos-test
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN: ${{ inputs.run_id }}
+    steps:
+      - name: Publish verified DMGs as a pre-release
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]]
+          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN")"
+          jq -e --arg repo "$GITHUB_REPOSITORY" '
+            .conclusion == "success" and .head_branch == "main" and
+            .head_repository.full_name == $repo and
+            .path == ".github/workflows/macos-test.yml"
+          ' <<< "$run" >/dev/null
+          commit="$(jq -r .head_sha <<< "$run")"
+          version="$(gh api "repos/$GITHUB_REPOSITORY/contents/package.json?ref=$commit" --jq .content | base64 -d | jq -er .version)"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          tag="macos-test-v$version"
+
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --pattern 'yejian-macos-test-*' --dir artifacts
+          gh run view "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --log > build.log
+          files=()
+          for arch in arm64 x64; do
+            name="yejian-v${version}-macos-test-${arch}.dmg"
+            file="artifacts/yejian-macos-test-${arch}/$name"
+            expected="$(awk -v file="release/$name" '{ sub(/\r$/, "") } $NF == file && length($(NF-1)) == 64 && $(NF-1) ~ /^[0-9a-f]+$/ { print $(NF-1) }' build.log)"
+            printf '%s  %s\n' "$expected" "$file" | sha256sum --check -
+            files+=("$file")
+          done
+
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            if [[ "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" != true ]]; then
+              echo "The test release already exists: $tag" >&2
+              exit 1
+            fi
+          else
+            cat > notes.md <<EOF
+          页间 macOS 测试版 / Yejian macOS test build
+
+          - Apple Silicon（M 系列）请选择 arm64 DMG。Intel Mac 请选择 x64 DMG。
+          - 打开 DMG，将「页间阅读」拖入「应用程序」。
+          - 这两个包使用临时签名，未经过 Apple 公证，且关闭了 macOS 自动更新。
+          - iPhone 用户可使用[网页版](https://itcwc.github.io/yejian-reader/app/?lang=zh-CN)。
+
+          Both DMGs came from [the same verified GitHub Actions build](https://github.com/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN).
+          EOF
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$commit" \
+              --title "页间 macOS v$version 测试版" --draft --prerelease --latest=false --notes-file notes.md
+          fi
+          gh release upload "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease --latest=false

@@ -9,6 +9,7 @@ on:
       - 'readme/**'
       - 'docs/**'
       - '.github/workflows/release.yml'
+      - '.github/workflows/publish-macos-test.yml'
   workflow_dispatch:
 
 permissions:
