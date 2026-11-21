@@ -38,6 +38,10 @@ jobs:
           version="$(gh api "repos/$GITHUB_REPOSITORY/contents/package.json?ref=$commit" --jq .content | base64 -d | jq -er .version)"
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           tag="macos-test-v$version"
+          if ! tag_commit="$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" || [[ "$tag_commit" != "$commit" ]]; then
+            echo "Push tag $tag at the verified build commit $commit before publishing." >&2
+            exit 1
+          fi
 
           gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --pattern 'yejian-macos-test-*' --dir artifacts
           gh run view "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --log > build.log
@@ -66,7 +70,7 @@ jobs:
 
           Both DMGs came from [the same verified GitHub Actions build](https://github.com/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN).
           EOF
-            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$commit" \
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --verify-tag \
               --title "页间 macOS v$version 测试版" --draft --prerelease --latest=false --notes-file notes.md
           fi
           gh release upload "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --clobber
