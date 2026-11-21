@@ -2,6 +2,12 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.24] - 2026-11-21
+
+### Added
+
+- 提供 Linux x64 AppImage 和 `.deb` 测试包，以及 Apple Silicon 和 Intel 的 macOS DMG 测试包。
+
 ## [0.1.23] - 2026-11-19
 
 ### Changed

@@ -1,6 +1,6 @@
 {
   "name": "yejian-reader",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "private": true,
   "description": "页间 · 跨设备阅读器（Web / PC / Android）",
   "type": "module",
@@ -12,6 +12,7 @@
     "pc": "vite build && electron .",
     "build:pc": "vite build && node scripts/build-windows.mjs",
     "build:mac:test": "vite build && electron-builder --mac --publish never",
+    "build:linux:test": "vite build && electron-builder --linux AppImage deb --x64 --publish never",
     "build:android": "vite build && node scripts/sync-hybrid.mjs"
   },
   "dependencies": {
@@ -54,6 +55,13 @@
       "sign": "./scripts/sign-macos-test.cjs",
       "notarize": false,
       "hardenedRuntime": false
+    },
+    "linux": {
+      "executableName": "yejian-reader",
+      "category": "Office",
+      "icon": "build/icon.png",
+      "maintainer": "itcwc <46277331+itcwc@users.noreply.github.com>",
+      "artifactName": "yejian-v${version}-linux-test-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,

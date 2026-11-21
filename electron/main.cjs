@@ -124,7 +124,7 @@ function broadcastUpdate(state) {
 }
 
 function setupUpdater() {
-  if (!app.isPackaged || process.platform === 'darwin') {
+  if (!app.isPackaged || process.platform !== 'win32') {
     ipcMain.handle('update:check', () => ({ supported: false }))
     ipcMain.handle('update:download', () => ({ ok: false, supported: false }))
     ipcMain.handle('update:install', () => ({ ok: false, supported: false }))

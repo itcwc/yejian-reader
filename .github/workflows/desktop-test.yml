@@ -1,0 +1,106 @@
+name: macOS and Linux test release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/desktop-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-test-release
+  cancel-in-progress: false
+
+jobs:
+  macos:
+    uses: ./.github/workflows/macos-test.yml
+
+  linux:
+    name: Linux x64 test packages
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build:linux:test
+      - name: Verify Linux packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s failglob
+          version="$(node -p "require('./package.json').version")"
+          appimage=(release/yejian-v"$version"-linux-test-*.AppImage)
+          deb=(release/yejian-v"$version"-linux-test-*.deb)
+          test "${#appimage[@]}" -eq 1
+          test "${#deb[@]}" -eq 1
+          test "$(dpkg-deb -f "${deb[0]}" Architecture)" = amd64
+          test "$(dpkg-deb -f "${deb[0]}" Version)" = "$version"
+          dpkg-deb -x "${deb[0]}" deb-root
+          find deb-root -type f -name yejian-reader -exec file {} + | grep 'ELF 64-bit.*x86-64'
+          "${appimage[0]}" --appimage-extract >/dev/null
+          test -x squashfs-root/AppRun
+          file squashfs-root/yejian-reader | grep 'ELF 64-bit.*x86-64'
+          sha256sum "${appimage[0]}" "${deb[0]}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yejian-linux-test-x64
+          path: |
+            release/*-linux-test-*.AppImage
+            release/*-linux-test-*.deb
+          if-no-files-found: error
+
+  publish:
+    name: Publish desktop test release
+    needs: [macos, linux]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: yejian-*-test-*
+          merge-multiple: true
+          path: artifacts
+      - name: Publish the four verified packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s failglob
+          version="$(node -p "require('./package.json').version")"
+          tag="desktop-test-v$version"
+          appimage=(artifacts/yejian-v"$version"-linux-test-*.AppImage)
+          deb=(artifacts/yejian-v"$version"-linux-test-*.deb)
+          test "${#appimage[@]}" -eq 1
+          test "${#deb[@]}" -eq 1
+          files=(
+            "artifacts/yejian-v${version}-macos-test-arm64.dmg"
+            "artifacts/yejian-v${version}-macos-test-x64.dmg"
+            "${appimage[0]}" "${deb[0]}"
+          )
+          for file in "${files[@]}"; do test -s "$file"; done
+          if gh release view "$tag" >/dev/null 2>&1; then
+            draft="$(gh release view "$tag" --json isDraft --jq .isDraft)"
+            if [[ "$draft" != true ]]; then
+              echo "The desktop test release already exists: $tag"
+              exit 0
+            fi
+          elif git ls-remote --exit-code origin "refs/tags/$tag" >/dev/null; then
+            gh release create "$tag" --verify-tag --draft --prerelease --latest=false \
+              --title "页间 v$version macOS / Linux 测试版" \
+              --notes-file ".github/release-notes/$tag.md"
+          else
+            gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --latest=false \
+              --title "页间 v$version macOS / Linux 测试版" \
+              --notes-file ".github/release-notes/$tag.md"
+          fi
+          gh release upload "$tag" "${files[@]}" --clobber
+          gh release edit "$tag" --draft=false --prerelease --latest=false
