@@ -99,7 +99,7 @@ if (copy) {
   document.querySelector('meta[name="description"]').content = copy.intro
   mainNavigation.setAttribute('aria-label', copy.navigationLabel)
   languageNavigation.setAttribute('aria-label', copy.languageLabel)
-  homeLink.textContent = copy.brand
+  homeLink.querySelector('[data-brand-name]').textContent = copy.brand
   document.querySelector('[data-theme-picker]').setAttribute('aria-label', appearanceLabel)
   for (const element of document.querySelectorAll('[data-copy]')) {
     element.textContent = copy[element.dataset.copy]
