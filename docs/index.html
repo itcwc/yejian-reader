@@ -3,25 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An open-source reader for browsers, Android and Windows, with offline reading and optional WebDAV sync.">
+  <meta name="description" content="An open-source reader for your own books, with local storage and optional WebDAV sync.">
   <meta name="theme-color" content="#f2efe6">
   <link rel="canonical" href="https://itcwc.github.io/yejian-reader/">
   <link rel="icon" type="image/png" href="./favicon.png">
   <meta property="og:title" content="Yejian Reader · Open-source local reader">
-  <meta property="og:description" content="Read EPUB, PDF, TXT and more in your browser, on Windows and Android, and sync using your own WebDAV server.">
+  <meta property="og:description" content="Read EPUB, PDF, TXT and more on your devices, with optional sync through your own WebDAV server.">
   <meta property="og:image" content="https://itcwc.github.io/yejian-reader/screenshots/en/home-desktop-paper.webp">
   <title>Yejian Reader · Open-source local reader</title>
   <link rel="stylesheet" href="./theme-tokens.css">
   <link rel="stylesheet" href="./site.css">
 </head>
 <body>
-  <header>
-    <div class="wrap nav">
+  <header class="site-header">
+    <div class="wrap header-row">
       <a class="brand" href="./" data-home>
-        <span class="brand-seal" aria-hidden="true">页</span>
-        <span data-brand-name>Yejian Reader</span>
+        <img src="./favicon.png" alt="" width="42" height="42">
+        <span><strong data-copy="brand">Yejian Reader</strong><small data-copy="positioning">Local-first reader</small></span>
       </a>
-      <nav aria-label="Main navigation"><a href="#features" data-copy="features">Features</a><a href="#download" data-copy="download">Download</a><a href="https://github.com/itcwc/yejian-reader">GitHub</a></nav>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#features" data-copy="features">Features</a>
+        <a href="#download" data-copy="download">Downloads</a>
+        <a class="button primary" href="./app/?lang=en" data-reader-link data-copy="openReader">Open web reader</a>
+      </nav>
     </div>
     <nav class="wrap languages" aria-label="Language">
       <a href="?lang=zh-CN" lang="zh-CN" hreflang="zh-CN">简体中文</a>
@@ -33,63 +37,92 @@
     </nav>
   </header>
   <main>
-    <section class="wrap hero">
-      <span class="hero-watermark" data-copy="bookMotif" aria-hidden="true">Books</span>
-      <div>
-        <h1 data-copy="title">Your books. Your own shelf.</h1>
-        <p data-copy="intro">Yejian is an open-source, local-first reader for web, Windows and Android. Read EPUB, PDF, TXT and more, and sync your books and reading progress through your own WebDAV server.</p>
-        <div class="actions">
-          <a class="button primary" href="./app/?lang=en" data-reader-link data-copy="openReader">Open web reader</a>
-          <a class="button secondary" href="#download" data-copy="downloadApps">Download the app</a>
-        </div>
-        <p class="web-note" data-copy="webNote">Open your own books in the browser. Your library and reading progress are saved on this device.</p>
-        <aside class="star-invite">
-          <p data-copy="starNote">Enjoying Yejian? A star helps more readers discover the project.</p>
-          <a class="button secondary" href="https://github.com/itcwc/yejian-reader"><span aria-hidden="true">☆</span> <span data-copy="starAction">Star on GitHub</span></a>
-        </aside>
+    <section class="wrap hero" aria-labelledby="hero-title">
+      <h1 id="hero-title" data-copy="title">Your books. Your own shelf.</h1>
+      <p class="hero-intro" data-copy="intro">Yejian is an open-source reader for your own ebooks, PDFs and comics. Open a book in your browser or install the app, then pick up where you left off.</p>
+      <div class="actions">
+        <a class="button primary" href="./app/?lang=en" data-reader-link data-copy="openReader">Open web reader</a>
+        <a class="button secondary" href="#preview" data-copy="explore">See Yejian in action</a>
       </div>
-      <figure class="preview">
-        <div class="preview-frames">
-          <a href="screenshots/en/home-desktop-paper.webp" data-preview="desktop">
-            <img src="screenshots/en/home-desktop-paper.webp" width="1400" height="950" alt="Desktop library">
-          </a>
-          <a href="screenshots/en/home-mobile-paper.webp" data-preview="mobile">
-            <img src="screenshots/en/home-mobile-paper.webp" width="513" height="1063" alt="Mobile web library">
-          </a>
-        </div>
-        <figcaption class="switcher" data-theme-picker aria-label="Appearance">
-          <button type="button" aria-pressed="true" data-theme-choice="paper" data-copy="paper">Paper</button>
-          <button type="button" aria-pressed="false" data-theme-choice="green" data-copy="green">Soft green</button>
-          <button type="button" aria-pressed="false" data-theme-choice="night" data-copy="night">Night</button>
-        </figcaption>
-      </figure>
+      <ul class="hero-benefits" role="list">
+        <li data-copy="noAccount">No account required</li>
+        <li data-copy="localStorage">Local library and progress</li>
+        <li data-copy="openSource">Open source</li>
+      </ul>
     </section>
-    <section class="features" id="features">
-      <div class="wrap">
-        <h2 data-copy="featuresTitle">Read your way</h2>
-        <div class="feature-list">
-          <article><h3 data-copy="formatsTitle">Open your books</h3><p data-copy="formats">Open EPUB, PDF, TXT, Markdown, DOCX and CBZ comics directly. Keep reading offline.</p></article>
-          <article><h3 data-copy="appearanceTitle">Make reading comfortable</h3><p data-copy="appearance">Choose a paper, soft green or night theme. Adjust font size, line spacing and text width, and read by page or continuous scrolling.</p></article>
-          <article><h3 data-copy="syncTitle">Pick up on another device</h3><p data-copy="sync">Your reading position is saved locally. Set up WebDAV to sync across devices, or export a local backup of books, covers and progress.</p></article>
+
+    <section class="wrap showcase" id="preview" aria-labelledby="preview-title">
+      <div class="section-heading"><h2 id="preview-title" data-copy="previewTitle">A look inside Yejian</h2></div>
+      <div class="showcase-frame">
+        <div class="showcase-bar" data-preview-controls hidden>
+          <div class="tabs" role="tablist" aria-labelledby="preview-title">
+            <button type="button" id="tab-library" role="tab" aria-selected="true" aria-controls="panel-library" data-tab="library" data-copy="libraryTab">Bookshelf</button>
+            <button type="button" id="tab-reader" role="tab" aria-selected="false" aria-controls="panel-reader" tabindex="-1" data-tab="reader" data-copy="readerTab">Reader</button>
+            <button type="button" id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1" data-tab="settings" data-copy="settingsTab">Settings</button>
+          </div>
+          <div class="themes" role="group" data-theme-picker aria-label="Site theme">
+            <button type="button" data-theme-choice="paper" aria-pressed="true" data-copy="paper">Paper</button>
+            <button type="button" data-theme-choice="green" aria-pressed="false" data-copy="green">Soft green</button>
+            <button type="button" data-theme-choice="night" aria-pressed="false" data-copy="night">Night</button>
+          </div>
+        </div>
+        <div class="library-panel" id="panel-library" role="tabpanel" aria-labelledby="tab-library" tabindex="0">
+          <figure class="desktop-shot">
+            <a href="./screenshots/en/home-desktop-paper.webp" data-preview="desktop">
+              <img src="./screenshots/en/home-desktop-paper.webp" alt="Yejian desktop bookshelf" width="1400" height="950">
+              <span class="shot-caption"><span data-copy="desktop">Desktop bookshelf</span><span class="view-image" data-copy="viewImage">View full size</span></span>
+            </a>
+          </figure>
+          <figure class="mobile-shot">
+            <a href="./screenshots/en/home-mobile-paper.webp" data-preview="mobile">
+              <img src="./screenshots/en/home-mobile-paper.webp" alt="Yejian mobile web bookshelf" width="513" height="1063">
+              <span class="shot-caption"><span data-copy="mobile">Mobile web bookshelf</span><span class="view-image" data-copy="viewImage">View full size</span></span>
+            </a>
+          </figure>
+        </div>
+        <div class="detail-panel" id="panel-reader" role="tabpanel" aria-labelledby="tab-reader" tabindex="0" hidden>
+          <div><h3 data-copy="appearanceTitle">Make reading comfortable</h3><p data-copy="appearance">Choose a paper, soft green or night theme. Adjust font size, line spacing and text width, and read by page or continuous scrolling.</p></div>
+          <figure><a data-preview="reader"><img width="645" height="1320" alt="Yejian reading view" loading="lazy"><span class="shot-caption"><span data-copy="readerTab">Reader</span><span class="view-image" data-copy="viewImage">View full size</span></span></a></figure>
+        </div>
+        <div class="detail-panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" tabindex="0" hidden>
+          <div><h3 data-copy="settingsTab">Settings</h3><p data-copy="settingsDetail">Choose an interface language and adjust the reader’s appearance from Settings.</p></div>
+          <figure><a data-preview="settings"><img width="645" height="1320" alt="Yejian settings" loading="lazy"><span class="shot-caption"><span data-copy="settingsTab">Settings</span><span class="view-image" data-copy="viewImage">View full size</span></span></a></figure>
         </div>
       </div>
     </section>
-    <section class="downloads wrap" id="download">
-      <h2 data-copy="downloadTitle">Download Yejian</h2>
+
+    <section class="wrap section" id="features" aria-labelledby="features-title">
+      <div class="section-heading"><h2 id="features-title" data-copy="featuresTitle">Read your way</h2></div>
+      <div class="feature-list">
+        <article class="card"><h3 data-copy="formatsTitle">Open your books</h3><p data-copy="formats">Open EPUB, PDF, TXT, Markdown, DOCX and CBZ comics directly. Keep reading offline.</p><a href="#preview" data-preview-jump="library" data-copy="libraryTab">Bookshelf</a></article>
+        <article class="card"><h3 data-copy="appearanceTitle">Make reading comfortable</h3><p data-copy="appearance">Choose a paper, soft green or night theme. Adjust font size, line spacing and text width, and read by page or continuous scrolling.</p><a href="#preview" data-preview-jump="reader" data-copy="readerTab">Reader</a></article>
+        <article class="card"><h3 data-copy="syncTitle">Pick up on another device</h3><p data-copy="sync">Set up your own WebDAV storage to sync books and reading progress between devices.</p><a href="https://github.com/itcwc/yejian-reader#webdav-setup" data-copy="syncGuide">WebDAV setup guide</a></article>
+      </div>
+    </section>
+
+    <section class="wrap" aria-labelledby="data-title">
+      <div class="trust">
+        <h2 id="data-title" data-copy="dataTitle">Your library stays on your device</h2>
+        <div><p data-copy="dataDetail">Books and progress are stored locally. Export a library backup before clearing browser data or moving to another browser.</p><p data-copy="syncDetail">Sync is optional and requires your own WebDAV server. For browser sync, the server must allow cross-origin requests or be available through a same-origin proxy.</p></div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="download" aria-labelledby="download-title">
+      <div class="section-heading"><h2 id="download-title" data-copy="downloadTitle">Get Yejian</h2><a href="https://github.com/itcwc/yejian-reader/releases" data-copy="releases">All releases</a></div>
       <div class="platforms">
-        <article class="platform"><h3>Android</h3><p data-copy="android">Android 7.0 or later. Export a library backup before migrating from a debug build to the signed release.</p><a href="https://github.com/itcwc/yejian-reader/releases/latest" data-copy="androidLink">Get the Android APK and migration guide</a></article>
-        <article class="platform"><h3>Windows</h3><p data-copy="windows">Desktop installer for 64-bit Windows. Choose an installer language before setup.</p><a href="https://github.com/itcwc/yejian-reader/releases/latest" data-copy="windowsLink">Get the Windows x64 installer</a></article>
+        <article class="card web-card"><h3>Web</h3><p data-copy="webNote">Open your books directly in the browser, including on iPhone and iPad.</p><a class="button primary" href="./app/?lang=en" data-reader-link data-copy="openReader">Open web reader</a></article>
+        <article class="card"><h3>Windows</h3><p data-copy="windows">Desktop installer for 64-bit Windows. Choose an installer language before setup.</p><a href="https://github.com/itcwc/yejian-reader/releases/latest" data-copy="windowsLink">Get the Windows x64 installer</a></article>
+        <article class="card"><h3>Android</h3><p data-copy="android">Android 7.0 or later. Export a library backup before migrating from a debug build to the signed release.</p><a href="https://github.com/itcwc/yejian-reader/releases/latest" data-copy="androidLink">Get the Android APK and migration guide</a></article>
+        <article class="card"><h3>macOS / Linux</h3><p data-copy="testDetail">Test builds are available for Apple Silicon and Intel Macs, and as AppImage and .deb packages for Linux x64.</p><a href="https://github.com/itcwc/yejian-reader/releases/tag/desktop-test-v0.1.24" data-copy="testBuilds">Get the desktop test builds</a></article>
       </div>
+      <aside class="star-invite"><p data-copy="starNote">If Yejian helps you, a GitHub star helps other readers discover it.</p><a href="https://github.com/itcwc/yejian-reader" data-copy="starAction">Star on GitHub</a></aside>
     </section>
   </main>
-  <footer>
-    <div class="wrap">
+  <footer class="site-footer">
+    <div class="wrap footer-row">
       <span data-copy="license">Yejian Reader · MIT licensed</span>
-      <span>
-        <span data-copy="otherProjects">I also work on other open-source projects</span>
-        <a href="https://itcwc.github.io/shijian-workbench/" hreflang="zh-CN"><span lang="zh-CN">事间</span> <span data-copy="chineseOnly">(Chinese only)</span></a>
-      </span>
-      <a href="https://github.com/itcwc/yejian-reader/issues" data-copy="feedback">Report an issue</a>
+      <div><a href="https://github.com/itcwc/yejian-reader" data-copy="source">Source code</a><a href="https://github.com/itcwc/yejian-reader/issues" data-copy="feedback">Report an issue</a></div>
+      <span><span data-copy="otherProjects">I also work on other open-source projects</span> <a href="https://itcwc.github.io/shijian-workbench/" hreflang="zh-CN"><span lang="zh-CN">事间</span> <span data-copy="chineseOnly">(Chinese only)</span></a></span>
     </div>
   </footer>
   <script type="module" src="./languages.js"></script>
