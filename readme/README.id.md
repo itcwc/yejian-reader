@@ -11,8 +11,8 @@ Yejian adalah aplikasi baca gratis dan bersumber terbuka yang menyimpan pustaka 
 Saat pertama membuka aplikasi Android, pilih bahasa. Anda dapat mengubahnya di **Pengaturan → Bahasa aplikasi**.
 
 <p align="center">
-  <img src="../docs/screenshots/id/home-desktop-paper.webp" width="70%" alt="Pustaka desktop">
-  <img src="../docs/screenshots/id/home-mobile-paper.webp" width="25%" alt="Pustaka web seluler">
+  <img src="../site/screenshots/id/home-desktop-paper.webp" width="70%" alt="Pustaka desktop">
+  <img src="../site/screenshots/id/home-mobile-paper.webp" width="25%" alt="Pustaka web seluler">
 </p>
 
 ## Fitur

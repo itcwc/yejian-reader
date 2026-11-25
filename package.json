@@ -4,7 +4,7 @@
   "private": true,
   "description": "页间 · 跨设备阅读器（Web / PC / Android）",
   "type": "module",
-  "main": "electron/main.cjs",
+  "main": "desktop/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -41,7 +41,7 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "desktop/**/*"
     ],
     "win": {
       "target": "nsis",

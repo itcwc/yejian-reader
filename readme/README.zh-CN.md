@@ -20,8 +20,8 @@
 安卓首次打开时选择语言，之后可在 **设置 → 界面语言** 中切换。
 
 <p align="center">
-  <img src="../docs/screenshots/zh-CN/home-desktop-paper.webp" width="70%" alt="桌面书架首页">
-  <img src="../docs/screenshots/zh-CN/home-mobile-paper.webp" width="25%" alt="手机网页版书架首页">
+  <img src="../site/screenshots/zh-CN/home-desktop-paper.webp" width="70%" alt="桌面书架首页">
+  <img src="../site/screenshots/zh-CN/home-mobile-paper.webp" width="25%" alt="手机网页版书架首页">
 </p>
 
 ## 特性
@@ -142,16 +142,17 @@ location ^~ /dav/ {
 ## 项目结构
 
 ```
-src/
+web/src/
   core/          # IndexedDB、格式注册、元数据/封面、文本解析、WebDAV、同步
   readers/       # EPUB / PDF / 流式文本 / 漫画 / HTML 阅读引擎
   views/         # 书架、阅读器、同步、设置
   components/    # 书架卡片、导航、弹层、Toast 等
   stores/        # Pinia：书架、偏好、同步、提示
   styles/        # 三主题设计变量与基础样式
-electron/        # 桌面主进程与 preload
+desktop/         # 桌面主进程与 preload
 android-uniapp/  # uni-app 壳（HBuilderX 打包，web-view 加载 hybrid 产物）
 android-webview/ # 原生 WebView 壳，CI 用于直接产出 APK
+site/            # 产品宣传页与截图
 scripts/         # 构建产物同步到 Android hybrid 目录
 ```
 

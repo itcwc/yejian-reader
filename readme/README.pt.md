@@ -11,8 +11,8 @@ O Yejian é um leitor gratuito e de código aberto que guarda a biblioteca no di
 Ao abrir a aplicação Android pela primeira vez, escolha o idioma. Para o alterar mais tarde, abra **Definições → Idioma da aplicação**.
 
 <p align="center">
-  <img src="../docs/screenshots/pt/home-desktop-paper.webp" width="70%" alt="Biblioteca no computador">
-  <img src="../docs/screenshots/pt/home-mobile-paper.webp" width="25%" alt="Biblioteca web no telemóvel">
+  <img src="../site/screenshots/pt/home-desktop-paper.webp" width="70%" alt="Biblioteca no computador">
+  <img src="../site/screenshots/pt/home-mobile-paper.webp" width="25%" alt="Biblioteca web no telemóvel">
 </p>
 
 ## Funcionalidades

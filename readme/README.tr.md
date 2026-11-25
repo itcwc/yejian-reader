@@ -11,8 +11,8 @@ Yejian, kitaplığınızı cihazınızda saklayan ücretsiz ve açık kaynaklı 
 Android uygulamasını ilk açtığınızda dilinizi seçin. Daha sonra **Ayarlar → Uygulama dili** bölümünden değiştirebilirsiniz.
 
 <p align="center">
-  <img src="../docs/screenshots/tr/home-desktop-paper.webp" width="70%" alt="Masaüstü kitaplığı">
-  <img src="../docs/screenshots/tr/home-mobile-paper.webp" width="25%" alt="Mobil web kitaplığı">
+  <img src="../site/screenshots/tr/home-desktop-paper.webp" width="70%" alt="Masaüstü kitaplığı">
+  <img src="../site/screenshots/tr/home-mobile-paper.webp" width="25%" alt="Mobil web kitaplığı">
 </p>
 
 ## Özellikler

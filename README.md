@@ -20,8 +20,8 @@ Yejian runs on **Web / Windows / Android**: open it in a browser, package it wit
 On Android, choose a language on first launch. You can change it later in **Settings → App language**.
 
 <p align="center">
-  <img src="docs/screenshots/en/home-desktop-paper.webp" width="70%" alt="Desktop library">
-  <img src="docs/screenshots/en/home-mobile-paper.webp" width="25%" alt="Mobile web library">
+  <img src="site/screenshots/en/home-desktop-paper.webp" width="70%" alt="Desktop library">
+  <img src="site/screenshots/en/home-mobile-paper.webp" width="25%" alt="Mobile web library">
 </p>
 
 ## Features
@@ -142,16 +142,17 @@ The directory must be writable by the Nginx user (e.g. `www`), otherwise `MKCOL`
 ## Project structure
 
 ```
-src/
+web/src/
   core/          # IndexedDB, format registry, metadata/covers, parsers, WebDAV, sync
   readers/       # EPUB / PDF / flow-text / comic / HTML engines
   views/         # library, reader, sync, settings
   components/    # book cover, rail, mobile nav, modal, toast
   stores/        # Pinia: library, preferences, sync, toasts
   styles/        # theme tokens and base styles
-electron/        # desktop main process and preload
+desktop/         # desktop main process and preload
 android-uniapp/  # uni-app shell for HBuilderX builds
 android-webview/ # native WebView shell used by CI to produce the APK
+site/            # promotional site and screenshots
 scripts/         # copy build output into the Android hybrid folders
 ```
 

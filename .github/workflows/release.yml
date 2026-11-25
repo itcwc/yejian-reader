@@ -7,7 +7,7 @@ on:
     paths-ignore:
       - 'README*.md'
       - 'readme/**'
-      - 'docs/**'
+      - 'site/**'
       - '.github/workflows/release.yml'
       - '.github/workflows/publish-macos-test.yml'
   workflow_dispatch:

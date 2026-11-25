@@ -11,8 +11,8 @@
 Android ऐप पहली बार खोलने पर भाषा चुनें। बाद में इसे **सेटिंग्स → ऐप की भाषा** में बदल सकते हैं।
 
 <p align="center">
-  <img src="../docs/screenshots/hi/home-desktop-paper.webp" width="70%" alt="डेस्कटॉप लाइब्रेरी">
-  <img src="../docs/screenshots/hi/home-mobile-paper.webp" width="25%" alt="मोबाइल वेब लाइब्रेरी">
+  <img src="../site/screenshots/hi/home-desktop-paper.webp" width="70%" alt="डेस्कटॉप लाइब्रेरी">
+  <img src="../site/screenshots/hi/home-mobile-paper.webp" width="25%" alt="मोबाइल वेब लाइब्रेरी">
 </p>
 
 ## सुविधाएँ
