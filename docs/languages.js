@@ -3,6 +3,7 @@ const keys = [
   'featuresTitle', 'formatsTitle', 'formats', 'appearanceTitle', 'appearance', 'syncTitle', 'sync',
   'downloadTitle', 'android', 'androidLink', 'windows', 'windowsLink', 'license', 'feedback',
   'brand', 'navigationLabel', 'languageLabel', 'paperAlt', 'nightAlt', 'pageTitle',
+  'otherProjects', 'chineseOnly',
 ]
 
 const translations = {
@@ -16,6 +17,7 @@ const translations = {
     '下载页间', 'Android 7.0 及以上。首次从调试版迁移到正式签名版前，请先导出书库备份。',
     '获取安卓安装包与迁移说明', '适用于 64 位 Windows，可在开始安装前选择语言。', '获取 Windows x64 安装包',
     '页间阅读 · MIT 开源', '反馈问题', '页间阅读', '主导航', '语言', '页间阅读器的白纸主题', '页间阅读器的夜读主题', '页间阅读 · 开源本地阅读器',
+    '我还在做其他开源产品', '（仅中文）',
   ],
   hi: [
     'सुविधाएँ', 'डाउनलोड', 'आपकी किताबें। आपकी अपनी लाइब्रेरी।',
@@ -27,6 +29,7 @@ const translations = {
     'येजियान डाउनलोड करें', 'Android 7.0 या बाद का संस्करण। डीबग बिल्ड से हस्ताक्षरित रिलीज़ पर जाने से पहले लाइब्रेरी का बैकअप निर्यात करें।',
     'Android APK और माइग्रेशन निर्देश', '64-बिट Windows के लिए इंस्टॉलर। इंस्टॉलेशन से पहले भाषा चुनें।', 'Windows x64 इंस्टॉलर डाउनलोड करें',
     'येजियान रीडर · MIT लाइसेंस', 'समस्या की रिपोर्ट करें', 'येजियान रीडर', 'मुख्य नेविगेशन', 'भाषा', 'पेपर थीम में येजियान रीडर', 'नाइट थीम में येजियान रीडर', 'येजियान रीडर · ओपन-सोर्स रीडर',
+    'मैं दूसरे ओपन-सोर्स प्रोजेक्ट्स पर भी काम करता हूँ', '(केवल चीनी में)',
   ],
   pt: [
     'Funcionalidades', 'Transferir', 'Os seus livros na sua própria estante.',
@@ -38,6 +41,7 @@ const translations = {
     'Transferir o Yejian', 'Android 7.0 ou posterior. Exporte uma cópia de segurança antes de migrar da versão de depuração para a versão assinada.',
     'Obter o APK e as instruções de migração', 'Instalador para Windows de 64 bits. Escolha o idioma antes de instalar.', 'Obter o instalador Windows x64',
     'Yejian Reader · Licença MIT', 'Comunicar um problema', 'Yejian Reader', 'Navegação principal', 'Idioma', 'Yejian Reader com o tema papel', 'Yejian Reader com o tema noturno', 'Yejian Reader · Leitor local de código aberto',
+    'Também trabalho noutros projetos de código aberto', '(apenas em chinês)',
   ],
   id: [
     'Fitur', 'Unduh', 'Buku Anda. Rak Anda sendiri.',
@@ -49,6 +53,7 @@ const translations = {
     'Unduh Yejian', 'Android 7.0 atau lebih baru. Ekspor cadangan pustaka sebelum beralih dari versi debug ke rilis bertanda tangan.',
     'Unduh APK dan baca panduan migrasi', 'Pemasang untuk Windows 64-bit. Pilih bahasa sebelum memasang.', 'Unduh pemasang Windows x64',
     'Yejian Reader · Lisensi MIT', 'Laporkan masalah', 'Yejian Reader', 'Navigasi utama', 'Bahasa', 'Yejian Reader dengan tema kertas', 'Yejian Reader dengan tema malam', 'Yejian Reader · Aplikasi baca lokal bersumber terbuka',
+    'Saya juga mengerjakan proyek sumber terbuka lainnya', '(hanya dalam bahasa Mandarin)',
   ],
   tr: [
     'Özellikler', 'İndir', 'Kitaplarınız kendi kitaplığınızda.',
@@ -60,6 +65,7 @@ const translations = {
     'Yejian’ı indir', 'Android 7.0 ve üzeri. Hata ayıklama sürümünden imzalı sürüme geçmeden önce kitaplığınızı yedekleyin.',
     'Android APK’sı ve geçiş kılavuzu', '64 bit Windows için yükleyici. Kurulumdan önce dilinizi seçin.', 'Windows x64 yükleyicisini indir',
     'Yejian Reader · MIT lisansı', 'Sorun bildir', 'Yejian Reader', 'Ana gezinme', 'Dil', 'Kâğıt temasında Yejian Reader', 'Gece temasında Yejian Reader', 'Yejian Reader · Açık kaynaklı yerel okuyucu',
+    'Başka açık kaynak projeler üzerinde de çalışıyorum', '(yalnızca Çince)',
   ],
 }
 
